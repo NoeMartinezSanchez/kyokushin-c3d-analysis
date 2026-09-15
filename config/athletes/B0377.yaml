@@ -1,0 +1,46 @@
+# Configuración por atleta B0377 (segundo atleta, FASE 1.7/1.8A).
+# Evidencia obtenida de C3D en FASE 1.7 (no inventada).
+# S02/S03/S05: RTOE validada (3 ejecuciones E01).
+# S04: LTOE (pierna izquierda, evidencia LTOE vmax ~9513 vs RTOE ~4349).
+# S01: RFIN existe pero baseline alto (~599 mm/s); umbral por definir
+
+athlete_id: B0377
+
+metadata:
+  data_dir: atletas/B0377         # relativo a ROOT (atleta en carpeta atletas/)
+  sampling_rate: 250.0            # observado en C3D (fuente real = el archivo)
+  units: mm                        # observado en C3D
+
+techniques:
+  S01:
+    signal: RFIN
+    laterality: bilateral
+    joints_side: R
+    movement: punch
+    thresholds:
+      status: NEEDS_VALIDATION
+      notes: "baseline ~599 mm/s vs ~78 en B0367; umbral por derivar (ver FASE 1.8A S01)"
+  S02:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S03:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S04:
+    signal: LTOE
+    laterality: left
+    joints_side: L
+    movement: kick
+  S05:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+
+validation:
+  status: provisional
+  notes: "S02/S03/S05 validadas; S04-LTOE y S01 umbral req. confirmación con T02/E02. 250 Hz vs 200 Hz no normalizado todavía."

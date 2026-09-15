@@ -1,0 +1,7 @@
+problema,objetivo,features,modelo,leakage,muestra_necesaria,viable_con_actual
+Clasificación de técnica (S01..S05),técnica (5 clases),"features F7 (temporal, cinemática, articular) por ejecución",RandomForest / GradientBoosting / MLP,si se mezclan trials del mismo atleta entre train/test,>= 100 ejecuciones/clase; viable con dataset completo (5 tandas),"parcial — solo B0367 no da generalización, sirve como demo de framework"
+Clasificación de condición (air/shield/defender),E01/E02/E04 (3 clases),"velocidad pico, altura de rodilla, distancia al objetivo (Tarcza), duración",SVM / LogisticRegression,mismo atleta,~ 30-60/condición,"sí, conceptualmente sobre B0367"
+Clasificación nivel atleta (beginner vs advanced),nivel (2 clases),features F7,ensemble + GroupKFold / LOSO,MUY ALTO: los trials del mismo atleta aparecen en train y test — usar división por participante,>= 20 atletas por grupo para algo serio; mejor 50+,NO con B0367 (1 atleta) — necesario dataset completo
+Clustering de patrones de movimiento,agrupar ejecuciones similares (sin etiqueta),features F7 + curvas DTW-k,k-means / HDBSCAN sobre embedding (t-SNE),n/a,>= 50 ejecuciones,"sí, exploratorio sobre B0367"
+Anomaly detection (ejecuciones atípicas),score de anormalidad por ejecución,features F7 / distancias DTW,IsolationForest / OneClassSVM,n/a,>= 30 ejecuciones baseline,"sí, sobre B0367 (dentro-atleta)"
+Similarity search,recuperar ejecuciones biomecánicamente similares,curvas normalizadas + DTW,kNN + DTW / index vectorial,n/a,>= 100 ejecuciones indexadas,"sí, sobre el set local (26 archivos)"

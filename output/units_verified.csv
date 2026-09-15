@@ -1,0 +1,6 @@
+athlete_id,source_file,sampling_rate_hz,position_unit,angle_unit,force_unit,moment_unit,power_unit,analog_used,fp_used
+B0367,2017-01-31-B0367-S01-E01-T01.c3d,200.0,mm,deg,N,Nmm,W,0,0
+B0367,2017-01-31-B0367-S02-E01-T01.c3d,200.0,mm,deg,N,Nmm,W,0,0
+B0367,2017-01-31-B0367-S04-E01-T01.c3d,200.0,mm,deg,N,Nmm,W,0,0
+B0367,2017-01-31-B0367-S04-E02-T01.c3d,200.0,mm,deg,N,Nmm,W,0,0
+B0367,2017-01-31-B0367-S04-E04-T01.c3d,200.0,mm,deg,N,Nmm,W,0,0

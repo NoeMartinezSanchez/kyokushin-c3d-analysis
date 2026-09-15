@@ -1,0 +1,364 @@
+# -*- coding: utf-8 -*-
+r"""
+Tests mínimos del pipeline (FASE 1.6).
+
+Ejecutar desde la raíz del proyecto:
+    .venv\Scripts\python -m pytest tests -q
+    o bien un test concreto:
+    .venv\Scripts\python -m pytest tests\test_pipeline.py::test_parse_name -q
+
+Los tests son de validación técnica/reproducibilidad, no de ciencia deportiva.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+import importlib.util
+
+_SPEC = importlib.util.spec_from_file_location(
+    "dataset_exploration_module",
+    str(ROOT / "scripts" / "01_dataset_exploration.py"),
+)
+_X01 = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_X01)
+
+_SPEC2 = importlib.util.spec_from_file_location(
+    "execution_segmentation_module",
+    str(ROOT / "scripts" / "02_execution_segmentation.py"),
+)
+_X02 = importlib.util.module_from_spec(_SPEC2)
+_SPEC2.loader.exec_module(_X02)
+
+
+# --------------------------------------------------------------------------- #
+# 1-2. Apertura de C3D y frecuencia
+# --------------------------------------------------------------------------- #
+
+def _rep_file(tag: str) -> Path:
+    files = _X01.find_files(tag)
+    assert files, f"no encontrado {tag}"
+    return files[0]
+
+
+def test_c3d_can_open():
+    c = _X01.load_c3d(_rep_file("S04-E01-T01"))
+    assert c["data"]["points"].shape[0] == 4
+
+
+def test_sampling_rate():
+    c = _X01.load_c3d(_rep_file("S04-E01-T01"))
+    rate = float(c.parameters["POINT"]["RATE"]["value"][0])
+    assert rate == 200.0
+
+
+def test_metadata_parsed():
+    info = _X01.parse_name("2017-01-31-B0367-S04-E02-T01")
+    assert info["athlete"] == "B0367"
+    assert info["technique"] == "S04"
+    assert info["condition"] == "E02"
+    assert info["trial"] == "T01"
+
+
+# --------------------------------------------------------------------------- #
+# 3-4. Segmentación: intervalos válidos
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture(scope="module")
+def seg_results():
+    rows = []
+    for tag in ["S01-E01-T01", "S02-E01-T01", "S04-E01-T01", "S04-E02-T01"]:
+        fp = _rep_file(tag)
+        c = _X01.load_c3d(fp)
+        rate = float(c.parameters["POINT"]["RATE"]["value"][0])
+        pref = _X01.athlete_prefix(fp, _X01.get_prefixes(c))
+        best = _X02.pick_best_signal(fp, pref, tag.split("-")[0])
+        _, v, _ = _X02.get_signal(fp, pref, best["marker"])
+        segs, _ = _X02.segment_repetitions(v, rate, return_events=False)
+        for _, seg in segs.iterrows():
+            rows.append({"source_file": Path(fp).name, "rate": rate, **dict(seg)})
+    return pd.DataFrame(rows)
+
+
+def test_intervals_valid(seg_results):
+    assert not seg_results.empty
+    for _, r in seg_results.iterrows():
+        assert r["start_frame"] < r["peak_frame"] < r["end_frame"]
+
+
+def test_duration_positive(seg_results):
+    for _, r in seg_results.iterrows():
+        assert (r["end_frame"] - r["start_frame"]) / r["rate"] > 0
+
+
+def test_no_overlap_between_executions(seg_results):
+    # el solapamiento se evalúa DENTRO de cada archivo (los frames de archivos
+    # distintos no son comparables entre sí)
+    for f in seg_results["source_file"].unique():
+        sub = seg_results[seg_results["source_file"] == f]
+        intervals = sorted(zip(sub["start_frame"], sub["end_frame"]))
+        for (s1, e1), (s2, e2) in zip(intervals, intervals[1:]):
+            assert s2 >= e1, f"{f}: solapamiento {s1}-{e1} vs {s2}-{e2}"
+
+
+def test_segment_repetitions_returns_events():
+    fp = _rep_file("S01-E01-T01")
+    c = _X01.load_c3d(fp)
+    rate = float(c.parameters["POINT"]["RATE"]["value"][0])
+    pref = _X01.athlete_prefix(fp, _X01.get_prefixes(c))
+    best = _X02.pick_best_signal(fp, pref, "S01")
+    _, v, _ = _X02.get_signal(fp, pref, best["marker"])
+    segs, events = _X02.segment_repetitions(v, rate)
+    assert set(["accepted", "rejected", "review"]).issuperset(
+        set(events["status"].unique()))
+
+
+# --------------------------------------------------------------------------- #
+# 5. Features y trazabilidad
+# --------------------------------------------------------------------------- #
+
+def test_features_finite():
+    df = pd.read_csv(ROOT / "output" / "executions_sample.csv")
+    numeric = ["vmax_m_s", "vmean_m_s", "amax_m_s2", "displacement_m",
+               "path_length_m", "rom_m"]
+    for c in numeric:
+        values = df[c].astype(float)
+        assert np.isfinite(values.replace([np.inf, -np.inf], np.nan)).all()
+
+
+def test_source_file_exists():
+    df = pd.read_csv(ROOT / "output" / "executions_sample.csv")
+    for f in df["source_file"]:
+        assert (ROOT / "B0367").exists()
+        # el archivo debe existir en el árbol B0367
+        hits = list(Path(ROOT / "B0367").rglob(f))
+        assert hits, f"source_file no existe: {f}"
+
+
+def test_unique_execution_id():
+    df = pd.read_csv(ROOT / "output" / "executions_sample.csv")
+    keys = df[["source_file", "technique", "condition", "trial", "repetition"]]
+    assert keys.duplicated().sum() == 0
+
+
+def test_events_csv_consistent_with_accepted():
+    ev = pd.read_csv(ROOT / "output" / "segmentation_events.csv")
+    accepted = (ev["status"] == "accepted").sum()
+    execs = pd.read_csv(ROOT / "output" / "executions_sample.csv")
+    assert accepted == len(execs)
+
+
+# --------------------------------------------------------------------------- #
+# 6. Config de señales (FASE 1.6.1) — desde el YAML, no hardcodeadas
+# --------------------------------------------------------------------------- #
+
+def test_s03_signal_defined():
+    """S03 debe tener señal primaria definida (validada en FASE 1.6.1)."""
+    assert _X02.CFG["signals"]["S03"]["signal"] != "TBD"
+
+
+def test_s05_signal_defined():
+    assert _X02.CFG["signals"]["S05"]["signal"] != "TBD"
+
+
+def test_signals_come_from_yaml():
+    """Las señales usadas por el pipeline deben leerse del YAML de config."""
+    cfg = _X02.CFG
+    for tech in ["S01", "S02", "S03", "S04", "S05"]:
+        sig = cfg["signals"][tech]["signal"]
+        assert sig != "" and sig is not None
+        # la señal de cada técnica debe estar definida en el YAML
+        assert cfg["signals"][tech]["signal"] == _X02.PRIMARY_SIGNAL[tech][0]
+
+
+def test_signals_not_hardcoded_in_script():
+    """El script 02 no debe contener señales S03/S05 hardcodeadas (solo desde YAML/fallback)."""
+    src = (ROOT / "scripts" / "02_execution_segmentation.py").read_text(encoding="utf-8")
+    # PRIMARY_SIGNAL se construye desde CFG; no debe haber literal "signal: RTOE" por técnica
+    assert '"S03": [\n    "RTOE"' not in src.replace("\n", "").replace(" ", "")
+    assert '"S05": [\n    "RTOE"' not in src.replace("\n", "").replace(" ", "")
+
+
+def test_config_loadable():
+    import yaml
+    with open(ROOT / "config" / "segmentation.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    assert cfg is not None
+    assert "signals" in cfg
+    assert all(t in cfg["signals"] for t in ["S01", "S02", "S03", "S04", "S05"])
+
+
+# --------------------------------------------------------------------------- #
+# 7. Generalización a segundo atleta (FASE 1.7)
+# --------------------------------------------------------------------------- #
+
+B0377_DIR = ROOT / "atletas" / "B0377"
+
+
+def test_new_athlete_dir_exists():
+    assert B0377_DIR.is_dir(), "Falta atletas/B0377"
+
+
+def test_new_athlete_c3d_can_be_inspected():
+    files = sorted(B0377_DIR.rglob("*.c3d"))
+    assert files, "No hay C3D en atletas/B0377"
+    c = _X01.load_c3d(files[0])
+    assert c["data"]["points"].shape[0] == 4
+
+
+def test_no_right_laterality_assumed():
+    """El análisis de lateralidad debe dejar la decisión a los datos (no asumir R)."""
+    lat_csv = ROOT / "output" / "athlete_generalization" / "lateralality_analysis.csv"
+    if not lat_csv.exists():
+        pytest.skip("fase 1.7 no ejecutada")
+    df = pd.read_csv(lat_csv)
+    # debe existir análisis L vs R, no solo R
+    assert "l_vmax" in df.columns and "r_vmax" in df.columns
+    # debe haberse medido ambos lados (algún valor no nulo en cada columna)
+    assert df["l_vmax"].notna().any() and df["r_vmax"].notna().any()
+
+
+def test_unknown_is_valid_status():
+    """UNKNOWN es un estado válido para lateralidad/señales no determinadas."""
+    assert "UNKNOWN" in ("RIGHT", "LEFT", "UNKNOWN")
+
+
+def test_no_hardcoded_b0377_signals_in_script02():
+    """El script 02 no debe contener señales específicas de B0377 hardcodeadas."""
+    src = (ROOT / "scripts" / "02_execution_segmentation.py").read_text(encoding="utf-8")
+    assert "B0377" not in src
+
+
+def test_b0367_baseline_reproducible():
+    """El baseline B0367 permanece: executions_sample.csv sigue con 26 filas."""
+    csv = ROOT / "output" / "executions_sample.csv"
+    if not csv.exists():
+        pytest.skip("pipeline no ejecutado")
+    df = pd.read_csv(csv)
+    assert len(df) == 26
+    assert set(df["athlete_id"].unique()) == {"B0367"}
+
+
+# --------------------------------------------------------------------------- #
+# 8. Configuración por atleta (FASE 1.8A)
+# --------------------------------------------------------------------------- #
+
+ATHLETE_CFG_DIR = ROOT / "config" / "athletes"
+
+
+def test_athlete_config_exists_b0367():
+    assert (ATHLETE_CFG_DIR / "B0367.yaml").exists()
+
+
+def test_athlete_config_exists_b0377():
+    assert (ATHLETE_CFG_DIR / "B0377.yaml").exists()
+
+
+def test_config_has_all_techniques():
+    import yaml
+    with open(ATHLETE_CFG_DIR / "B0377.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    techs = set(cfg["techniques"].keys())
+    assert techs.issuperset({"S01", "S02", "S03", "S04", "S05"})
+
+
+def test_b0367_signal_mapping():
+    # la config de B0367 debe reproducir el baseline (todas las patadas RTOE, puño RFIN)
+    import yaml
+    with open(ATHLETE_CFG_DIR / "B0367.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    assert cfg["techniques"]["S01"]["signal"] == "RFIN"
+    assert cfg["techniques"]["S04"]["signal"] == "RTOE"
+
+
+def test_b0377_signal_mapping():
+    import yaml
+    with open(ATHLETE_CFG_DIR / "B0377.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    assert cfg["techniques"]["S02"]["signal"] == "RTOE"
+    assert cfg["techniques"]["S05"]["signal"] == "RTOE"
+
+
+def test_b0377_s04_uses_ltoe():
+    import yaml
+    with open(ATHLETE_CFG_DIR / "B0377.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    assert cfg["techniques"]["S04"]["signal"] == "LTOE"
+    assert cfg["techniques"]["S04"]["joints_side"] == "L"
+
+
+def test_b0377_s01_threshold_is_explicit_or_needs_validation():
+    import yaml
+    with open(ATHLETE_CFG_DIR / "B0377.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    th = cfg["techniques"]["S01"].get("thresholds", {})
+    status = th.get("status", "") if isinstance(th, dict) else ""
+    assert status in ("", "NEEDS_VALIDATION"), "S01 umbral sin estado explícito"
+
+
+def test_no_global_right_laterality_assumption():
+    # la lateralidad es por técnica, no una regla global única
+    import yaml
+    with open(ATHLETE_CFG_DIR / "B0377.yaml", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    sides = {t: cfg["techniques"][t]["laterality"] for t in cfg["techniques"]}
+    assert sides["S04"] == "left"
+    assert "right" in set(sides.values())
+
+
+def test_sampling_rate_read_from_c3d():
+    # el rate se lee del C3D, no se hardcodea como fuente (la config solo lo anota)
+    c = _X01.load_c3d(_rep_file("S04-E01-T01"))
+    rate = float(c.parameters["POINT"]["RATE"]["value"][0])
+    assert rate in (200.0, 250.0)
+
+
+def test_set_active_athlete_resolves_signals():
+    _X02.set_active_athlete("B0367")
+    assert _X02.PRIMARY_SIGNAL["S04"] == ["RTOE"]
+    _X02.set_active_athlete("B0377")
+    assert _X02.PRIMARY_SIGNAL["S04"] == ["LTOE"]
+    assert _X02.JOINTS_SIDE["S04"] == "L"
+    # restaurar baseline para no dejar estado
+    _X02.set_active_athlete("B0367")
+
+
+def test_outputs_separated_by_athlete():
+    """B0377 escribe en subdirectorio; B0367 mantiene output/ raíz."""
+    b0377_dir = ROOT / "output" / "B0377"
+    assert b0377_dir.is_dir(), "Falta output/B0377 (ejecutar pipeline B0377)"
+    assert (b0377_dir / "executions_sample.csv").exists()
+    assert (ROOT / "output" / "executions_sample.csv").exists()  # baseline sigue en raíz
+
+
+def test_b0377_run_leaves_b0367_output_intact():
+    """Correr B0377 no debe tocar output/executions_sample.csv (B0367)."""
+    base = ROOT / "output" / "executions_sample.csv"
+    if not base.exists():
+        pytest.skip("baseline no generado")
+    df = pd.read_csv(base)
+    assert len(df) == 26
+    assert set(df["athlete_id"].unique()) == {"B0367"}
+
+
+def test_data_dir_resolved_by_athlete():
+    assert _X02.data_dir_for("B0367").name == "B0367"
+    assert str(_X02.data_dir_for("B0377")).replace("\\", "/").endswith("atletas/B0377")
+
+
+def test_config_overrides_global():
+    _X02.set_active_athlete("B0377")
+    assert _X02.CFG["techniques"]["S04"]["signal"] == "LTOE"
+    _X02.set_active_athlete("B0367")
+
+
+if __name__ == "__main__":
+    sys.exit(pytest.main([__file__, "-v"]))

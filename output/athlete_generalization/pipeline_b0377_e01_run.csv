@@ -1,0 +1,6 @@
+tag,status,marker,snr,n_accepted,n_rejected,n_review,rate_hz
+S01-E01-T01,processed,RFIN,14.2,1,7,2,250.0
+S02-E01-T01,processed,RTOE,250.3,3,0,0,250.0
+S03-E01-T01,processed,RTOE,140.5,3,3,0,250.0
+S04-E01-T01,processed,RTOE,28.7,2,6,1,250.0
+S05-E01-T01,processed,RTOE,302.0,3,6,0,250.0

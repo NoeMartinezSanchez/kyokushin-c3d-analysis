@@ -1,0 +1,58 @@
+Proyecto raíz: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores
+Atleta:        B0377
+Config:        D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\config\segmentation.yaml
+Config atleta: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\config\athletes\B0377.yaml
+Método:        activity_bands v1.8.0
+Salidas:       D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377
+
+--- Procesando 2017-02-20-B0377-S01-E01-T01.c3d ---
+  señal seleccionada: RFIN  SNR=14.2 adecuada=True
+  repeticiones detectadas: 1  (eventos=10, aceptados=1)
+
+--- Procesando 2017-02-20-B0377-S02-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=250.3 adecuada=True
+  repeticiones detectadas: 3  (eventos=3, aceptados=3)
+
+--- Procesando 2017-02-20-B0377-S03-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=140.5 adecuada=True
+  repeticiones detectadas: 3  (eventos=6, aceptados=3)
+
+--- Procesando 2017-02-20-B0377-S04-E01-T01.c3d ---
+  señal seleccionada: LTOE  SNR=168.8 adecuada=True
+  repeticiones detectadas: 3  (eventos=7, aceptados=3)
+
+--- Procesando 2017-02-20-B0377-S05-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=302.0 adecuada=True
+  repeticiones detectadas: 3  (eventos=9, aceptados=3)
+
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\executions_sample.csv (13 filas)
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\execution_file_summary.csv
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\execution_quality.csv (13 filas)
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\execution_features_sample.csv
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\qc_summary.csv
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\segmentation_events.csv (35 filas)
+
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\B0377\units_verified.csv
+
+Unidades y frecuencia verificadas DESDE los C3D:
+athlete_id                      source_file  sampling_rate_hz position_unit angle_unit force_unit moment_unit power_unit  analog_used  fp_used
+     B0377 2017-02-20-B0377-S01-E01-T01.c3d             250.0            mm        deg          N         Nmm          W            0        0
+     B0377 2017-02-20-B0377-S02-E01-T01.c3d             250.0            mm        deg          N         Nmm          W            0        0
+     B0377 2017-02-20-B0377-S03-E01-T01.c3d             250.0            mm        deg          N         Nmm          W            0        0
+     B0377 2017-02-20-B0377-S04-E01-T01.c3d             250.0            mm        deg          N         Nmm          W            0        0
+     B0377 2017-02-20-B0377-S05-E01-T01.c3d             250.0            mm        deg          N         Nmm          W            0        0
+
+Discrepancia documentada: paper=250 Hz, C3D=250.0 Hz
+
+Resumen de eventos por status:
+status
+accepted    13
+rejected    19
+review       3
+
+Razones de rechazo/review:
+status    rejection_reason      
+rejected  activity_too_low          3
+          duration_too_short        7
+          secondary_peak            9
+review    low_activity_uncertain    3

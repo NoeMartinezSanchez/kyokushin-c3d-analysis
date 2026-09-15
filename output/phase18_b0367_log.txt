@@ -1,0 +1,98 @@
+Proyecto raíz: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores
+Atleta:        B0367
+Config:        D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\config\segmentation.yaml
+Config atleta: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\config\athletes\B0367.yaml
+Método:        activity_bands v1.8.0
+Salidas:       D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output
+
+--- Procesando 2017-01-31-B0367-S01-E01-T01.c3d ---
+  señal seleccionada: RFIN  SNR=91.8 adecuada=True
+  repeticiones detectadas: 3  (eventos=9, aceptados=3)
+
+--- Procesando 2017-01-31-B0367-S02-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=671.3 adecuada=True
+  repeticiones detectadas: 3  (eventos=3, aceptados=3)
+
+--- Procesando 2017-01-31-B0367-S03-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=737.2 adecuada=True
+  repeticiones detectadas: 3  (eventos=3, aceptados=3)
+
+--- Procesando 2017-01-31-B0367-S04-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=438.5 adecuada=True
+  repeticiones detectadas: 3  (eventos=3, aceptados=3)
+
+--- Procesando 2017-01-31-B0367-S04-E02-T01.c3d ---
+  señal seleccionada: RTOE  SNR=714.8 adecuada=True
+  repeticiones detectadas: 3  (eventos=6, aceptados=3)
+
+--- Procesando 2017-01-31-B0367-S04-E04-T01.c3d ---
+  señal seleccionada: RTOE  SNR=928.2 adecuada=True
+  repeticiones detectadas: 5  (eventos=7, aceptados=5)
+
+--- Procesando 2017-01-31-B0367-S05-E01-T01.c3d ---
+  señal seleccionada: RTOE  SNR=481.7 adecuada=True
+  repeticiones detectadas: 3  (eventos=5, aceptados=3)
+
+--- Procesando 2017-01-31-B0367-S05-E02-T01.c3d ---
+  señal seleccionada: RTOE  SNR=319.1 adecuada=True
+  repeticiones detectadas: 3  (eventos=9, aceptados=3)
+
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\executions_sample.csv (26 filas)
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\execution_file_summary.csv
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\execution_quality.csv (26 filas)
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\execution_features_sample.csv
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\qc_summary.csv
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\segmentation_events.csv (45 filas)
+
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\units_verified.csv
+
+Unidades y frecuencia verificadas DESDE los C3D:
+athlete_id                      source_file  sampling_rate_hz position_unit angle_unit force_unit moment_unit power_unit  analog_used  fp_used
+     B0367 2017-01-31-B0367-S01-E01-T01.c3d             200.0            mm        deg          N         Nmm          W            0        0
+     B0367 2017-01-31-B0367-S02-E01-T01.c3d             200.0            mm        deg          N         Nmm          W            0        0
+     B0367 2017-01-31-B0367-S04-E01-T01.c3d             200.0            mm        deg          N         Nmm          W            0        0
+     B0367 2017-01-31-B0367-S04-E02-T01.c3d             200.0            mm        deg          N         Nmm          W            0        0
+     B0367 2017-01-31-B0367-S04-E04-T01.c3d             200.0            mm        deg          N         Nmm          W            0        0
+
+Discrepancia documentada: paper=250 Hz, C3D=200.0 Hz
+
+Resumen de eventos por status:
+status
+accepted    26
+rejected    17
+review       2
+
+Razones de rechazo/review:
+status    rejection_reason      
+rejected  activity_too_low          3
+          duration_too_short        7
+          secondary_peak            7
+review    low_activity_uncertain    2
+
+===== VALIDACIÓN DTW (repeticiones T01 vs T02) =====
+   base  repetition  dtw_dist  euclid_dist  similarity  len_a  len_b  a_start_s  b_start_s
+S02-E01           1     0.497        0.188       0.668    162    167       1.76       1.78
+S02-E01           2     1.254        0.203       0.444    171    173       3.72       3.60
+S02-E01           3     0.429        0.151       0.700    164    159       5.63       5.37
+S04-E01           1     0.604        0.130       0.623    198    187       1.66       1.34
+S04-E01           2     0.816        0.583       0.551    181    203       3.52       3.12
+S04-E01           3     0.860        0.158       0.538    215    209       5.32       4.94
+S04-E02           1     0.516        0.310       0.659    145    154       1.52       1.78
+S04-E02           2     0.594        0.283       0.627    164    161       3.75       3.61
+S04-E02           3     0.591        0.397       0.629    169    156       5.86       5.32
+
+===== COMPARACIÓN E01 (aire) vs E02 (escudo) — S04 =====
+           duration_s  time_to_peak_s  vmax_m_s  vmean_m_s  amax_m_s2  displacement_m  path_length_m  rom_m  rom_RHipAngles  rom_RKneeAngles  rom_RAnkleAngles
+condition                                                                                                                                                     
+E01             0.990           0.258     9.416      5.132    130.983           0.095          5.066  2.087         150.435          137.167            41.302
+E02             0.797           0.252    15.710      6.106    339.910           0.460          4.853  2.254         110.851          144.207            56.317
+
+===== ANÁLISIS E04 (defensor vs atacante) — S04 =====
+Sujetos: defensor=B0367 (115 pts), atacante=B0368 (140 pts)
+Variables B0367: 0 derivadas
+Variables B0368: 23 derivadas
+Ejecuciones detectadas (atacante): 3
+ repetition  min_dist_m  distance_at_peak_m  max_rel_vel_m_s  toe_atk_min_def_m
+          1       1.028               1.184            1.018              0.586
+          2       1.037               1.141            0.847              0.564
+          3       1.186               1.240            0.988              0.656

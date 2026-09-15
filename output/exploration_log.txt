@@ -1,0 +1,320 @@
+Proyecto raíz: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores
+Dataset:      D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\B0367
+ezc3d:        1.7.2
+
+========================================================================
+FASE 1 — INVENTARIO DEL DATASET
+========================================================================
+Total archivos .c3d     : 26
+Participantes            : 1 -> ['B0367']
+Técnicas (S)             : 5 -> ['S01', 'S02', 'S03', 'S04', 'S05']
+Condiciones (E)          : 3 -> ['E01', 'E02', 'E04']
+Trials (T)               : 2 -> ['T01', 'T02']
+Fechas                   : 1 -> ['2017-01-31']
+Tamaño total             : 0.212 GB
+
+Distribución por técnica x condición x trial:
+trial                T01  T02
+technique condition          
+S01       E01          1    0
+          E02          1    1
+          E04          1    1
+S02       E01          1    1
+          E02          1    1
+          E04          1    1
+S03       E01          1    1
+          E02          1    1
+          E04          1    1
+S04       E01          1    1
+          E02          1    1
+          E04          1    1
+S05       E01          1    1
+          E02          1    0
+
+Tamaño por archivo (bytes):
+technique condition trial  size_bytes
+      S02       E02   T01     5758976
+      S04       E01   T02     5856288
+      S01       E02   T02     5873664
+      S02       E01   T01     6142304
+      S03       E01   T02     6226016
+      S04       E01   T01     6246944
+      S02       E02   T02     6310912
+      S04       E02   T02     6346752
+      S01       E01   T01     6365536
+      S03       E02   T01     6371840
+      S01       E02   T01     6561792
+      S03       E01   T01     6574816
+      S05       E01   T02     6703872
+      S02       E01   T02     6724800
+      S03       E02   T02     6784000
+      S04       E02   T01     6812672
+      S05       E01   T01     8175808
+      S05       E02   T01     8529408
+      S03       E04   T02     9899152
+      S03       E04   T01     9994432
+      S02       E04   T02    10270592
+      S02       E04   T01    10787568
+      S04       E04   T02    10921824
+      S01       E04   T02    12168864
+      S04       E04   T01    13621424
+      S01       E04   T01    16186368
+
+Trials faltantes (de la rejilla completa): 14
+   - S01 E01 T02  (Gyaku-Zuki / air)
+   - S01 E03 T01  (Gyaku-Zuki / attacker)
+   - S01 E03 T02  (Gyaku-Zuki / attacker)
+   - S02 E03 T01  (Mae-Geri / attacker)
+   - S02 E03 T02  (Mae-Geri / attacker)
+   - S03 E03 T01  (Mawashi-Geri gedan / attacker)
+   - S03 E03 T02  (Mawashi-Geri gedan / attacker)
+   - S04 E03 T01  (Mawashi-Geri jodan / attacker)
+   - S04 E03 T02  (Mawashi-Geri jodan / attacker)
+   - S05 E02 T02  (Ushiro-Mawashi-Geri / shield)
+   - S05 E03 T01  (Ushiro-Mawashi-Geri / attacker)
+   - S05 E03 T02  (Ushiro-Mawashi-Geri / attacker)
+   - S05 E04 T01  (Ushiro-Mawashi-Geri / defender)
+   - S05 E04 T02  (Ushiro-Mawashi-Geri / defender)
+
+[guardado] output/tables/f1_inventory.csv
+    [fig] f1_distributions.png
+
+========================================================================
+FASE 2 — INSPECCIÓN TÉCNICA DE C3D REPRESENTATIVOS
+========================================================================
+
+--- 2017-01-31-B0367-S01-E01-T01.c3d ---
+  frames=1815  rate=200.0 Hz  duración=9.075 s
+  n_points=218  anatomical=39  cluster=76  shield=0  derived=103
+  unidades=['mm']  analog_used=0
+  subjects=['B0367']  prefixes=[]
+  manufacturer=Vicon  events=[('Event', 'General'), ('Event', 'General'), ('Event', 'General'), ('Event', 'General')]
+  NaN % por eje: {'X': 0.19410114489347183, 'Y': 0.19410114489347183, 'Z': 0.19410114489347183}
+    rango anatomical: [-1021.5, 1639.1] ['mm']
+    rango cluster: [-1129.1, 1755.3] ['mm']
+    rango derived: [-3084.8, 3791.2] ['mm']
+
+--- 2017-01-31-B0367-S02-E01-T01.c3d ---
+  frames=1751  rate=200.0 Hz  duración=8.755 s
+  n_points=218  anatomical=39  cluster=76  shield=0  derived=103
+  unidades=['mm']  analog_used=0
+  subjects=['B0367']  prefixes=[]
+  manufacturer=Vicon  events=[('Event', 'General'), ('Event', 'General'), ('Event', 'General'), ('Event', 'General')]
+  NaN % por eje: {'X': 0.20119564704834456, 'Y': 0.20119564704834456, 'Z': 0.20119564704834456}
+    rango anatomical: [-1798.1, 1730.3] ['mm']
+    rango cluster: [-1817.6, 1889.7] ['mm']
+    rango derived: [-3905.4, 3063.2] ['mm']
+
+--- 2017-01-31-B0367-S04-E01-T01.c3d ---
+  frames=1781  rate=200.0 Hz  duración=8.905 s
+  n_points=218  anatomical=39  cluster=76  shield=0  derived=103
+  unidades=['mm']  analog_used=0
+  subjects=['B0367']  prefixes=[]
+  manufacturer=Vicon  events=[('Event', 'General'), ('Event', 'General'), ('Event', 'General'), ('Event', 'General')]
+  NaN % por eje: {'X': 0.1978066131283837, 'Y': 0.1978066131283837, 'Z': 0.1978066131283837}
+    rango anatomical: [-1349.1, 1752.2] ['mm']
+    rango cluster: [-1468.5, 1881.5] ['mm']
+    rango derived: [-4130.5, 3167.3] ['mm']
+
+--- 2017-01-31-B0367-S04-E02-T01.c3d ---
+  frames=1891  rate=200.0 Hz  duración=9.455 s
+  n_points=224  anatomical=39  cluster=76  shield=6  derived=103
+  unidades=['mm']  analog_used=0
+  subjects=['Tarcza', 'B0367']  prefixes=['Tarcza:', 'B0367:']
+  manufacturer=Vicon  events=[('Event', 'General'), ('Event', 'General'), ('Event', 'General'), ('Event', 'General')]
+  NaN % por eje: {'X': 0.1813099644934653, 'Y': 0.1813099644934653, 'Z': 0.1813099644934653}
+    rango shield: [-1247.9, 1764.4] ['mm']
+    rango anatomical: [-1151.0, 1696.6] ['mm']
+    rango cluster: [-1226.4, 1838.2] ['mm']
+    rango derived: [-9450.6, 11383.2] ['mm']
+
+--- 2017-01-31-B0367-S04-E04-T01.c3d ---
+  frames=2135  rate=200.0 Hz  duración=10.675 s
+  n_points=397  anatomical=78  cluster=152  shield=0  derived=25
+  unidades=['mm']  analog_used=0
+  subjects=['B0367', 'B0368']  prefixes=['B0367:', 'B0368:']
+  manufacturer=Vicon  events=[('Event', 'General'), ('Event', 'General'), ('Event', 'General'), ('Event', 'General')]
+  NaN % por eje: {'X': 0.1812186244609749, 'Y': 0.1812186244609749, 'Z': 0.1812186244609749}
+    rango anatomical: [-1515.7, 1628.1] ['mm']
+    rango cluster: [-1620.8, 1815.4] ['mm']
+    rango derived: [-155.9, 918.4] ['mm']
+
+--- 2017-01-31-B0367-S05-E01-T01.c3d ---
+  frames=2334  rate=200.0 Hz  duración=11.67 s
+  n_points=218  anatomical=39  cluster=76  shield=0  derived=103
+  unidades=['mm']  analog_used=0
+  subjects=['B0367']  prefixes=[]
+  manufacturer=Vicon  events=[('Event', 'General'), ('Event', 'General'), ('Event', 'General'), ('Event', 'General')]
+  NaN % por eje: {'X': 0.150939836324615, 'Y': 0.150939836324615, 'Z': 0.150939836324615}
+    rango anatomical: [-1440.2, 1743.6] ['mm']
+    rango cluster: [-1453.7, 1862.9] ['mm']
+    rango derived: [-6570.5, 5543.6] ['mm']
+
+[guardado] output/tables/f2_representative_inspection.csv
+
+========================================================================
+FASE 3 — MAPEO DE MARKERS A REGIONES ANATÓMICAS
+========================================================================
+
+Marcadores segmentados por región (resumen de cabeza/tronco/miembros):
+  Cabeza      :  4 -> ['LFHD', 'RFHD', 'LBHD', 'RBHD']
+  Pelvis      :  7 -> ['LASI', 'RASI', 'LPSI', 'RPSI', 'LPelvisAngles', 'RPelvisAngles', 'PelvisCOM']
+  Muslo       :  2 -> ['LTHI', 'RTHI']
+  Rodilla     :  2 -> ['LKNE', 'RKNE']
+  Tobillo     :  2 -> ['LANK', 'RANK']
+  Pie         :  4 -> ['LTIB', 'LTOE', 'RTIB', 'RTOE']
+  Hombro      :  2 -> ['LSHO', 'RSHO']
+  Codo        :  2 -> ['LELB', 'RELB']
+  Muñeca      :  4 -> ['LWRA', 'LWRB', 'RWRA', 'RWRB']
+  Mano        :  2 -> ['LFIN', 'RFIN']
+  Columna     :  2 -> ['C7', 'T10']
+  Escudo      :  6 -> ['Tarcza:Tarcza1', 'Tarcza:Tarcza2', 'Tarcza:Tarcza3', 'Tarcza:Tarcza4', 'Tarcza:Tarcza5', 'Tarcza:Tarcza6']
+
+[guardado] output/tables/f3_marker_map.csv  (tabla completa marker|región|clase)
+
+========================================================================
+FASE 4 — EXPLORACIÓN DE SEÑALES Y DETECCIÓN DE FASES
+========================================================================
+    [fig] f4_S04-E01-T01_xyz.png
+    [fig] f4_S04-E01-T01_traj3d.png
+    [fig] f4_S04-E01-T01_phases.png
+    [fig] f4_S04-E01-T01_knee_angle.png
+    [fig] f4_S04-E01-T01_com.png
+    [fig] f4_S04-E02-T01_xyz.png
+    [fig] f4_S04-E02-T01_traj3d.png
+    [fig] f4_S04-E02-T01_phases.png
+    [fig] f4_S04-E02-T01_knee_angle.png
+    [fig] f4_S04-E02-T01_com.png
+    [fig] f4_S04-E04-T01_xyz.png
+    [fig] f4_S04-E04-T01_traj3d.png
+    [fig] f4_S04-E04-T01_phases.png
+    [fig] f4_S04-E04-T01_knee_angle.png
+
+[guardado] output/tables/f4_phase_detection.csv
+
+========================================================================
+FASE 5 — COMPARACIÓN ENTRE CONDICIONES (S04 / Mawashi-Geri jodan)
+========================================================================
+NOTA METODOLÓGICA: en condiciones de oponente (E03/E04) el archivo contiene
+DOS sujetos. En E04 (defender) el atleta del dataset (B0367) DEFIENDE y el
+oponente (B0368) ejecuta la técnica. Analizamos ambos roles por separado.
+
+Agregado por condición (atleta B0367, media T01/T02) — RTOE:
+           duration_s  vmax_mm_s  vmean_mm_s  amax_mm_s2  rom_mm  path_length_mm  time_to_vmax_s  dur_prep_s  dur_exec_s  dur_final_s
+condition                                                                                                                            
+E01               8.6     9508.8      1792.9    180559.4  2126.3         15465.0             4.5         2.7         0.3          1.7
+E02               9.1    16934.5      1773.6    503604.5  2266.4         16193.4             5.8         3.9         0.3          0.6
+E04               9.6     1516.4       115.1     23254.7   140.7          1064.3             5.1         2.8         0.1          2.8
+    [fig] f5_condition_comparison.png
+    [fig] f5_condition_speed_overlay.png
+
+========================================================================
+FASE 6 — REPETIBILIDAD T01 vs T02 (DTW)
+========================================================================
+technique condition  dtw_normalized  euclidean_norm  similarity_dtw  cv_vmax_pct  cv_duration_pct  len_t01  len_t02
+      S01       E02           4.745           1.479           0.174         0.74             5.57     1821     1629
+      S01       E04          19.177           1.415           0.050         2.11            14.23     2464     1850
+      S02       E01           1.759           0.734           0.362         1.26             4.55     1751     1918
+      S02       E02           2.308           1.570           0.302         0.69             4.60     1597     1751
+      S02       E04           4.389           0.981           0.186         0.74             2.47     1639     1560
+      S03       E01           3.375           1.095           0.229         3.55             2.74     1875     1775
+      S03       E02           2.145           1.492           0.318         0.37             3.15     1768     1883
+      S03       E04           9.637           1.219           0.094        26.66             0.48     1564     1549
+      S04       E01           1.727           1.102           0.367         4.47             3.25     1781     1669
+      S04       E02           1.238           1.175           0.447         1.25             3.56     1891     1761
+      S04       E04          17.003           1.519           0.056        19.99            11.05     2135     1710
+      S05       E01           3.092           1.383           0.244         0.16             9.94     2334     1912
+    [fig] f6_repeatability_s04_e01.png
+
+========================================================================
+FASE 7 — FEATURE ENGINEERING (propuesta)
+========================================================================
+Features calculables: 19
+Features que requieren más datos: 10
+
+Calculables:
+   + duración total
+   + tiempo hasta velocidad máxima (pico)
+   + tiempo hasta aceleración máxima
+   + velocidad máxima (endpoint)
+   + velocidad media
+   + aceleración máxima
+   + desplazamiento neto
+   + distancia recorrida (path length)
+   + rango de movimiento (ROM) del endpoint
+   + ROM articular (cadera/rodilla/tobillo/hombro/codo) — ya calculados en C3D
+   + velocidad angular y aceleración angular articulares (derivables)
+   + retraso temporal entre picos de segmentos (por ej. cadera -> rodilla -> pie)
+   + correlación cruzada entre ángulos articulares
+   + desplazamiento del COM
+   + velocidad y aceleración del COM
+   + simetría izquierda/derecha (comparación de marcadores L/R equivalentes)
+   + duración de fases (preparatoria / ejecución / final) — de la detección de fases
+   + potencia articular máxima (momento * velocidad angular) — ya disponibles
+   + integridad/calidad: % de frames con NaN por marcador
+
+No calculables con este dataset:
+   - fuerzas de reacción del suelo (GRF) — no hay plataformas ni analógicos
+   - momentos reales en el pie (dependen de GRF)
+   - presión plantar distribuida
+   - EMG / activación muscular
+   - frecuencia cardíaca, lactato, VO2, carga fisiológica
+   - acelerometría inercial (IMU) local por segmento
+   - velocidad de impacto real sobre el objetivo (requiere instrumentar al escudo)
+   - precisión/distorsión percibida del golpe (resultado de combate)
+   - fatiga (requiere series prolongadas + fisiológicos)
+   - datos de ojo/inicio de intención (latencias cognitivas)
+
+========================================================================
+FASE 8 — PROBLEMAS DE ML EVALUADOS (sin entrenar)
+========================================================================
+
+- Clasificación de técnica (S01..S05):
+    objetivo: técnica (5 clases)
+    modelo:   RandomForest / GradientBoosting / MLP
+    leakage:  si se mezclan trials del mismo atleta entre train/test
+    muestra:  >= 100 ejecuciones/clase; viable con dataset completo (5 tandas)
+    viable?   parcial — solo B0367 no da generalización, sirve como demo de framework
+
+- Clasificación de condición (air/shield/defender):
+    objetivo: E01/E02/E04 (3 clases)
+    modelo:   SVM / LogisticRegression
+    leakage:  mismo atleta
+    muestra:  ~ 30-60/condición
+    viable?   sí, conceptualmente sobre B0367
+
+- Clasificación nivel atleta (beginner vs advanced):
+    objetivo: nivel (2 clases)
+    modelo:   ensemble + GroupKFold / LOSO
+    leakage:  MUY ALTO: los trials del mismo atleta aparecen en train y test — usar división por participante
+    muestra:  >= 20 atletas por grupo para algo serio; mejor 50+
+    viable?   NO con B0367 (1 atleta) — necesario dataset completo
+
+- Clustering de patrones de movimiento:
+    objetivo: agrupar ejecuciones similares (sin etiqueta)
+    modelo:   k-means / HDBSCAN sobre embedding (t-SNE)
+    leakage:  n/a
+    muestra:  >= 50 ejecuciones
+    viable?   sí, exploratorio sobre B0367
+
+- Anomaly detection (ejecuciones atípicas):
+    objetivo: score de anormalidad por ejecución
+    modelo:   IsolationForest / OneClassSVM
+    leakage:  n/a
+    muestra:  >= 30 ejecuciones baseline
+    viable?   sí, sobre B0367 (dentro-atleta)
+
+- Similarity search:
+    objetivo: recuperar ejecuciones biomecánicamente similares
+    modelo:   kNN + DTW / index vectorial
+    leakage:  n/a
+    muestra:  >= 100 ejecuciones indexadas
+    viable?   sí, sobre el set local (26 archivos)
+
+========================================================================
+FASE 9 — ARQUITECTURA DEL DEMO (ver informe docs/dataset_audit.md)
+========================================================================
+
+========================================================================
+FIN — salidas en output/figures y output/tables
+========================================================================

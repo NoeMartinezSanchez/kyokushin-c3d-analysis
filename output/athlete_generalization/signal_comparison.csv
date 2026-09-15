@@ -1,0 +1,6 @@
+technique,signal_b367,signal_available,baseline_mm_s,vmax_mm_s,snr,n_accepted,n_rejected,n_review,status,notes
+S01,RFIN,YES,599.0,8102.8,13.5,1,7,2,requires_parametrization,revisar umbrales/parámetros
+S02,RTOE,YES,28.8,7149.1,239.9,3,0,0,compatible,
+S03,RTOE,YES,73.3,10389.7,139.9,3,3,0,compatible,
+S04,RTOE,YES,159.3,4288.5,26.8,2,6,1,requires_parametrization,revisar umbrales/parámetros
+S05,RTOE,YES,30.7,9384.6,296.3,3,6,0,compatible,

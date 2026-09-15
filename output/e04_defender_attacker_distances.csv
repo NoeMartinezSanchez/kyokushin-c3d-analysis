@@ -1,0 +1,4 @@
+repetition,min_dist_m,distance_at_peak_m,max_rel_vel_m_s,toe_atk_min_def_m
+1,1.028,1.184,1.018,0.586
+2,1.037,1.141,0.847,0.564
+3,1.186,1.24,0.988,0.656

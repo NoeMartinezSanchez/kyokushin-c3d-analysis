@@ -1,0 +1,93 @@
+Baseline: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\B0367
+Nuevo atleta: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\atletas
+Atletas descubiertos: ['B0367', 'B0377']
+========================================================================
+FASE 1 — INVENTARIO DE NUEVO ATLETA (B0377)
+========================================================================
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\athlete_generalization\athlete_inventory.csv (65 filas)
+
+B0377: 39 archivos
+frecuencias detectadas: [np.float64(250.0)]
+técnicas: ['S01', 'S02', 'S03', 'S04', 'S05']
+condiciones: ['E01', 'E02', 'E03', 'E04']
+trials: ['T01', 'T02']
+sujetos vistos: ['B0376', 'B0377', 'B0378', 'Tarcza']
+n_points: min 119 max 382
+
+========================================================================
+FASE 2 — COMPARACIÓN ESTRUCTURAL B0367 vs B0377
+========================================================================
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\athlete_generalization\marker_comparison.csv (230 filas)
+
+Marcadores comunes: 191, solo B0367: 27, solo B0377: 0
+
+Atributos estructurales compatibles (yes): 195 de 230
+
+========================================================================
+FASE 3 — LATERALIDAD (B0377, sin asumir derecha)
+========================================================================
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\athlete_generalization\lateralality_analysis.csv (30 filas)
+
+Media de R/L vmax por par (ratio > 1 => derecha más activa):
+       l_vmax  r_vmax  l_snr  r_snr  ratio
+pair                                      
+ankle  3896.0  5837.0  119.8  142.4    2.0
+heel   4107.4  6181.6  147.5  151.8    1.9
+hipjc     NaN     NaN    NaN    NaN    NaN
+knee   2287.9  3493.9   18.1   26.2    2.3
+thigh  1929.4  2990.9   12.6   24.8    1.9
+toe    4365.1  6915.0  142.0  197.6    2.5
+
+Mediana del ratio R/L (macro): 2.00
+Lateralidad inferida (umbral combinado): RIGHT
+
+Lateralidad por técnica (ratio R/L en toe):
+  S01: LTOE=3197 RTOE=3050 ratio=0.95 -> pierna indefinida
+  S02: LTOE=2714 RTOE=7279 ratio=2.68 -> pierna derecha
+  S03: LTOE=1634 RTOE=10481 ratio=6.41 -> pierna derecha
+  S04: LTOE=9513 RTOE=4349 ratio=0.46 -> pierna izquierda
+  S05: LTOE=4768 RTOE=9415 ratio=1.97 -> pierna derecha
+
+[figura] lateralality_by_technique.png
+
+========================================================================
+FASE 4 — COMPATIBILIDAD DE SEÑALES (señales B0367 en B0377)
+========================================================================
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\athlete_generalization\signal_comparison.csv (5 filas)
+technique signal_b367 signal_available  baseline_mm_s  vmax_mm_s   snr  n_accepted                   status
+      S01        RFIN              YES          599.0     8102.8  13.5           1 requires_parametrization
+      S02        RTOE              YES           28.8     7149.1 239.9           3               compatible
+      S03        RTOE              YES           73.3    10389.7 139.9           3               compatible
+      S04        RTOE              YES          159.3     4288.5  26.8           2 requires_parametrization
+      S05        RTOE              YES           30.7     9384.6 296.3           3               compatible
+[figura] signal_comparison_b0377.png
+
+========================================================================
+FASE 5 — PRUEBA DEL PIPELINE ACTUAL SOBRE B0377 (sin modificar)
+========================================================================
+        tag    status marker   snr  n_accepted  n_rejected  n_review  rate_hz
+S01-E01-T01 processed   RFIN  14.2           1           7         2    250.0
+S02-E01-T01 processed   RTOE 250.3           3           0         0    250.0
+S03-E01-T01 processed   RTOE 140.5           3           3         0    250.0
+S04-E01-T01 processed   RTOE  28.7           2           6         1    250.0
+S05-E01-T01 processed   RTOE 302.0           3           6         0    250.0
+
+========================================================================
+FASE 6 — MATRIZ COMPONENTE | B0367 | B0377 | GENERALIZABLE
+========================================================================
+                      component                            B0367                                    B0377 class
+             C3D reader (ezc3d)                               ok                                       ok     A
+         units (mm/deg/N/Nmm/W)                           mm,deg                                   mm,deg     A
+                  sampling rate                           200 Hz                                   250 Hz     B
+  marker mapping (nomenclatura)                       PlugInGait                               PlugInGait     A
+              derived variables                    103 (E01/E02)                             72 (E01/E02)     B
+                    lateralidad                     derecha (R*)                           por determinar     B
+               signal selection    RFIN/RTOE hardcoded en config                                a evaluar     C
+execution segmentation (bandas)                               ok                                 a probar     B
+                             QC                            26/26                                 a probar     A
+             feature extraction                               ok                                 a probar     B
+          E04 multiples sujetos defensor B0367 vs atacante B0368 E04: B0377 vs B0376; E03: B0378 vs B0377     B
+                         Tarcza                        6 markers                                4 markers     B
+             DTW (faithfulness)                          probado                                 a probar     B
+
+=== AUDITORÍA COMPLETA — FIN ===

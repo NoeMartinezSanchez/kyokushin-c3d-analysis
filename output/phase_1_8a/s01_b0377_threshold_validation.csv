@@ -1,0 +1,4 @@
+athlete,tag,signal,vmax_mm_s,baseline_1st_sec_median,signal_p50,signal_MAD,threshold_med_plus_3MAD,n_peaks_robust,n_accepted_pipeline,n_review_pipeline,conclusion
+B0377,S01-E01-T01,RFIN,8102.8,599.0,754.3,627.8,2637.6,3,1,2,REQUIERE_VALIDACION
+B0377,S01-E01-T02,RFIN,6858.7,790.8,722.5,573.1,2441.8,3,2,1,REQUIERE_VALIDACION
+B0367,S01-E01-T01,RFIN,6872.1,78.6,636.9,546.5,2276.6,3,3,1,baseline_ok

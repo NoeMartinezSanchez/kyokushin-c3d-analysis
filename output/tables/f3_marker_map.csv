@@ -1,0 +1,225 @@
+marker,region_anatomica,clase,presencia
+LFHD,Cabeza (frente izq.),anatomical,global
+RFHD,Cabeza (frente der.),anatomical,global
+LBHD,Cabeza (post. izq.),anatomical,global
+RBHD,Cabeza (post. der.),anatomical,global
+C7,Columna (C7),anatomical,global
+T10,Columna (T10),anatomical,global
+CLAV,Clavícula/esternón,anatomical,global
+STRN,Esternón,anatomical,global
+RBAK,Espalda (escápula der.),anatomical,global
+LSHO,Hombro izq.,anatomical,global
+LUPA,Brazo izq. (húmero),anatomical,global
+LELB,Codo izq.,anatomical,global
+LFRM,Antebrazo izq.,anatomical,global
+LWRA,Muñeca izq. (lado A),anatomical,global
+LWRB,Muñeca izq. (lado B),anatomical,global
+LFIN,Mano/dedos izq.,anatomical,global
+RSHO,Hombro der.,anatomical,global
+RUPA,Brazo der. (húmero),anatomical,global
+RELB,Codo der.,anatomical,global
+RFRM,Antebrazo der.,anatomical,global
+RWRA,Muñeca der. (lado A),anatomical,global
+RWRB,Muñeca der. (lado B),anatomical,global
+RFIN,Mano/dedos der.,anatomical,global
+LASI,Pelvis (ASIS izq.),anatomical,global
+RASI,Pelvis (ASIS der.),anatomical,global
+LPSI,Pelvis (PSIS izq.),anatomical,global
+RPSI,Pelvis (PSIS der.),anatomical,global
+LTHI,Muslo izq.,anatomical,global
+LKNE,Rodilla izq.,anatomical,global
+LTIB,Pierna/tibia izq.,anatomical,global
+LANK,Tobillo izq.,anatomical,global
+LHEE,Talón izq.,anatomical,global
+LTOE,Pie/punta izq.,anatomical,global
+RTHI,Muslo der.,anatomical,global
+RKNE,Rodilla der.,anatomical,global
+RTIB,Pierna/tibia der.,anatomical,global
+RANK,Tobillo der.,anatomical,global
+RHEE,Talón der.,anatomical,global
+RTOE,Pie/punta der.,anatomical,global
+PELO,Cluster pelvis (4 marcadores de cluster),cluster,global
+PELA,Cluster pelvis (4 marcadores de cluster),cluster,global
+PELL,Cluster pelvis (4 marcadores de cluster),cluster,global
+PELP,Cluster pelvis (4 marcadores de cluster),cluster,global
+LFEO,Cluster (LFE*) (4 marcadores de cluster),cluster,global
+LFEA,Cluster (LFE*) (4 marcadores de cluster),cluster,global
+LFEL,Cluster (LFE*) (4 marcadores de cluster),cluster,global
+LFEP,Cluster (LFE*) (4 marcadores de cluster),cluster,global
+LTIO,Cluster (LTI*) (4 marcadores de cluster),cluster,global
+LTIA,Cluster (LTI*) (4 marcadores de cluster),cluster,global
+LTIL,Cluster (LTI*) (4 marcadores de cluster),cluster,global
+LTIP,Cluster (LTI*) (4 marcadores de cluster),cluster,global
+LFOO,Cluster (LFO*) (4 marcadores de cluster),cluster,global
+LFOA,Cluster (LFO*) (4 marcadores de cluster),cluster,global
+LFOL,Cluster (LFO*) (4 marcadores de cluster),cluster,global
+LFOP,Cluster (LFO*) (4 marcadores de cluster),cluster,global
+LTOO,Cluster (LTO*) (4 marcadores de cluster),cluster,global
+LTOA,Cluster (LTO*) (4 marcadores de cluster),cluster,global
+LTOL,Cluster (LTO*) (4 marcadores de cluster),cluster,global
+LTOP,Cluster (LTO*) (4 marcadores de cluster),cluster,global
+RFEO,Cluster (RFE*) (4 marcadores de cluster),cluster,global
+RFEA,Cluster (RFE*) (4 marcadores de cluster),cluster,global
+RFEL,Cluster (RFE*) (4 marcadores de cluster),cluster,global
+RFEP,Cluster (RFE*) (4 marcadores de cluster),cluster,global
+RTIO,Cluster (RTI*) (4 marcadores de cluster),cluster,global
+RTIA,Cluster (RTI*) (4 marcadores de cluster),cluster,global
+RTIL,Cluster (RTI*) (4 marcadores de cluster),cluster,global
+RTIP,Cluster (RTI*) (4 marcadores de cluster),cluster,global
+RFOO,Cluster (RFO*) (4 marcadores de cluster),cluster,global
+RFOA,Cluster (RFO*) (4 marcadores de cluster),cluster,global
+RFOL,Cluster (RFO*) (4 marcadores de cluster),cluster,global
+RFOP,Cluster (RFO*) (4 marcadores de cluster),cluster,global
+RTOO,Cluster (RTO*) (4 marcadores de cluster),cluster,global
+RTOA,Cluster (RTO*) (4 marcadores de cluster),cluster,global
+RTOL,Cluster (RTO*) (4 marcadores de cluster),cluster,global
+RTOP,Cluster (RTO*) (4 marcadores de cluster),cluster,global
+HEDO,Cluster cabeza (4 marcadores de cluster),cluster,global
+HEDA,Cluster cabeza (4 marcadores de cluster),cluster,global
+HEDL,Cluster cabeza (4 marcadores de cluster),cluster,global
+HEDP,Cluster cabeza (4 marcadores de cluster),cluster,global
+LCLO,Cluster (LCL*) (4 marcadores de cluster),cluster,global
+LCLA,Cluster (LCL*) (4 marcadores de cluster),cluster,global
+LCLL,Cluster (LCL*) (4 marcadores de cluster),cluster,global
+LCLP,Cluster (LCL*) (4 marcadores de cluster),cluster,global
+RCLO,Cluster (RCL*) (4 marcadores de cluster),cluster,global
+RCLA,Cluster (RCL*) (4 marcadores de cluster),cluster,global
+RCLL,Cluster (RCL*) (4 marcadores de cluster),cluster,global
+RCLP,Cluster (RCL*) (4 marcadores de cluster),cluster,global
+TRXO,Cluster torso (4 marcadores de cluster),cluster,global
+TRXA,Cluster torso (4 marcadores de cluster),cluster,global
+TRXL,Cluster torso (4 marcadores de cluster),cluster,global
+TRXP,Cluster torso (4 marcadores de cluster),cluster,global
+LHUO,Cluster (LHU*) (4 marcadores de cluster),cluster,global
+LHUA,Cluster (LHU*) (4 marcadores de cluster),cluster,global
+LHUL,Cluster (LHU*) (4 marcadores de cluster),cluster,global
+LHUP,Cluster (LHU*) (4 marcadores de cluster),cluster,global
+LRAO,Cluster (LRA*) (4 marcadores de cluster),cluster,global
+LRAA,Cluster (LRA*) (4 marcadores de cluster),cluster,global
+LRAL,Cluster (LRA*) (4 marcadores de cluster),cluster,global
+LRAP,Cluster (LRA*) (4 marcadores de cluster),cluster,global
+LHNO,Cluster (LHN*) (4 marcadores de cluster),cluster,global
+LHNA,Cluster (LHN*) (4 marcadores de cluster),cluster,global
+LHNL,Cluster (LHN*) (4 marcadores de cluster),cluster,global
+LHNP,Cluster (LHN*) (4 marcadores de cluster),cluster,global
+RHUO,Cluster (RHU*) (4 marcadores de cluster),cluster,global
+RHUA,Cluster (RHU*) (4 marcadores de cluster),cluster,global
+RHUL,Cluster (RHU*) (4 marcadores de cluster),cluster,global
+RHUP,Cluster (RHU*) (4 marcadores de cluster),cluster,global
+RRAO,Cluster (RRA*) (4 marcadores de cluster),cluster,global
+RRAA,Cluster (RRA*) (4 marcadores de cluster),cluster,global
+RRAL,Cluster (RRA*) (4 marcadores de cluster),cluster,global
+RRAP,Cluster (RRA*) (4 marcadores de cluster),cluster,global
+RHNO,Cluster (RHN*) (4 marcadores de cluster),cluster,global
+RHNA,Cluster (RHN*) (4 marcadores de cluster),cluster,global
+RHNL,Cluster (RHN*) (4 marcadores de cluster),cluster,global
+RHNP,Cluster (RHN*) (4 marcadores de cluster),cluster,global
+LHipAngles,Variable derivada: LHipAngles,derived,global
+LKneeAngles,Variable derivada: LKneeAngles,derived,global
+LAbsAnkleAngle,Variable derivada: LAbsAnkleAngle,derived,global
+LAnkleAngles,Variable derivada: LAnkleAngles,derived,global
+RHipAngles,Variable derivada: RHipAngles,derived,global
+RKneeAngles,Variable derivada: RKneeAngles,derived,global
+RAnkleAngles,Variable derivada: RAnkleAngles,derived,global
+RAbsAnkleAngle,Variable derivada: RAbsAnkleAngle,derived,global
+LPelvisAngles,Variable derivada: LPelvisAngles,derived,global
+RPelvisAngles,Variable derivada: RPelvisAngles,derived,global
+LFootProgressAngles,Variable derivada: LFootProgressAngles,derived,global
+RFootProgressAngles,Variable derivada: RFootProgressAngles,derived,global
+RNeckAngles,Variable derivada: RNeckAngles,derived,global
+LNeckAngles,Variable derivada: LNeckAngles,derived,global
+RSpineAngles,Variable derivada: RSpineAngles,derived,global
+LSpineAngles,Variable derivada: LSpineAngles,derived,global
+LShoulderAngles,Variable derivada: LShoulderAngles,derived,global
+LElbowAngles,Variable derivada: LElbowAngles,derived,global
+LWristAngles,Variable derivada: LWristAngles,derived,global
+RShoulderAngles,Variable derivada: RShoulderAngles,derived,global
+RElbowAngles,Variable derivada: RElbowAngles,derived,global
+RWristAngles,Variable derivada: RWristAngles,derived,global
+RThoraxAngles,Variable derivada: RThoraxAngles,derived,global
+LThoraxAngles,Variable derivada: LThoraxAngles,derived,global
+RHeadAngles,Variable derivada: RHeadAngles,derived,global
+LHeadAngles,Variable derivada: LHeadAngles,derived,global
+LHipPower,Variable derivada: LHipPower,derived,global
+LKneePower,Variable derivada: LKneePower,derived,global
+LAnklePower,Variable derivada: LAnklePower,derived,global
+RHipPower,Variable derivada: RHipPower,derived,global
+RKneePower,Variable derivada: RKneePower,derived,global
+RAnklePower,Variable derivada: RAnklePower,derived,global
+LWaistPower,Variable derivada: LWaistPower,derived,global
+RWaistPower,Variable derivada: RWaistPower,derived,global
+LNeckPower,Variable derivada: LNeckPower,derived,global
+RNeckPower,Variable derivada: RNeckPower,derived,global
+LShoulderPower,Variable derivada: LShoulderPower,derived,global
+RShoulderPower,Variable derivada: RShoulderPower,derived,global
+LElbowPower,Variable derivada: LElbowPower,derived,global
+RElbowPower,Variable derivada: RElbowPower,derived,global
+LWristPower,Variable derivada: LWristPower,derived,global
+RWristPower,Variable derivada: RWristPower,derived,global
+LAnkleForce,Variable derivada: LAnkleForce,derived,global
+RAnkleForce,Variable derivada: RAnkleForce,derived,global
+RKneeForce,Variable derivada: RKneeForce,derived,global
+LKneeForce,Variable derivada: LKneeForce,derived,global
+RHipForce,Variable derivada: RHipForce,derived,global
+LHipForce,Variable derivada: LHipForce,derived,global
+LWaistForce,Variable derivada: LWaistForce,derived,global
+RWaistForce,Variable derivada: RWaistForce,derived,global
+LNeckForce,Variable derivada: LNeckForce,derived,global
+RNeckForce,Variable derivada: RNeckForce,derived,global
+LShoulderForce,Variable derivada: LShoulderForce,derived,global
+RShoulderForce,Variable derivada: RShoulderForce,derived,global
+LElbowForce,Variable derivada: LElbowForce,derived,global
+RElbowForce,Variable derivada: RElbowForce,derived,global
+LWristForce,Variable derivada: LWristForce,derived,global
+RWristForce,Variable derivada: RWristForce,derived,global
+LAnkleMoment,Variable derivada: LAnkleMoment,derived,global
+RAnkleMoment,Variable derivada: RAnkleMoment,derived,global
+RKneeMoment,Variable derivada: RKneeMoment,derived,global
+LKneeMoment,Variable derivada: LKneeMoment,derived,global
+RHipMoment,Variable derivada: RHipMoment,derived,global
+LHipMoment,Variable derivada: LHipMoment,derived,global
+LWaistMoment,Variable derivada: LWaistMoment,derived,global
+RWaistMoment,Variable derivada: RWaistMoment,derived,global
+LNeckMoment,Variable derivada: LNeckMoment,derived,global
+RNeckMoment,Variable derivada: RNeckMoment,derived,global
+LShoulderMoment,Variable derivada: LShoulderMoment,derived,global
+RShoulderMoment,Variable derivada: RShoulderMoment,derived,global
+LElbowMoment,Variable derivada: LElbowMoment,derived,global
+RElbowMoment,Variable derivada: RElbowMoment,derived,global
+LWristMoment,Variable derivada: LWristMoment,derived,global
+RWristMoment,Variable derivada: RWristMoment,derived,global
+CentreOfMass,Variable derivada: CentreOfMass,derived,global
+CentreOfMassFloor,Variable derivada: CentreOfMassFloor,derived,global
+LHJC,Variable derivada: LHJC,derived,global
+RHJC,Variable derivada: RHJC,derived,global
+LKJC,Variable derivada: LKJC,derived,global
+RKJC,Variable derivada: RKJC,derived,global
+LAJC,Variable derivada: LAJC,derived,global
+RAJC,Variable derivada: RAJC,derived,global
+PelvisCOM,Variable derivada: PelvisCOM,derived,global
+LeftFemurCOM,Variable derivada: LeftFemurCOM,derived,global
+LeftTibiaCOM,Variable derivada: LeftTibiaCOM,derived,global
+LeftFootCOM,Variable derivada: LeftFootCOM,derived,global
+RightFemurCOM,Variable derivada: RightFemurCOM,derived,global
+RightTibiaCOM,Variable derivada: RightTibiaCOM,derived,global
+RightFootCOM,Variable derivada: RightFootCOM,derived,global
+LSJC,Variable derivada: LSJC,derived,global
+RSJC,Variable derivada: RSJC,derived,global
+LEJC,Variable derivada: LEJC,derived,global
+REJC,Variable derivada: REJC,derived,global
+LWJC,Variable derivada: LWJC,derived,global
+RWJC,Variable derivada: RWJC,derived,global
+ThoraxCOM,Variable derivada: ThoraxCOM,derived,global
+HeadCOM,Variable derivada: HeadCOM,derived,global
+LeftHumerusCOM,Variable derivada: LeftHumerusCOM,derived,global
+LeftRadiusCOM,Variable derivada: LeftRadiusCOM,derived,global
+LeftHandCOM,Variable derivada: LeftHandCOM,derived,global
+RightHumerusCOM,Variable derivada: RightHumerusCOM,derived,global
+RightRadiusCOM,Variable derivada: RightRadiusCOM,derived,global
+RightHandCOM,Variable derivada: RightHandCOM,derived,global
+Tarcza:Tarcza1,Escudo (Tarcza),shield,solo condición E02
+Tarcza:Tarcza2,Escudo (Tarcza),shield,solo condición E02
+Tarcza:Tarcza3,Escudo (Tarcza),shield,solo condición E02
+Tarcza:Tarcza4,Escudo (Tarcza),shield,solo condición E02
+Tarcza:Tarcza5,Escudo (Tarcza),shield,solo condición E02
+Tarcza:Tarcza6,Escudo (Tarcza),shield,solo condición E02

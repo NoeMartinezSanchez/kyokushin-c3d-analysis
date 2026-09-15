@@ -1,0 +1,23 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Datos de atletas (no versionar datos en bruto de terceros)
+atletas/
+
+# Archivos personales / guías internas
+AGENTS.md
+notas.txt
+
+# Cachés de Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Editores / sistemas operativos
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,45 @@
+# Configuración por atleta B0367 (baseline del proyecto).
+# Refleja exactamente el comportamiento actual del pipeline antes de la FASE 1.8A.
+# NO "mejorar" B0367 aquí: reproduce RFIN/RTOE con los umbrales globales.
+
+athlete_id: B0367
+
+metadata:
+  data_dir: B0367                 # relativo a ROOT (baseline en la raíz)
+  sampling_rate: 200.0            # observado en C3D (fuente real = el archivo)
+  units: mm                        # observado en C3D
+
+# Parámetros generales heredados de config/segmentation.yaml.
+# Si una técnica NO aparece aquí, se usa el valor global (señal de `signals`).
+# NOTA: `joints_side` y `laterality` son específicos del atleta/técnica.
+
+techniques:
+  S01:
+    signal: RFIN
+    laterality: right
+    joints_side: R
+    movement: punch
+  S02:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S03:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S04:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S05:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+
+validation:
+  status: validated
+  notes: "Baseline hist\u00f3rico reproducido en Fases 1.5-1.7 (26 ejecuciones, QC 26/26)."

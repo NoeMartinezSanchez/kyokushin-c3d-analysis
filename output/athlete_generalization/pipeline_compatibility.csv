@@ -1,0 +1,14 @@
+component,B0367,B0377,class,action
+C3D reader (ezc3d),ok,ok,A,sin cambios
+units (mm/deg/N/Nmm/W),"mm,deg","mm,deg",A,sin cambios (iguales)
+sampling rate,200 Hz,250 Hz,B,parametrizar rate por archivo (ya se lee del C3D)
+marker mapping (nomenclatura),PlugInGait,PlugInGait,A,sin cambios
+derived variables,103 (E01/E02),72 (E01/E02),B,verificar disponibilidad por archivo
+lateralidad,derecha (R*),por determinar,B,analizar por atleta; no asumir
+signal selection,RFIN/RTOE hardcoded en config,a evaluar,C,parametrizar por atleta+técnica
+execution segmentation (bandas),ok,a probar,B,probar umbrales por atleta
+QC,26/26,a probar,A,sin cambios
+feature extraction,ok,a probar,B,depende de markers/ángulos disponibles
+E04 multiples sujetos,defensor B0367 vs atacante B0368,E04: B0377 vs B0376; E03: B0378 vs B0377,B,rol cambia por condición E03/E04; parametrizar
+Tarcza,6 markers,4 markers,B,parametrizar nº marcadores escudo
+DTW (faithfulness),probado,a probar,B,requiere misma condición/técnica/trial

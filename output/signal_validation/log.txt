@@ -1,0 +1,30 @@
+Salidas -> D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\signal_validation
+
+===== S03 =====
+  E01-T01: 2017-01-31-B0367-S03-E01-T01.c3d
+  E01-T02: 2017-01-31-B0367-S03-E01-T02.c3d
+  E02-T01: 2017-01-31-B0367-S03-E02-T01.c3d
+  E02-T02: 2017-01-31-B0367-S03-E02-T02.c3d
+
+===== S05 =====
+  E01-T01: 2017-01-31-B0367-S05-E01-T01.c3d
+  E01-T02: 2017-01-31-B0367-S05-E01-T02.c3d
+  E02-T01: 2017-01-31-B0367-S05-E02-T01.c3d
+
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\signal_validation\signal_validation_candidates.csv (42 filas)
+
+===== RESUMEN POR CANDIDATO (media por técnica, todos los trials) =====
+                  n  vmax_mm_s     snr  baseline  n_peaks  n_accepted  n_rejected  n_review   sep
+technique marker                                                                                 
+S03       RANK    4   10696.70  285.95     40.50     4.00        3.00        0.75      0.00  1.42
+          RHEE    4   11130.18  317.35     39.80     3.75        3.00        1.00      0.00  1.57
+          RHJC    4    1959.90    9.05    225.15     6.00        4.50        3.75      0.25  0.92
+          RKNE    4    6366.18   37.95    169.60     6.00        3.75        3.50      1.75  0.66
+          RTHI    4    4398.42   25.05    178.62     6.00        3.00        2.75      1.50  0.69
+          RTOE    4   13377.95  735.02     20.68     3.50        3.00        1.25      0.00  1.62
+S05       RANK    3    9780.80  335.03     35.93     4.33        3.00        3.67      0.33  1.97
+          RHEE    3   10610.50  367.97     37.33     4.33        3.00        4.33      0.33  1.97
+          RHJC    3    2680.53   10.27    261.37     7.67        5.67        3.67      1.00  0.80
+          RKNE    3    6409.57   31.87    201.37     6.67        3.33        2.00      0.33  0.57
+          RTHI    3    4611.40   20.37    226.33     6.67        3.33        4.33      0.00  0.57
+          RTOE    3   10861.17  579.23     22.87     4.67        3.00        3.33      0.33  1.97

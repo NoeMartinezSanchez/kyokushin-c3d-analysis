@@ -1,0 +1,42 @@
+# Configuración centralizada del pipeline de segmentación
+# Versión 1.6.1 — señales S03 y S05 validadas para B0367 (FASE 1.6.1).
+
+segmentation_method: "activity_bands"
+segmentation_version: "1.6.1"
+
+# Umbrales del método de bandas de actividad (ver docs/phase_1_5_report.md)
+params:
+  smooth_win: 15          # ventana Hanning (muestras), ~75 ms @200 Hz
+  activity_frac: 0.15     # fracción del rango para el nivel de actividad
+  min_dur_s: 0.15         # duración mínima de una ejecución
+  max_dur_s: 2.5          # duración máxima de una ejecución
+  min_gap_s: 0.30         # separación mínima para considerar bandas distintas
+  min_peak_ratio: 0.45    # pico mínimo (fracción del vmax global) para aceptar
+  review_peak_ratio: 0.30 # picos por debajo -> rejected; entre review y min -> review
+
+# Señal primaria (endpoint efectuador) por técnica.
+# S01 = puño (mano derecha); S02-S05 = patadas (pie derecho).
+# S03 y S05 validadas en FASE 1.6.1 con RTOE (pierna dominante derecha de B0367).
+# IMPORTANTE: esta selección es específica de B0367; para otros atletas la
+# lateralidad y el endpoint deben parametrizarse por atleta (no universal).
+signals:
+  S01:
+    signal: RFIN
+    secondary: RWRB
+    movement: punch
+  S02:
+    signal: RTOE
+    secondary: RANK
+    movement: kick
+  S03:
+    signal: RTOE
+    secondary: RHEE
+    movement: kick
+  S04:
+    signal: RTOE
+    secondary: RANK
+    movement: kick
+  S05:
+    signal: RTOE
+    secondary: RANK
+    movement: kick

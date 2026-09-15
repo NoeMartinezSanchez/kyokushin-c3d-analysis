@@ -1,0 +1,30 @@
+feature,calculable,fuente
+duración total,True,C3D directo / derivado
+tiempo hasta velocidad máxima (pico),True,C3D directo / derivado
+tiempo hasta aceleración máxima,True,C3D directo / derivado
+velocidad máxima (endpoint),True,C3D directo / derivado
+velocidad media,True,C3D directo / derivado
+aceleración máxima,True,C3D directo / derivado
+desplazamiento neto,True,C3D directo / derivado
+distancia recorrida (path length),True,C3D directo / derivado
+rango de movimiento (ROM) del endpoint,True,C3D directo / derivado
+ROM articular (cadera/rodilla/tobillo/hombro/codo) — ya calculados en C3D,True,C3D directo / derivado
+velocidad angular y aceleración angular articulares (derivables),True,C3D directo / derivado
+retraso temporal entre picos de segmentos (por ej. cadera -> rodilla -> pie),True,C3D directo / derivado
+correlación cruzada entre ángulos articulares,True,C3D directo / derivado
+desplazamiento del COM,True,C3D directo / derivado
+velocidad y aceleración del COM,True,C3D directo / derivado
+simetría izquierda/derecha (comparación de marcadores L/R equivalentes),True,C3D directo / derivado
+duración de fases (preparatoria / ejecución / final) — de la detección de fases,True,C3D directo / derivado
+potencia articular máxima (momento * velocidad angular) — ya disponibles,True,C3D directo / derivado
+integridad/calidad: % de frames con NaN por marcador,True,C3D directo / derivado
+fuerzas de reacción del suelo (GRF) — no hay plataformas ni analógicos,False,requiere sensores adicionales
+momentos reales en el pie (dependen de GRF),False,requiere sensores adicionales
+presión plantar distribuida,False,requiere sensores adicionales
+EMG / activación muscular,False,requiere sensores adicionales
+"frecuencia cardíaca, lactato, VO2, carga fisiológica",False,requiere sensores adicionales
+acelerometría inercial (IMU) local por segmento,False,requiere sensores adicionales
+velocidad de impacto real sobre el objetivo (requiere instrumentar al escudo),False,requiere sensores adicionales
+precisión/distorsión percibida del golpe (resultado de combate),False,requiere sensores adicionales
+fatiga (requiere series prolongadas + fisiológicos),False,requiere sensores adicionales
+datos de ojo/inicio de intención (latencias cognitivas),False,requiere sensores adicionales

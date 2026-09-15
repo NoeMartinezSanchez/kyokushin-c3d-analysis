@@ -1,0 +1,7 @@
+marker,available,baseline_mm_s,vmax_mm_s,snr,n_accepted,n_rejected,n_review
+RTOE,YES,159.3,4288.5,26.8,2,6,1
+LTOE,YES,52.8,9323.9,173.3,3,3,1
+RANK,YES,315.1,4068.8,12.9,4,10,2
+LANK,YES,130.3,7366.0,56.1,3,5,0
+RHEE,YES,252.0,4529.1,17.9,4,14,0
+LHEE,YES,159.1,7600.7,47.5,3,4,0
