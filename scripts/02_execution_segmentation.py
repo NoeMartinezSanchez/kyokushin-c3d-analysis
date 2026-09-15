@@ -613,8 +613,17 @@ def process_file(fp: Path) -> tuple[list[dict], list[dict], dict]:
 
     rows = []
     if not segs.empty:
+        # mapa (start, peak, end frame) -> event_id GLOBAL del registro de eventos.
+        # (Corrige trazabilidad FASE 1.8B: antes event_id era el índice posicional
+        #  de la aceptada, no el índice global, divergiendo de segmentation_events.csv)
+        ev_id_map = {}
+        for i, ev in events.iterrows():
+            ev_id_map[(int(ev["start_frame"]), int(ev["peak_frame"]),
+                       int(ev["end_frame"]))] = int(i)
         for k, seg in segs.iterrows():
             feat = extract_features(fp, athlete, seg, best["marker"], rate, tech)
+            key = (int(seg["start_frame"]), int(seg["peak_frame"]),
+                   int(seg["end_frame"]))
             rows.append({
                 "source_file": Path(fp).name,
                 "athlete_id": athlete,
@@ -632,7 +641,7 @@ def process_file(fp: Path) -> tuple[list[dict], list[dict], dict]:
                 **units,
                 "segmentation_method": SEGMENTATION_METHOD,
                 "segmentation_version": SEGMENTATION_VERSION,
-                "event_id": int(k),  # índice del evento aceptado en el registro
+                "event_id": ev_id_map.get(key, int(k)),
                 "start_frame": int(seg["start_frame"]),
                 "peak_frame": int(seg["peak_frame"]),
                 "end_frame": int(seg["end_frame"]),

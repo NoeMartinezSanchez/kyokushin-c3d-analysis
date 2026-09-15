@@ -1,0 +1,2 @@
+total_executions,total_athletes,total_techniques,total_conditions,accepted_executions,review_executions,rejected_executions,missing_feature_values,sampling_rate_200hz,sampling_rate_250hz,mart_version,source_dataset
+18,2,3,1,18,0,0,0,9,9,1.0,feature_readiness_sample

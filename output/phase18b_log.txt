@@ -1,0 +1,40 @@
+FASE 1.8B-1 — FEATURE READINESS AUDIT
+Golden path: ['B0367', 'B0377'] × ['S02', 'S03', 'S05'] × E01-T01
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\feature_readiness_sample.csv (18 filas)
+
+Ejecuciones del golden path:
+athlete_id technique condition trial          execution_id  duration_s   vmax   amax    hip_rom   knee_rom  ankle_rom   snr qc_status
+     B0367       S02       E01   T01 B0367|S02|E01|T01|001       0.810 10.301 169.34 124.444466 153.551579  45.088415 671.3  accepted
+     B0367       S02       E01   T01 B0367|S02|E01|T01|002       0.855 10.372 166.91 120.746792 158.948097  46.001369 671.3  accepted
+     B0367       S02       E01   T01 B0367|S02|E01|T01|003       0.820 10.289 167.32 120.083273 156.971512  42.391441 671.3  accepted
+     B0367       S03       E01   T01 B0367|S03|E01|T01|001       1.035 10.551 188.20 108.872341 151.094898  44.735699 737.2  accepted
+     B0367       S03       E01   T01 B0367|S03|E01|T01|002       0.855 10.294 149.04 111.462563 150.505590  33.298985 737.2  accepted
+     B0367       S03       E01   T01 B0367|S03|E01|T01|003       0.955 10.404 155.22 109.865398 152.099176  38.460787 737.2  accepted
+     B0367       S05       E01   T01 B0367|S05|E01|T01|001       0.770 10.047  88.68 163.459831 140.135536  44.325472 481.7  accepted
+     B0367       S05       E01   T01 B0367|S05|E01|T01|002       0.740 10.544  93.10 116.857105 125.533920  52.936968 481.7  accepted
+     B0367       S05       E01   T01 B0367|S05|E01|T01|003       0.785  9.981  83.55 134.732174 132.628014  41.931562 481.7  accepted
+     B0377       S02       E01   T01 B0377|S02|E01|T01|001       0.920  6.483 126.93 118.952412 150.565641  44.769262 250.3  accepted
+     B0377       S02       E01   T01 B0377|S02|E01|T01|002       1.064  7.149 134.70 105.855476 154.290607  48.664589 250.3  accepted
+     B0377       S02       E01   T01 B0377|S02|E01|T01|003       0.972  7.024 137.43 115.607494 156.319565  48.278963 250.3  accepted
+     B0377       S03       E01   T01 B0377|S03|E01|T01|001       0.920 10.390 193.57  91.957836 154.240206  61.557011 140.5  accepted
+     B0377       S03       E01   T01 B0377|S03|E01|T01|002       0.904  9.415 181.85  86.466694 140.764126  63.692578 140.5  accepted
+     B0377       S03       E01   T01 B0377|S03|E01|T01|003       0.984  9.139 155.75  81.921618 132.272589  60.928560 140.5  accepted
+     B0377       S05       E01   T01 B0377|S05|E01|T01|001       1.020  9.385  90.32 148.434555 118.377951  69.165625 302.0  accepted
+     B0377       S05       E01   T01 B0377|S05|E01|T01|002       0.736  8.994  69.32 145.228924 113.302073  55.841026 302.0  accepted
+     B0377       S05       E01   T01 B0377|S05|E01|T01|003       0.632  9.109  88.90 138.960819 102.413513  47.299572 302.0  accepted
+
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\feature_readiness_audit.csv
+
+Auditoría de comparabilidad:
+       feature  available_B0367  available_B0377  same_definition  same_units        units  sampling_rate_sensitive  side_sensitive  directly_comparable                                             notes
+    duration_s             True             True             True        True            s                    False           False                 True                                       indep de Hz
+time_to_peak_s             True             True             True        True            s                    False           False                 True                                       indep de Hz
+          vmax             True             True             True        True          m/s                     True           False                False        requiere normalizacion temporal 200/250 Hz
+         vmean             True             True             True        True          m/s                     True           False                False        requiere normalizacion temporal 200/250 Hz
+          amax             True             True             True        True        m/s^2                     True           False                False        requiere normalizacion temporal 200/250 Hz
+  displacement             True             True             True        True            m                    False           False                False magnitud geométrica; Hz solo indirecta vía frames
+   path_length             True             True             True        True            m                     True           False                False        requiere normalizacion temporal 200/250 Hz
+       hip_rom             True             True             True        True          deg                    False            True                False                            depende de joints_side
+      knee_rom             True             True             True        True          deg                    False            True                False                            depende de joints_side
+     ankle_rom             True             True             True        True          deg                    False            True                False                            depende de joints_side
+           snr             True             True             True        True adimensional                    False           False                False                                                  

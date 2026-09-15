@@ -1,0 +1,12 @@
+feature,available_B0367,available_B0377,same_definition,same_units,units,sampling_rate_sensitive,side_sensitive,directly_comparable,notes
+duration_s,True,True,True,True,s,False,False,True,indep de Hz
+time_to_peak_s,True,True,True,True,s,False,False,True,indep de Hz
+vmax,True,True,True,True,m/s,True,False,False,requiere normalizacion temporal 200/250 Hz
+vmean,True,True,True,True,m/s,True,False,False,requiere normalizacion temporal 200/250 Hz
+amax,True,True,True,True,m/s^2,True,False,False,requiere normalizacion temporal 200/250 Hz
+displacement,True,True,True,True,m,False,False,False,magnitud geométrica; Hz solo indirecta vía frames
+path_length,True,True,True,True,m,True,False,False,requiere normalizacion temporal 200/250 Hz
+hip_rom,True,True,True,True,deg,False,True,False,depende de joints_side
+knee_rom,True,True,True,True,deg,False,True,False,depende de joints_side
+ankle_rom,True,True,True,True,deg,False,True,False,depende de joints_side
+snr,True,True,True,True,adimensional,False,False,False,

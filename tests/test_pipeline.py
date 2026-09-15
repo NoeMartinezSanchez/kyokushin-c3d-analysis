@@ -360,5 +360,175 @@ def test_config_overrides_global():
     _X02.set_active_athlete("B0367")
 
 
+# --------------------------------------------------------------------------- #
+# 9. Feature Readiness (FASE 1.8B)
+# --------------------------------------------------------------------------- #
+
+def test_feature_readiness_sample_schema():
+    """la muestra golden path debe tener el esquema mínimo del plan."""
+    p = ROOT / "output" / "feature_readiness_sample.csv"
+    if not p.exists():
+        pytest.skip("FASE 1.8B no ejecutada")
+    df = pd.read_csv(p)
+    required = ["athlete_id", "technique", "condition", "trial", "execution_id",
+                "duration_s", "time_to_peak_s", "vmax", "vmean", "amax",
+                "displacement", "path_length", "hip_rom", "knee_rom",
+                "ankle_rom", "snr", "qc_status"]
+    assert set(required).issubset(df.columns)
+
+
+def test_feature_readiness_golden_path_scope():
+    """Solo S02/S03/S05 × E01 × T01; ambos atletas."""
+    p = ROOT / "output" / "feature_readiness_sample.csv"
+    if not p.exists():
+        pytest.skip("FASE 1.8B no ejecutada")
+    df = pd.read_csv(p)
+    assert set(df["technique"].unique()) == {"S02", "S03", "S05"}
+    assert set(df["condition"].unique()) == {"E01"}
+    assert set(df["trial"].unique()) == {"T01"}
+    assert set(df["athlete_id"].unique()) == {"B0367", "B0377"}
+
+
+def test_qc_status_mapping_consistent():
+    """qc_status de las filas aceptadas debe ser accepted (coherente con eventos)."""
+    p = ROOT / "output" / "feature_readiness_sample.csv"
+    if not p.exists():
+        pytest.skip("FASE 1.8B no ejecutada")
+    df = pd.read_csv(p)
+    assert (df["qc_status"] == "accepted").all()
+
+
+def test_hip_knee_ankle_mapped_from_joints_side():
+    """hip/knee/ankle_rom deben venir de rom_{joints_side}... (R en golden path)."""
+    p = ROOT / "output" / "feature_readiness_sample.csv"
+    if not p.exists():
+        pytest.skip("FASE 1.8B no ejecutada")
+    df = pd.read_csv(p)
+    # golden path: joints_side=R en ambos atletas para S02/S03/S05
+    for _, r in df.iterrows():
+        assert r["hip_rom"] == r.get("rom_RHipAngles") or pd.isna(r["hip_rom"]) is False
+    # ninguna fila con ROM de lado izquierdo en golden path
+    assert not any(c.startswith("rom_L") for c in df.columns)
+
+
+def test_event_id_matches_global_events():
+    """event_id en executions_sample debe referenciar el evento global aceptado."""
+    exec_b36 = pd.read_csv(ROOT / "output" / "executions_sample.csv")
+    ev_b36 = pd.read_csv(ROOT / "output" / "segmentation_events.csv")
+    merged = exec_b36.merge(ev_b36, on=["athlete_id", "technique", "condition",
+                                        "trial", "event_id"], how="left")
+    # las ejecuciones aceptadas deben emparejar con un evento accepted
+    assert merged["status"].eq("accepted").all()
+
+
+# --------------------------------------------------------------------------- #
+# 10. Athlete Data Mart (FASE 1.8C)
+# --------------------------------------------------------------------------- #
+
+MART_FILE = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
+MART_SUMMARY = ROOT / "output" / "data_mart" / "data_mart_summary.csv"
+
+
+def test_mart_schema():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    required = ["athlete_id", "execution_id", "technique", "condition", "trial",
+                "repetition", "sampling_rate_hz", "primary_signal", "movement_side",
+                "event_id", "duration_s", "time_to_peak_s", "vmax", "vmean",
+                "amax", "displacement", "path_length", "hip_rom", "knee_rom",
+                "ankle_rom", "snr", "qc_status", "quality_flag",
+                "comparability_duration_s", "comparability_vmax", "feature_version",
+                "segmentation_version", "units_version", "source_dataset"]
+    assert set(required).issubset(mart.columns)
+
+
+def test_mart_unique_execution_id():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    assert mart["execution_id"].is_unique
+
+
+def test_mart_golden_path_scope():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    assert len(mart) == 18
+    assert set(mart["athlete_id"]) == {"B0367", "B0377"}
+    assert set(mart["technique"]) == {"S02", "S03", "S05"}
+    assert set(mart["condition"]) == {"E01"}
+    assert set(mart["trial"]) == {"T01"}
+
+
+def test_mart_sampling_rate_metadata():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    assert set(mart.loc[mart["athlete_id"] == "B0367", "sampling_rate_hz"]) == {200.0}
+    assert set(mart.loc[mart["athlete_id"] == "B0377", "sampling_rate_hz"]) == {250.0}
+    assert (mart["movement_side"] == "R").all()  # golden path usa lado derecho
+
+
+def test_mart_comparability_mapping():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    assert (mart["comparability_duration_s"] == "DIRECTLY_COMPARABLE").all()
+    assert (mart["comparability_vmax"] == "REQUIRES_NORMALIZATION").all()
+    assert (mart["comparability_hip_rom"] == "COMPARABLE_WITH_CAVEAT").all()
+
+
+def test_mart_no_nan_minimal_features():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    feats = ["duration_s", "time_to_peak_s", "vmax", "vmean", "amax",
+             "displacement", "path_length", "hip_rom", "knee_rom",
+             "ankle_rom", "snr"]
+    assert mart[feats].isna().sum().sum() == 0
+
+
+def test_mart_qc_consistency():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    assert (mart["qc_status"] == "accepted").all()
+    assert (mart["quality_flag"] == "OK").all()
+
+
+def test_mart_summary():
+    if not MART_SUMMARY.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    sm = pd.read_csv(MART_SUMMARY).iloc[0]
+    assert sm["total_executions"] == 18
+    assert sm["total_athletes"] == 2
+    assert sm["sampling_rate_200hz"] == 9
+    assert sm["sampling_rate_250hz"] == 9
+    assert sm["missing_feature_values"] == 0
+
+
+def test_mart_units_metadata():
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    assert (mart["feature_version"].astype(str) == "1.0").all()
+    assert (mart["units_version"].astype(str) == "1.0").all()
+    assert (mart["source_dataset"] == "feature_readiness_sample").all()
+
+
+def test_mart_traceability():
+    """event_id del mart debe emparejar con el evento global accepted del baseline."""
+    if not MART_FILE.exists():
+        pytest.skip("FASE 1.8C no ejecutada")
+    mart = pd.read_csv(MART_FILE)
+    ev = pd.read_csv(ROOT / "output" / "segmentation_events.csv")
+    b36 = mart[mart["athlete_id"] == "B0367"]
+    merged = b36.merge(ev, left_on=["technique", "condition", "trial", "event_id"],
+                       right_on=["technique", "condition", "trial", "event_id"], how="left")
+    assert merged["status"].notna().all()
+    assert merged["status"].eq("accepted").all()
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

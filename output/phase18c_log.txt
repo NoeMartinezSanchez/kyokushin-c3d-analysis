@@ -1,0 +1,62 @@
+FASE 1.8C — ATHLETE DATA MART
+Versiones: segmentation=1.8.0, features=1.0, units=1.0, mart=1.0
+Fuente: feature_readiness_sample
+
+[VALIDACIÓN] OK: 18 filas, identidad/calidad/unidades/frecuencia coherentes.
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\data_mart\athlete_execution_features.csv (18 filas)
+[guardado] D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\data_mart\data_mart_summary.csv
+
+Distribución por atleta/técnica:
+athlete_id  technique
+B0367       S02          3
+            S03          3
+            S05          3
+B0377       S02          3
+            S03          3
+            S05          3
+
+Sampling rates:
+athlete_id
+B0367    [200.0]
+B0377    [250.0]
+
+Ejemplo de fila:
+athlete_id                                         B0367
+execution_id                       B0367|S02|E01|T01|001
+technique                                            S02
+condition                                            E01
+trial                                                T01
+repetition                                             1
+sampling_rate_hz                                   200.0
+primary_signal                                      RTOE
+movement_side                                          R
+event_id                                               0
+duration_s                                          0.81
+time_to_peak_s                                     0.225
+vmax                                              10.301
+vmean                                              5.442
+amax                                              169.34
+displacement                                        0.05
+path_length                                         4.41
+hip_rom                                       124.444466
+knee_rom                                      153.551579
+ankle_rom                                      45.088415
+snr                                                671.3
+qc_status                                       accepted
+quality_flag                                          OK
+comparability_duration_s             DIRECTLY_COMPARABLE
+comparability_time_to_peak_s         DIRECTLY_COMPARABLE
+comparability_vmax                REQUIRES_NORMALIZATION
+comparability_vmean               REQUIRES_NORMALIZATION
+comparability_amax                REQUIRES_NORMALIZATION
+comparability_displacement        COMPARABLE_WITH_CAVEAT
+comparability_path_length         REQUIRES_NORMALIZATION
+comparability_hip_rom             COMPARABLE_WITH_CAVEAT
+comparability_knee_rom            COMPARABLE_WITH_CAVEAT
+comparability_ankle_rom           COMPARABLE_WITH_CAVEAT
+comparability_snr                 COMPARABLE_WITH_CAVEAT
+feature_version                                      1.0
+segmentation_version                               1.8.0
+units_version                                        1.0
+source_dataset                  feature_readiness_sample
+mart_version                                         1.0
