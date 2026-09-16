@@ -530,5 +530,102 @@ def test_mart_traceability():
     assert merged["status"].eq("accepted").all()
 
 
+# --------------------------------------------------------------------------- #
+# 11. Dashboard MVP — capa de datos (FASE 1.8D)
+# --------------------------------------------------------------------------- #
+
+DASH_DIR = ROOT / "dashboard"
+DA = None
+
+
+def _dash_data():
+    global DA
+    if DA is None:
+        import importlib.util as _ilu
+        _dspec = _ilu.spec_from_file_location("dash_data", str(DASH_DIR / "data.py"))
+        DA = _ilu.module_from_spec(_dspec)
+        _dspec.loader.exec_module(DA)
+    return DA
+
+
+def test_dashboard_does_not_touch_c3d():
+    """el data layer no importa ezc3d ni lee archivos .c3d."""
+    da = _dash_data()
+    src = Path(da.__file__).read_text(encoding="utf-8")
+    # solo el docstring puede mencionar 'C3D' como texto; el código no.
+    code = "\n".join(line for line in src.splitlines()
+                     if not line.strip().startswith("#") and "c3d" not in line.lower().strip())
+    assert "import ezc3d" not in src
+    assert "ezc3d.c3d(" not in src
+    assert "rglob" not in src
+    assert "glob" not in src
+
+
+def test_dashboard_data_mart_loads():
+    da = _dash_data()
+    df = da.load_data_mart()
+    assert len(df) == 18
+
+
+def test_dashboard_schema():
+    da = _dash_data()
+    df = da.load_data_mart()
+    missing = [c for c in da.REQUIRED_COLUMNS if c not in df.columns]
+    assert not missing, f"faltan {missing}"
+
+
+def test_dashboard_no_nan_required_fields():
+    da = _dash_data()
+    df = da.load_data_mart()
+    feats = ["duration_s", "time_to_peak_s", "vmax", "amax", "displacement",
+             "path_length", "hip_rom", "knee_rom", "ankle_rom", "snr"]
+    assert df[feats].isna().sum().sum() == 0
+
+
+def test_dashboard_athletes():
+    da = _dash_data()
+    df = da.load_data_mart()
+    assert set(df["athlete_id"].unique()) == {"B0367", "B0377"}
+
+
+def test_dashboard_techniques():
+    da = _dash_data()
+    df = da.load_data_mart()
+    assert set(df["technique"].unique()).issuperset({"S02", "S03", "S05"})
+
+
+def test_dashboard_comparability_preserved():
+    da = _dash_data()
+    df = da.load_data_mart()
+    statuses = da.comparability_status(df)
+    assert {"DIRECTLY_COMPARABLE", "COMPARABLE_WITH_CAVEAT",
+            "REQUIRES_NORMALIZATION"} <= set(statuses)
+
+
+def test_dashboard_filter_by_athlete():
+    da = _dash_data()
+    df = da.load_data_mart()
+    b36 = da.filter_by(df, athlete_id="B0367")
+    assert len(b36) == 9
+    assert set(b36["athlete_id"]) == {"B0367"}
+
+
+def test_dashboard_filter_by_technique():
+    da = _dash_data()
+    df = da.load_data_mart()
+    s02 = da.filter_by(df, technique="S02")
+    assert len(s02) == 6
+    assert set(s02["technique"]) == {"S02"}
+
+
+def test_dashboard_data_mart_not_modified():
+    """el módulo de datos no escribe; el archivo del Data Mart queda igual."""
+    da = _dash_data()
+    before = da.DATA_MART_PATH.read_bytes()
+    _ = da.load_data_mart()
+    after = da.DATA_MART_PATH.read_bytes()
+    assert before == after
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

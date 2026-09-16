@@ -8,7 +8,7 @@ Dataset público de Agnieszka Szczęsna, Monika Błaszczyszyn, Magdalena Pawlyta
 
 Subconjunto local: **participante B0367** (26 archivos C3D) y **B0377** (39 archivos C3D, en `atletas/`).
 
-> **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)** y **1.8C (Athlete Data Mart)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`) listo para el futuro Dashboard/ML. Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
+> **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)**, **1.8C (Athlete Data Mart)** y **1.8D (Dashboard MVP)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`), consumido por un **Dashboard MVP en Streamlit** (`dashboard/app.py`). Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
 
 ---
 
@@ -94,7 +94,8 @@ Qué se ha hecho hasta el momento, con su script, salida y estado. Informes deta
 | **1.8A — Config por atleta** | Parametrizar señal/lateralidad/joints/rutas por atleta en YAML con un único motor | `02` (motor) + `05_phase_1_8a_validation.py` | `config/athletes/<id>.yaml`, `output/phase_1_8a/` | ✅ Completada (regresión + S01/S04 OK) |
 | **1.8B-1 — Feature readiness** | Verificar que el golden path (S02/S03/S05-E01-T01) genera features mínimas comparables entre atletas | `06_feature_readiness.py` | `feature_readiness_sample.csv`, `feature_readiness_audit.csv` | ✅ Completada (18 ejecuciones; corregido bug event_id) |
 | **1.8C — Athlete Data Mart** | Consolidar golden path en un Data Mart estable (identidad + metadata + features + comparabilidad + versiones) para el futuro Dashboard/ML | `07_build_athlete_data_mart.py` | `output/data_mart/athlete_execution_features.csv`, `data_mart_summary.csv` | ✅ Completada (18 filas; validaciones OK) |
-| **1.8D — Dashboard/cobertura (siguiente)** | Resolver umbral S01-B0377 (baseline alto, marcado `NEEDS_VALIDATION`), ampliar cobertura B0377, normalizar 200/250 Hz, prototipo de Dashboard leyendo solo el Data Mart | — | — | ⏳ Pendiente |
+| **1.8D — Dashboard MVP** | Dashboard local (Streamlit) que lee SOLO el Data Mart: overview, técnica/ejecución, consistencia, comparación y comparabilidad | `dashboard/app.py` (+ `data.py`, `components.py`) | `docs/phase_1_8d_dashboard.md` | ✅ Completada (61 tests; 22 charts) |
+| **1.8E — Cobertura (siguiente)** | Ampliar el Data Mart (T02/E02, resolver S01/S04-B0377, normalización temporal 200/250 Hz), más atletas y vistas analíticas residuales | — | — | ⏳ Pendiente |
 
 **Hallazgo transversal importante:** la configuración es **por atleta y por técnica** (B0367: S01=RFIN, S02–S05=RTOE, lateralidad derecha; B0377: S04=LTOE, lateralidad izquierda en S04). La selección de señales de B0367 **no es universal**.
 Para ML futuro se usará siempre **división por participante (GroupKFold / Leave-One-Subject-Out)**, nunca random split por archivo.
@@ -121,8 +122,12 @@ Deporte_sensores/
 │   ├── 05_phase_1_8a_validation.py  # Fase 1.8A: regresión + S01/S04
 │   ├── 06_feature_readiness.py      # Fase 1.8B-1: features mínimas comparables (golden path)
 │   └── 07_build_athlete_data_mart.py  # Fase 1.8C: consolida el Data Mart (capas de datos)
+├── dashboard/
+│   ├── app.py                     # Fase 1.8D: Dashboard MVP (Streamlit)
+│   ├── data.py                    # capa de datos (lee Data Mart; no toca C3D)
+│   └── components.py              # labels ES/plotly helpers
 ├── tests/
-│   └── test_pipeline.py        # Tests mínimos (pytest, 51 tests)
+│   └── test_pipeline.py        # Tests mínimos (pytest, 61 tests)
 ├── docs/
 │   ├── dataset_audit.md         # Informe Fase 1 (archivos/calidad/features/ML)
 │   ├── phase_1_5_report.md      # Informe Fase 1.5
@@ -206,7 +211,10 @@ Se usa **ezc3d** (≥1.7) para leer los C3D. La librería entrega los puntos com
 # Fase 1.8C — construir el Athlete Data Mart (consumirá el futuro Dashboard)
 .venv\Scripts\python scripts\07_build_athlete_data_mart.py
 
-# Tests (51)
+# Fase 1.8D — lanzar el Dashboard MVP (Streamlit, lee solo el Data Mart)
+streamlit run dashboard/app.py
+
+# Tests (61)
 .venv\Scripts\python -m pytest tests -q
 ```
 
@@ -264,15 +272,15 @@ El script `07` (Athlete Data Mart, Fase 1.8C):
 - En E02 (escudo) la velocidad pico del pie sube a ~15.7 m/s frente a 9.4 m/s en aire (descriptivo, n=1, sin afirmar beneficio).
 - La **coordinación proximal-distal** quedó **NO VALIDADA**; pendiente de rediseño.
 - **Señal por técnica (B0367):** S01=RFIN, S02=S03=S04=S05=RTOE. **Por técnica (B0377):** S04=LTOE (izquierda), resto RTOE. La selección NO es universal.
-- **Pendiente (Fase 1.8D):** resolver umbral S01-B0377, ampliar cobertura B0377 (T02/E02/E03/E04), normalización 200/250 Hz y prototipo de Dashboard leyendo solo el Data Mart.
+- **Pendiente (Fase 1.8E):** resolver umbral S01-B0377, ampliar cobertura B0377 (T02/E02/E03/E04), normalización 200/250 Hz y ampliar el Data Mart/Dashboard con más datos.
 
 ---
 
 ## Próximos pasos sugeridos
 
-1. **Fase 1.8D:** Dashboard prototipo leyendo solo el Data Mart, resolver S01-B0377, ampliar cobertura B0377, validar S04-LTOE en más trials y normalización temporal 200/250 Hz.
+1. **Fase 1.8E:** ampliar cobertura del Data Mart (T02/E02, resolver S01/S04-B0377, normalización temporal 200/250 Hz) y más atletas sobre el mismo contrato; ampliar vistas del dashboard.
 2. Descargar el dataset completo desde figshare (37 atletas) cuando se autorice.
 3. `08_extract_features.py`: extraer features por ejecución → dataset tabular multiatleta (reutilizando `02` con `config/athletes/<id>.yaml`).
 4. `09_evaluate_models.py`: primer experimento = **clasificación de técnica (S01–S05)** con GroupKFold por participante.
 
-Ver informes: [`docs/dataset_audit.md`](docs/dataset_audit.md), [`docs/phase_1_5_report.md`](docs/phase_1_5_report.md), [`docs/phase_1_6_report.md`](docs/phase_1_6_report.md), [`docs/phase_1_6_1_report.md`](docs/phase_1_6_1_report.md), [`docs/phase_1_6_2_report.md`](docs/phase_1_6_2_report.md), [`docs/phase_1_7_report.md`](docs/phase_1_7_report.md), [`docs/phase_1_8a_report.md`](docs/phase_1_8a_report.md), [`docs/phase_1_8b_feature_readiness.md`](docs/phase_1_8b_feature_readiness.md) y [`docs/phase_1_8c_data_mart.md`](docs/phase_1_8c_data_mart.md).
+Ver informes: [`docs/dataset_audit.md`](docs/dataset_audit.md), [`docs/phase_1_5_report.md`](docs/phase_1_5_report.md), [`docs/phase_1_6_report.md`](docs/phase_1_6_report.md), [`docs/phase_1_6_1_report.md`](docs/phase_1_6_1_report.md), [`docs/phase_1_6_2_report.md`](docs/phase_1_6_2_report.md), [`docs/phase_1_7_report.md`](docs/phase_1_7_report.md), [`docs/phase_1_8a_report.md`](docs/phase_1_8a_report.md), [`docs/phase_1_8b_feature_readiness.md`](docs/phase_1_8b_feature_readiness.md), [`docs/phase_1_8c_data_mart.md`](docs/phase_1_8c_data_mart.md) y [`docs/phase_1_8d_dashboard.md`](docs/phase_1_8d_dashboard.md).

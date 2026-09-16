@@ -43,7 +43,7 @@ El Dashboard leerá **solo** el Data Mart; nunca C3D ni archivos intermedios.
 
 ## 5. Esquema
 
-`athlete_execution_features.csv` (43 columnas):
+`athlete_execution_features.csv` (39 columnas):
 
 | Grupo | Columnas |
 |-------|----------|
@@ -117,7 +117,7 @@ Alternativa si aún no se quiere dashboard: ampliar cobertura del Data Mart (agr
 
 - **A. Archivos creados:** `scripts/07_build_athlete_data_mart.py`, `output/data_mart/athlete_execution_features.csv`, `output/data_mart/data_mart_summary.csv`, `docs/athlete_data_mart_dictionary.md`, `docs/phase_1_8c_data_mart.md`.
 - **B. Archivos modificados:** ninguno de los outputs históricos; solo se añadió la capa nueva. (Nota: sin cambios a `02`/`06`/`01`.)
-- **C. Esquema final:** 43 columnas (identidad, adquisición, temporal, cinemática, articulaciones, calidad, comparabilidad, metadatos).
+- **C. Esquema final:** 39 columnas (identidad, adquisición, temporal, cinemática, articulaciones, calidad, comparabilidad, metadatos). *(Fase 1.8D: corregido — el "43" era un error de documentación; el CSV real tiene 39.)*
 - **D. Nº de filas:** 18.
 - **E. Nº de atletas:** 2.
 - **F. Distribución por técnica:** S02: 6, S03: 6, S05: 6 (3 por atleta).
