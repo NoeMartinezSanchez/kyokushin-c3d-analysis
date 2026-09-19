@@ -1,0 +1,59 @@
+========================================================================
+FASE 1.8E — INVENTARIO COMPLETO DE ATLETAS Y HOMOGENEIDAD
+========================================================================
+Fuente canónica: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\atletas
+Se excluye la copia histórica B0367/ de la raíz (duplicado de atletas/B0367/).
+
+[Pase 1] Atletas detectados: 37
+
+[Pase 2] Escaneo completo de C3D (con checkpoint)...
+[1/37] B0367: 26 archivos (checkpoint)
+[2/37] B0368: 21 archivos (checkpoint)
+[3/37] B0369: 28 archivos (checkpoint)
+[4/37] B0370: 16 archivos (checkpoint)
+[5/37] B0371: 30 archivos (checkpoint)
+[6/37] B0372: 40 archivos (checkpoint)
+[7/37] B0373: 40 archivos (checkpoint)
+[8/37] B0374: 40 archivos (checkpoint)
+[9/37] B0375: 40 archivos (checkpoint)
+[10/37] B0376: 40 archivos (checkpoint)
+[11/37] B0377: 39 archivos (checkpoint)
+[12/37] B0378: 40 archivos (checkpoint)
+[13/37] B0379: 40 archivos (checkpoint)
+[14/37] B0380: 41 archivos (checkpoint)
+[15/37] B0381: 51 archivos (checkpoint)
+[16/37] B0382: 30 archivos (checkpoint)
+[17/37] B0383: 30 archivos (checkpoint)
+[18/37] B0384: 42 archivos (checkpoint)
+[19/37] B0385: 42 archivos (checkpoint)
+[20/37] B0386: 41 archivos (checkpoint)
+[21/37] B0387: 40 archivos (checkpoint)
+[22/37] B0388: 50 archivos (checkpoint)
+[23/37] B0389: 40 archivos (checkpoint)
+[24/37] B0391: 40 archivos (checkpoint)
+[25/37] B0392: 40 archivos (checkpoint)
+[26/37] B0393: 44 archivos (checkpoint)
+[27/37] B0394: 40 archivos (checkpoint)
+[28/37] B0395: 41 archivos (checkpoint)
+[29/37] B0396: 41 archivos (checkpoint)
+[30/37] B0398: 39 archivos (checkpoint)
+[31/37] B0399: 39 archivos (checkpoint)
+[32/37] B0400: 40 archivos (checkpoint)
+[33/37] B0401: 39 archivos (checkpoint)
+[34/37] B0402: 40 archivos (checkpoint)
+[35/37] B0403: 41 archivos (checkpoint)
+[36/37] B0404: 40 archivos (checkpoint)
+[37/37] B0405: 40 archivos (checkpoint)
+Archivos inventariados: 1411  (tiempo parcial 62.5s)
+
+[TIEMPO] total inventario: 63.7 s
+
+[RESUMEN]
+  Atletas detectados : 37
+  C3D inventariados  : 1411
+  Grupos de Hz       : [{'sampling_rate_hz': 200.0, 'file_count': 91, 'athlete_count': 4}, {'sampling_rate_hz': 250.0, 'file_count': 1320, 'athlete_count': 33}]
+  Archivos con anomalías: 0
+  Configurados       : 2 (B0367, B0377)
+  No configurados    : 35
+
+[Guardado] output/athlete_inventory/ (11 CSV)

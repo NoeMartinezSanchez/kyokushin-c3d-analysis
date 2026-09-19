@@ -627,5 +627,123 @@ def test_dashboard_data_mart_not_modified():
     assert before == after
 
 
+# --------------------------------------------------------------------------- #
+# 12. Inventario completo de atletas (FASE 1.8E)
+# --------------------------------------------------------------------------- #
+
+INV_DIR = ROOT / "output" / "athlete_inventory"
+_INV = None
+
+
+def _inv08():
+    global _INV
+    if _INV is None:
+        import importlib.util as _ilu
+        _ispec = _ilu.spec_from_file_location("inv08", str(ROOT / "scripts" / "08_athlete_inventory.py"))
+        _INV = _ilu.module_from_spec(_ispec)
+        _ispec.loader.exec_module(_INV)
+    return _INV
+
+
+def test_inventory_script_executes():
+    """las salidas del inventario existen (script corrió correctamente)."""
+    assert (INV_DIR / "file_inventory.csv").exists()
+    assert (INV_DIR / "athlete_inventory.csv").exists()
+
+
+def test_inventory_source_not_modified():
+    """el script solo lee; no modifica ningún C3D (no crea CSV en atletas/)."""
+    inv = _inv08()
+    athletes = inv.discover_all_athletes()
+    assert len(athletes) >= 36
+    csvs_in_source = list((ROOT / "atletas").glob("*.csv"))
+    assert csvs_in_source == [], "el inventario no debe escribir dentro de atletas/"
+
+
+def test_inventory_athlete_ids_unique():
+    a = pd.read_csv(INV_DIR / "athlete_inventory.csv")
+    assert a["athlete_id"].is_unique
+
+
+def test_inventory_files_exist():
+    fi = pd.read_csv(INV_DIR / "file_inventory.csv")
+    for _, r in fi.iterrows():
+        assert (ROOT / r["source_path"]).exists(), f"falta {r['source_path']}"
+
+
+def test_inventory_sampling_rate_valid():
+    fi = pd.read_csv(INV_DIR / "file_inventory.csv")
+    assert fi["sampling_rate_hz"].notna().all()
+    assert set(fi["sampling_rate_hz"].unique()) <= {200.0, 250.0}
+
+
+def test_inventory_group_hypothesis_confirmed():
+    """hipótesis verificable: 200 Hz -> B0367..B0370; 250 Hz -> resto."""
+    srg = pd.read_csv(INV_DIR / "sampling_rate_group.csv")
+    b36_37 = srg[srg["athlete_id"].isin(["B0367", "B0368", "B0369", "B0370"])]
+    assert set(b36_37["rate_group"]) == {"200_Hz"}
+    z50 = srg[~srg["athlete_id"].isin(["B0367", "B0368", "B0369", "B0370"])]
+    assert set(z50["rate_group"]) == {"250_Hz"}
+
+
+def test_inventory_known_facts_b0367_b0377():
+    """hechos conocidos de B0367/B0377 presentes en el inventario."""
+    fi = pd.read_csv(INV_DIR / "file_inventory.csv")
+    b36 = fi[fi["athlete_id"] == "B0367"]
+    b37 = fi[fi["athlete_id"] == "B0377"]
+    assert len(b36) == 26
+    assert len(b37) == 39
+    assert set(b36["sampling_rate_hz"].unique()) == {200.0}
+    assert set(b37["sampling_rate_hz"].unique()) == {250.0}
+
+
+def test_inventory_config_gap():
+    g = pd.read_csv(INV_DIR / "configuration_gap.csv")
+    assert g.loc[g["athlete"] == "B0367", "S01"].iloc[0] == "RFIN"
+    assert g.loc[g["athlete"] == "B0377", "S04"].iloc[0] == "LTOE"
+    assert g.loc[g["athlete"] == "B0405", "configuration_status"].iloc[0] == "NOT_CONFIGURED"
+
+
+def test_inventory_anomalies_no_crash():
+    """anomaly flags no rompen y el CSV existe."""
+    a = pd.read_csv(INV_DIR / "anomaly_inventory.csv")
+    assert "anomaly_flags" in a.columns
+
+
+def test_inventory_required_columns():
+    for f, req in [("file_inventory.csv",
+                    ["athlete_id", "file_name", "technique", "condition", "trial",
+                     "sampling_rate_hz", "units_position", "units_angle",
+                     "number_of_points", "number_of_frames", "subject_ids",
+                     "tarcza_marker_count"]),
+                   ("athlete_inventory.csv",
+                    ["athlete_id", "n_files", "techniques", "conditions", "trials"])]:
+        df = pd.read_csv(INV_DIR / f)
+        missing = [c for c in req if c not in df.columns]
+        assert not missing, f"{f}: faltan {missing}"
+
+
+def test_inventory_no_duplicate_files():
+    fi = pd.read_csv(INV_DIR / "file_inventory.csv")
+    keys = fi["athlete_id"] + "|" + fi["file_name"]
+    assert keys.duplicated().sum() == 0
+
+
+def test_inventory_markers_available_all_athletes():
+    """señales RFIN/RTOE/LTOE disponibles en todos los atletas."""
+    mk = pd.read_csv(INV_DIR / "marker_availability.csv")
+    for m in ["RFIN", "RTOE", "LTOE", "RANK", "LANK", "RHEE", "LHEE"]:
+        assert mk[m].all(), f"{m} no disponible en al menos un atleta-técnica"
+
+
+def test_inventory_scaling_readiness():
+    r = pd.read_csv(INV_DIR / "scaling_readiness.csv")
+    assert r.loc[r["athlete"] == "B0367", "group"].iloc[0] == "A"
+    assert r.loc[r["athlete"] == "B0377", "group"].iloc[0] == "B"
+    # C = cohorte 200 Hz sin config
+    c_ath = set(r.loc[r["group"] == "C", "athlete"])
+    assert c_ath == {"B0368", "B0369", "B0370"}
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
