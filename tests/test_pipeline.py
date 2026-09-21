@@ -745,5 +745,229 @@ def test_inventory_scaling_readiness():
     assert c_ath == {"B0368", "B0369", "B0370"}
 
 
+# --------------------------------------------------------------------------- #
+# 13. Selección de 3 atletas candidatos (FASE 1.8F, Tarea 0)
+# --------------------------------------------------------------------------- #
+
+SEL_DIR = ROOT / "output" / "scaling_selection"
+_SEL18F = None
+
+
+def _sel08():
+    global _SEL18F
+    if _SEL18F is None:
+        import importlib.util as _ilu
+        _sspec = _ilu.spec_from_file_location(
+            "sel18f", str(ROOT / "scripts" / "08_select_1_8f_candidates.py"))
+        _SEL18F = _ilu.module_from_spec(_sspec)
+        _sspec.loader.exec_module(_SEL18F)
+    return _SEL18F
+
+
+def _sel_df():
+    return pd.read_csv(SEL_DIR / "phase_1_8f_candidate_selection.csv")
+
+
+def test_1_8f_selection_regenerates_csv():
+    """la selección es re-ejecutable: regenera el CSV con 3 filas."""
+    mod = _sel08()
+    sel, counts = mod.run_selection()
+    assert len(sel) == 3
+    assert (SEL_DIR / "phase_1_8f_candidate_selection.csv").exists()
+
+
+def test_1_8f_eligible_universe_counts():
+    """el universo elegible coincide con las cifras de la FASE 1.8E (no inventadas)."""
+    mod = _sel08()
+    _, counts = mod.build_candidate_frame(mod.load_inventory())
+    assert counts["n_total"] == 37
+    assert counts["n_250"] == 33
+    assert counts["n_200"] == 4
+    assert counts["n_group_c"] == 3
+    assert counts["n_excluded_used"] == 2
+    assert counts["n_anomalies"] == 0
+    assert counts["n_eligible"] == 32
+
+
+def test_1_8f_selected_three_exist_in_eligible():
+    """los 3 seleccionados pertenecen al universo elegible."""
+    mod = _sel08()
+    df, counts = mod.build_candidate_frame(mod.load_inventory())
+    elig = set(df["athlete_id"])
+    sel = _sel_df()
+    assert len(sel) == 3
+    assert set(sel["athlete_id"]) <= elig
+    assert len(elig) == counts["n_eligible"]
+
+
+def test_1_8f_all_selected_250_hz():
+    sel = _sel_df()
+    assert (sel["sampling_rate_hz"] == 250.0).all()
+
+
+def test_1_8f_b0367_b0377_not_selected():
+    sel = _sel_df()
+    assert not (set(sel["athlete_id"]) & {"B0367", "B0377"})
+
+
+def test_1_8f_no_anomalies_selected():
+    sel = _sel_df()
+    assert (sel["anomaly_status"] == "ok").all()
+
+
+def test_1_8f_configuration_not_configured_selected():
+    sel = _sel_df()
+    assert (sel["configuration_status"] == "NOT_CONFIGURED").all()
+
+
+def test_1_8f_selection_deterministic():
+    """dos ejecuciones de la selección producen exactamente el mismo trío."""
+    mod = _sel08()
+    df, _ = mod.build_candidate_frame(mod.load_inventory())
+    r1 = mod.select_candidates(df)
+    r2 = mod.select_candidates(df)
+    assert list(r1["athlete_id"]) == list(r2["athlete_id"])
+
+
+def test_1_8f_csv_required_columns():
+    required = ["rank_internal", "athlete_id", "sampling_rate_hz", "total_c3d",
+                "techniques_present", "conditions_present", "trials_present",
+                "derived_structure", "marker_structure_summary", "anomaly_status",
+                "configuration_status", "selection_reason", "diversity_role"]
+    sel = _sel_df()
+    missing = [c for c in required if c not in sel.columns]
+    assert not missing, f"faltan columnas en phase_1_8f_candidate_selection.csv: {missing}"
+
+
+# --------------------------------------------------------------------------- #
+# 14. Auditoría de señal y lateralidad (FASE 1.8F, Tarea 1)
+# --------------------------------------------------------------------------- #
+
+AUD_DIR = ROOT / "output" / "scaling_selection"
+_AUD18T1 = None
+
+
+def _audit09():
+    global _AUD18T1
+    if _AUD18T1 is None:
+        import importlib.util as _ilu
+        _aspec = _ilu.spec_from_file_location(
+            "audit09", str(ROOT / "scripts" / "09_signal_laterality_audit.py"))
+        _AUD18T1 = _ilu.module_from_spec(_aspec)
+        _aspec.loader.exec_module(_AUD18T1)
+    return _AUD18T1
+
+
+def test_1_8f1_three_athletes_only():
+    recs = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv")
+    aud = pd.read_csv(AUD_DIR / "phase_1_8f_signal_audit.csv")
+    assert set(recs["athlete_id"]) == {"B0400", "B0371", "B0380"}
+    assert set(aud["athlete_id"]) == {"B0400", "B0371", "B0380"}
+
+
+def test_1_8f1_only_e01_t01():
+    aud = pd.read_csv(AUD_DIR / "phase_1_8f_signal_audit.csv")
+    assert set(aud["condition"].str.strip().unique()) == {"E01"}
+    assert set(aud["trial"].str.strip().unique()) == {"T01"}
+
+
+def test_1_8f1_only_s01_s05():
+    aud = pd.read_csv(AUD_DIR / "phase_1_8f_signal_audit.csv")
+    assert set(aud["technique"].unique()) == {"S01", "S02", "S03", "S04", "S05"}
+
+
+def test_1_8f1_one_recommendation_per_cell():
+    recs = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv")
+    assert len(recs) == 15
+    assert recs.duplicated(subset=["athlete_id", "technique"]).sum() == 0
+
+
+def test_1_8f1_configs_untouched():
+    cfg = ROOT / "config" / "athletes"
+    assert set(p.name for p in cfg.glob("*.yaml")) == {"B0367.yaml", "B0377.yaml"}
+
+
+def test_1_8f1_b0367_b0377_intact():
+    assert len(list((ROOT / "B0367").rglob("*.c3d"))) == 26
+    assert len(list((ROOT / "atletas" / "B0377").rglob("*.c3d"))) == 39
+    assert list((ROOT / "B0367").rglob("*.csv")) == []
+    assert list((ROOT / "atletas" / "B0377").rglob("*.csv")) == []
+
+
+def test_1_8f1_data_mart_untouched():
+    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
+    assert mart.exists()
+    df = pd.read_csv(mart)
+    assert set(df["athlete_id"]) <= {"B0367", "B0377"}
+    assert not df["athlete_id"].str.startswith("B04").any()
+
+
+def test_1_8f1_required_columns():
+    aud = pd.read_csv(AUD_DIR / "phase_1_8f_signal_audit.csv")
+    recs = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv")
+    req_aud = ["athlete_id", "technique", "condition", "trial", "signal", "side",
+               "baseline_median", "baseline_mad", "threshold", "vmax", "snr",
+               "candidate_count", "accepted_count", "rejected_count",
+               "review_count", "candidate_separation_s", "quality_status",
+               "suitability_status", "notes"]
+    req_rec = ["athlete_id", "technique", "recommended_signal", "recommended_side",
+               "recommendation_status", "evidence_summary", "alternative_signal",
+               "alternative_side", "alternative_reason"]
+    missing_a = [c for c in req_aud if c not in aud.columns]
+    missing_r = [c for c in req_rec if c not in recs.columns]
+    assert not missing_a and not missing_r
+
+
+@pytest.fixture(scope="module")
+def audit_result():
+    mod = _audit09()
+    return mod, mod.run_audit()
+
+
+def test_1_8f1_outputs_reproducible(audit_result):
+    """revolver el script regenera exactamente los CSV versionados."""
+    mod, (audit, recs) = audit_result
+    aud_file = pd.read_csv(AUD_DIR / "phase_1_8f_signal_audit.csv")
+    rec_file = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv")
+    norm = lambda df: df.reset_index(drop=True).fillna("")
+    assert norm(aud_file).equals(norm(audit))
+    assert norm(rec_file).equals(norm(recs))
+
+
+def test_1_8f1_decision_deterministic(audit_result):
+    """la capa de decisión es determinista (dos llamadas idénticas)."""
+    mod, (audit, recs) = audit_result
+    r1 = mod._recommendations(audit)
+    r2 = mod._recommendations(audit)
+    assert r1.reset_index(drop=True).equals(r2.reset_index(drop=True))
+    assert r1.reset_index(drop=True).equals(recs.reset_index(drop=True))
+
+
+def test_1_8f1_recommendations_consistent():
+    aud = pd.read_csv(AUD_DIR / "phase_1_8f_signal_audit.csv")
+    recs = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv").fillna("")
+    for _, r in recs.iterrows():
+        if r["recommended_signal"] == "":
+            continue
+        cell = aud[(aud["athlete_id"] == r["athlete_id"])
+                   & (aud["technique"] == r["technique"])
+                   & (aud["signal"] == r["recommended_signal"])]
+        assert not cell.empty, f"{r['athlete_id']} {r['technique']} sin fila de señal"
+
+
+def test_1_8f1_known_findings():
+    """hallazgos con evidencia de la auditoría (deterministas y auditable)."""
+    recs = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv")
+    get = lambda a, t: recs[(recs["athlete_id"] == a) & (recs["technique"] == t)].iloc[0]
+    assert get("B0400", "S01")["recommended_signal"] == "RFIN"
+    assert get("B0400", "S01")["recommendation_status"] == "RECOMMENDED"
+    assert get("B0371", "S01")["recommendation_status"] == "NEEDS_VALIDATION"
+    assert get("B0380", "S02")["recommended_signal"] == "LTOE"
+    assert get("B0380", "S02")["recommended_side"] == "L"
+    for a in ["B0400", "B0371", "B0380"]:
+        for t in ["S02", "S03", "S04", "S05"]:
+            assert get(a, t)["recommended_side"] in {"R", "L"}
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

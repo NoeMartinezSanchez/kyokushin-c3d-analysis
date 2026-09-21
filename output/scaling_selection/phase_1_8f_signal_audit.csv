@@ -1,0 +1,79 @@
+athlete_id,technique,condition,trial,signal,side,baseline_median,baseline_mad,threshold,vmax,snr,candidate_count,accepted_count,rejected_count,review_count,candidate_separation_s,quality_status,suitability_status,notes
+B0400,S01,E01,T01,RFIN,R,69.3,6.5,854.6,5304.8,75.4,10,5,4,1,1.448,ok,suitable,1 en review
+B0400,S01,E01,T01,LFIN,L,141.0,19.8,886.5,5110.9,36.0,11,5,5,1,1.426,ok,not_suitable,baseline alto (141 mm/s); 1 en review
+B0400,S02,E01,T01,RTOE,R,9.2,3.9,1240.6,8218.2,802.7,4,3,1,0,1.572,ok,suitable,
+B0400,S02,E01,T01,LTOE,L,41.7,27.3,376.5,2273.7,53.2,3,2,1,0,3.158,ok,not_suitable,
+B0400,S02,E01,T01,RANK,R,15.7,4.6,901.6,5921.8,355.0,5,3,2,0,1.662,ok,suitable,
+B0400,S02,E01,T01,LANK,L,166.7,111.4,471.0,2195.7,13.1,3,2,1,0,3.152,ok,not_suitable,baseline alto (167 mm/s)
+B0400,S02,E01,T01,RHEE,R,14.7,5.2,932.9,6135.9,391.2,4,3,1,0,1.812,ok,suitable,
+B0400,S02,E01,T01,LHEE,L,205.7,137.4,518.0,2288.1,11.1,3,2,1,0,3.154,ok,not_suitable,baseline alto (206 mm/s)
+B0400,S03,E01,T01,RTOE,R,13.5,7.7,1244.1,8217.7,565.7,4,3,1,0,1.516,ok,suitable,
+B0400,S03,E01,T01,LTOE,L,6.0,3.3,343.5,2256.2,323.5,2,2,0,0,5.552,ok,not_suitable,
+B0400,S03,E01,T01,RANK,R,22.8,10.2,927.5,6054.1,254.5,5,3,2,0,0.894,ok,suitable,
+B0400,S03,E01,T01,LANK,L,15.7,6.4,342.0,2190.7,130.9,4,2,2,0,2.236,ok,not_suitable,
+B0400,S03,E01,T01,RHEE,R,21.4,9.8,976.5,6388.5,285.0,4,3,1,0,1.56,ok,suitable,
+B0400,S03,E01,T01,LHEE,L,7.5,4.2,353.1,2311.2,270.8,5,2,3,0,1.118,ok,not_suitable,
+B0400,S04,E01,T01,RTOE,R,78.1,46.2,1485.0,9457.5,119.5,6,3,3,0,0.26,ok,suitable,
+B0400,S04,E01,T01,LTOE,L,60.1,35.9,326.9,1839.2,30.1,4,2,2,0,2.476,ok,not_suitable,
+B0400,S04,E01,T01,RANK,R,156.8,93.5,1128.0,6631.5,42.0,5,3,2,0,0.902,ok,not_suitable,baseline alto (157 mm/s)
+B0400,S04,E01,T01,LANK,L,100.7,61.5,342.9,1715.1,16.9,8,2,6,0,0.928,ok,not_suitable,baseline alto (101 mm/s)
+B0400,S04,E01,T01,RHEE,R,190.0,115.4,1182.2,6804.6,35.6,3,3,0,0,1.798,ok,not_suitable,baseline alto (190 mm/s)
+B0400,S04,E01,T01,LHEE,L,125.5,81.8,381.5,1832.0,14.5,12,2,9,1,0.584,ok,not_suitable,baseline alto (125 mm/s); 1 en review
+B0400,S05,E01,T01,RTOE,R,2.8,0.7,992.1,6598.6,1750.0,9,3,5,1,1.662,ok,suitable,1 en review
+B0400,S05,E01,T01,LTOE,L,2.2,0.5,354.5,2351.3,741.9,14,4,8,2,0.7,ok,suitable,2 en review
+B0400,S05,E01,T01,RANK,R,6.8,1.5,971.5,6437.8,822.2,9,3,6,0,1.66,ok,suitable,
+B0400,S05,E01,T01,LANK,L,2.9,1.2,354.8,2349.0,605.4,14,4,9,1,0.82,ok,suitable,1 en review
+B0400,S05,E01,T01,RHEE,R,4.6,1.6,1020.0,6774.1,1214.7,7,3,3,1,2.208,ok,suitable,1 en review
+B0400,S05,E01,T01,LHEE,L,5.0,1.4,378.0,2491.5,416.3,14,5,7,2,0.856,ok,suitable,2 en review
+B0371,S01,E01,T01,RFIN,R,1065.0,456.7,1960.5,7034.8,6.6,7,3,3,1,0.262,ok,not_suitable,baseline alto (1065 mm/s); 1 en review
+B0371,S01,E01,T01,LFIN,L,1238.7,403.1,1916.0,5753.9,4.6,9,2,6,1,0.514,ok,not_suitable,baseline alto (1239 mm/s); 1 en review
+B0371,S02,E01,T01,RTOE,R,13.2,5.7,1691.3,11200.8,791.1,4,3,1,0,1.756,ok,suitable,
+B0371,S02,E01,T01,LTOE,L,33.2,16.4,476.2,2987.0,87.4,7,5,1,1,0.954,ok,suitable,1 en review
+B0371,S02,E01,T01,RANK,R,34.0,10.4,1381.6,9018.1,257.7,6,3,3,0,0.696,ok,suitable,
+B0371,S02,E01,T01,LANK,L,113.8,72.2,506.7,2733.1,23.8,7,5,2,0,0.954,ok,not_suitable,baseline alto (114 mm/s)
+B0371,S02,E01,T01,RHEE,R,28.9,13.5,1415.8,9275.4,310.6,6,3,3,0,0.724,ok,suitable,
+B0371,S02,E01,T01,LHEE,L,144.5,89.9,550.6,2851.5,19.6,7,5,2,0,0.952,ok,not_suitable,baseline alto (145 mm/s)
+B0371,S03,E01,T01,RTOE,R,14.1,4.6,1646.9,10899.6,722.2,10,3,7,0,0.38,ok,suitable,
+B0371,S03,E01,T01,LTOE,L,22.4,13.3,366.8,2318.4,99.1,8,2,6,0,0.932,ok,not_suitable,
+B0371,S03,E01,T01,RANK,R,20.5,6.0,1171.5,7694.0,358.7,9,3,5,1,0.59,ok,suitable,1 en review
+B0371,S03,E01,T01,LANK,L,50.0,28.1,356.3,2092.0,41.0,15,7,8,0,0.43,ok,suitable,
+B0371,S03,E01,T01,RHEE,R,22.5,7.6,1197.4,7855.7,334.9,10,3,5,2,0.508,ok,suitable,2 en review
+B0371,S03,E01,T01,LHEE,L,57.2,35.6,504.8,3041.2,52.2,14,7,7,0,0.48,ok,suitable,
+B0371,S04,E01,T01,RTOE,R,19.3,6.0,1692.2,11171.9,551.2,7,3,4,0,0.744,ok,suitable,
+B0371,S04,E01,T01,LTOE,L,31.7,18.0,373.3,2308.7,70.6,9,3,6,0,0.714,ok,suitable,
+B0371,S04,E01,T01,RANK,R,55.1,17.5,1261.4,8097.3,144.3,9,3,6,0,0.542,ok,suitable,
+B0371,S04,E01,T01,LANK,L,123.8,80.3,507.5,2682.3,21.5,12,3,7,2,0.516,ok,not_suitable,baseline alto (124 mm/s); 2 en review
+B0371,S04,E01,T01,RHEE,R,63.6,27.6,1282.8,8191.5,126.7,9,3,6,0,0.604,ok,suitable,
+B0371,S04,E01,T01,LHEE,L,124.0,78.4,692.8,3916.0,31.3,12,3,8,1,0.52,ok,not_suitable,baseline alto (124 mm/s); 1 en review
+B0371,S05,E01,T01,RTOE,R,27.4,7.6,1491.3,9787.1,344.7,3,3,0,0,2.096,ok,suitable,
+B0371,S05,E01,T01,LTOE,L,29.3,14.1,456.0,2873.7,94.7,11,5,5,1,0.772,ok,suitable,1 en review
+B0371,S05,E01,T01,RANK,R,56.5,22.4,1340.2,8614.6,149.8,3,3,0,0,2.092,ok,suitable,
+B0371,S05,E01,T01,LANK,L,104.3,62.6,495.5,2711.9,25.7,12,7,4,1,0.676,ok,not_suitable,baseline alto (104 mm/s); 1 en review
+B0371,S05,E01,T01,RHEE,R,77.1,34.1,1437.3,9144.6,117.0,5,3,2,0,1.052,ok,suitable,
+B0371,S05,E01,T01,LHEE,L,91.8,56.7,600.7,3484.3,37.5,13,7,5,1,0.562,ok,suitable,1 en review
+B0380,S01,E01,T01,RFIN,R,1183.9,486.7,1782.4,5173.6,4.4,7,3,4,0,0.518,ok,not_suitable,baseline alto (1184 mm/s)
+B0380,S01,E01,T01,LFIN,L,1332.4,573.9,1887.9,5035.6,3.8,7,0,7,0,0.308,ok,not_suitable,baseline alto (1332 mm/s); sin ejecuciones aceptadas
+B0380,S02,E01,T01,RTOE,R,1856.6,1241.6,2915.1,8912.8,4.8,7,3,4,0,0.23,ok,not_suitable,baseline alto (1857 mm/s)
+B0380,S02,E01,T01,LTOE,L,90.0,32.6,462.3,2572.0,28.3,6,4,2,0,0.988,ok,suitable,
+B0380,S02,E01,T01,RANK,R,2088.1,1380.0,2786.0,6740.7,3.2,9,3,6,0,0.226,ok,not_suitable,baseline alto (2088 mm/s)
+B0380,S02,E01,T01,LANK,L,269.3,113.5,569.7,2272.0,8.4,5,3,1,1,1.302,ok,not_suitable,baseline alto (269 mm/s); 1 en review
+B0380,S02,E01,T01,RHEE,R,2223.9,1397.4,2863.8,6490.0,2.9,9,3,6,0,0.238,ok,not_suitable,baseline alto (2224 mm/s)
+B0380,S02,E01,T01,LHEE,L,353.7,151.7,665.2,2430.8,6.9,5,4,1,0,1.298,ok,not_suitable,baseline alto (354 mm/s)
+B0380,S03,E01,T01,RTOE,R,13.7,6.1,1262.4,8338.3,567.3,5,3,2,0,0.808,ok,suitable,
+B0380,S03,E01,T01,LTOE,L,31.8,20.6,320.2,1954.9,59.6,3,1,2,0,2.358,ok,not_suitable,
+B0380,S03,E01,T01,RANK,R,23.2,10.1,967.3,6316.8,260.6,4,3,1,0,1.384,ok,suitable,
+B0380,S03,E01,T01,LANK,L,89.1,57.3,362.1,1909.5,21.2,10,4,6,0,0.528,ok,suitable,
+B0380,S03,E01,T01,RHEE,R,28.9,11.6,939.4,6098.8,203.9,5,3,2,0,0.804,ok,suitable,
+B0380,S03,E01,T01,LHEE,L,95.6,61.5,485.7,2696.5,27.9,10,4,6,0,0.456,ok,suitable,
+B0380,S04,E01,T01,RTOE,R,73.3,29.0,1359.2,8645.9,116.4,5,3,2,0,1.054,ok,suitable,
+B0380,S04,E01,T01,LTOE,L,155.9,92.3,468.4,2238.9,14.3,4,1,3,0,0.94,ok,not_suitable,baseline alto (156 mm/s)
+B0380,S04,E01,T01,RANK,R,92.2,54.7,1060.4,6546.8,70.2,3,3,0,0,1.654,ok,suitable,
+B0380,S04,E01,T01,LANK,L,380.3,244.4,771.3,2986.9,7.8,8,2,6,0,0.532,ok,not_suitable,baseline alto (380 mm/s)
+B0380,S04,E01,T01,RHEE,R,84.5,48.6,998.5,6178.1,72.3,3,3,0,0,1.656,ok,suitable,
+B0380,S04,E01,T01,LHEE,L,464.0,301.7,976.3,3879.1,8.3,8,2,6,0,0.536,ok,not_suitable,baseline alto (464 mm/s)
+B0380,S05,E01,T01,RTOE,R,37.3,24.5,1346.5,8765.6,229.0,6,3,3,0,0.836,ok,suitable,
+B0380,S05,E01,T01,LTOE,L,11.7,6.2,318.4,2056.2,161.5,14,7,7,0,0.404,ok,suitable,
+B0380,S05,E01,T01,RANK,R,223.9,147.7,1386.4,7973.5,35.5,7,3,4,0,0.644,ok,not_suitable,baseline alto (224 mm/s)
+B0380,S05,E01,T01,LANK,L,17.2,8.8,343.3,2191.4,120.5,11,6,5,0,0.402,ok,suitable,
+B0380,S05,E01,T01,RHEE,R,255.8,170.5,1406.9,7929.7,30.9,7,3,4,0,0.646,ok,not_suitable,baseline alto (256 mm/s)
+B0380,S05,E01,T01,LHEE,L,23.3,11.6,436.4,2777.2,114.2,9,6,3,0,0.582,ok,suitable,

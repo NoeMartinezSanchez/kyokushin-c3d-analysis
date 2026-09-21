@@ -1,0 +1,22 @@
+[1.8F T1] Auditoría de señal y lateralidad
+[1.8F T1] Filas audit     : 78 (3 atletas × S01-S05 × señales candidatas)
+[1.8F T1] Filas recomend. : 15 (3 × 5)
+[1.8F T1] Recomendaciones:
+  B0400 S01: [RECOMMENDED] RFIN (R)
+  B0400 S02: [RECOMMENDED] RTOE (R)
+  B0400 S03: [RECOMMENDED] RTOE (R)
+  B0400 S04: [RECOMMENDED] RTOE (R)
+  B0400 S05: [RECOMMENDED] RTOE (R)
+  B0371 S01: [NEEDS_VALIDATION] RFIN (R)
+  B0371 S02: [RECOMMENDED] RTOE (R)
+  B0371 S03: [RECOMMENDED] RTOE (R)
+  B0371 S04: [RECOMMENDED] RTOE (R)
+  B0371 S05: [RECOMMENDED] RTOE (R)
+  B0380 S01: [NEEDS_VALIDATION] RFIN (R)
+  B0380 S02: [RECOMMENDED] LTOE (L)
+  B0380 S03: [RECOMMENDED] RTOE (R)
+  B0380 S04: [RECOMMENDED] RTOE (R)
+  B0380 S05: [RECOMMENDED] RTOE (R)
+[1.8F T1] Guardado: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_selection\phase_1_8f_signal_audit.csv
+[1.8F T1] Guardado: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_selection\phase_1_8f_signal_recommendations.csv
+[1.8F T1] Figuras : D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_selection\signal_audit (5 PNG)

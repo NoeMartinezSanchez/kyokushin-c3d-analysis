@@ -8,7 +8,7 @@ Dataset público de Agnieszka Szczęsna, Monika Błaszczyszyn, Magdalena Pawlyta
 
 Subconjunto local: **dataset completo descargado en `atletas/`** (37 atletas, 1411 C3D); trabajo controlado en B0367 (26) y B0377 (39).
 
-> **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)**, **1.8C (Athlete Data Mart)**, **1.8D (Dashboard MVP)** y **1.8E (inventario completo)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`), consumido por un **Dashboard MVP en Streamlit** (`dashboard/app.py`). El dataset completo (37 atletas / 1411 C3D) fue inventariado estructuralmente (`output/athlete_inventory/`): 200 Hz ×4 atletas, 250 Hz ×33, 0 anomalías. Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
+> **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)**, **1.8C (Athlete Data Mart)**, **1.8D (Dashboard MVP)**, **1.8E (inventario completo)** y **1.8F Tarea 0 (selección de 3 candidatos)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`), consumido por un **Dashboard MVP en Streamlit** (`dashboard/app.py`). El dataset completo (37 atletas / 1411 C3D) fue inventariado estructuralmente (`output/athlete_inventory/`): 200 Hz ×4 atletas, 250 Hz ×33, 0 anomalías. La Fase 1.8F (Tarea 0) seleccionó de forma reproducible y estructural (NO de rendimiento) 3 atletas 250 Hz / Grupo B para la prueba controlada de generalización: **B0400, B0371 y B0380** (`output/scaling_selection/`). La Tarea 1 determinó con evidencia (E01-T01) señal y lateralidad por técnica: S02–S05→RTOE mayormente; **B0380-S02→LTOE (izquierda)** y S01 con baseline alto en B0371/B0380 → `NEEDS_VALIDATION`; sin crear configs. Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
 
 ---
 
@@ -96,7 +96,9 @@ Qué se ha hecho hasta el momento, con su script, salida y estado. Informes deta
 | **1.8C — Athlete Data Mart** | Consolidar golden path en un Data Mart estable (identidad + metadata + features + comparabilidad + versiones) para el futuro Dashboard/ML | `07_build_athlete_data_mart.py` | `output/data_mart/athlete_execution_features.csv`, `data_mart_summary.csv` | ✅ Completada (18 filas; validaciones OK) |
 | **1.8D — Dashboard MVP** | Dashboard local (Streamlit) que lee SOLO el Data Mart: overview, técnica/ejecución, consistencia, comparación y comparabilidad | `dashboard/app.py` (+ `data.py`, `components.py`) | `docs/phase_1_8d_dashboard.md` | ✅ Completada (61 tests; 22 charts) |
 | **1.8E — Inventario completo** | Inventario estructural de todo el dataset (37 atletas / 1411 C3D): frecuencias, unidades, markers, derivadas, roles, anomalías y readiness de escalado | `08_athlete_inventory.py` | `output/athlete_inventory/` (11 CSV), `docs/phase_1_8e_athlete_inventory.md` | ✅ Completada (74 tests; 0 anomalías) |
-| **1.8F — Configurar más atletas (siguiente)** | Procesar 2–3 atletas de la cohorte 250 Hz (Grupo B) con configs explícitas; normalizar/decidir cohorte 200 Hz (Grupo C) | — | — | ⏳ Pendiente |
+| **1.8F (Tarea 0) — Selección de 3 candidatos** | Selección reproducible y auditable (estructural, NO de rendimiento) de 3 atletas 250 Hz / Grupo B para la prueba controlada de generalización: **B0400, B0371, B0380** | `08_select_1_8f_candidates.py` | `output/scaling_selection/`, `docs/phase_1_8f_candidate_selection.md` | ✅ Tarea 0 completada (32 elegibles; determinista) |
+| **1.8F (Tarea 1) — Auditoría de señal y lateralidad** | Determinar con evidencia señal/lateralidad por técnica (E01-T01) para B0400/B0371/B0380: S02-S05→RTOE mayormente; **B0380-S02→LTOE (izquierda)**; S01 RFIN (B0371/B0380 con baseline alto → NEEDS_VALIDATION) | `09_signal_laterality_audit.py` | `output/scaling_selection/phase_1_8f_signal_audit.csv`, `phase_1_8f_signal_recommendations.csv`, `signal_audit/*.png`, `docs/phase_1_8f_signal_laterality_audit.md` | ✅ Tarea 1 completada (15 recomendaciones; determinista; sin configs) |
+| **1.8F (siguiente) — Procesar los 3 candidatos** | Crear configs explícitas por técnica con la evidencia de la Tarea 1, validar y procesar B0400/B0371/B0380; mantener el contrato del Data Mart; resolver umbral S01; normalizar/decidir cohorte 200 Hz (Grupo C) | — | — | ⏳ Pendiente |
 
 **Hallazgo transversal importante:** la configuración es **por atleta y por técnica** (B0367: S01=RFIN, S02–S05=RTOE, lateralidad derecha; B0377: S04=LTOE, lateralidad izquierda en S04). La selección de señales de B0367 **no es universal**.
 Para ML futuro se usará siempre **división por participante (GroupKFold / Leave-One-Subject-Out)**, nunca random split por archivo.
@@ -124,12 +126,14 @@ Deporte_sensores/
 │   ├── 06_feature_readiness.py      # Fase 1.8B-1: features mínimas comparables (golden path)
 │   ├── 07_build_athlete_data_mart.py  # Fase 1.8C: consolida el Data Mart (capas de datos)
 │   └── 08_athlete_inventory.py       # Fase 1.8E: inventario completo del dataset (37 atletas)
+│   └── 08_select_1_8f_candidates.py  # Fase 1.8F (Tarea 0): selección de 3 atletas candidatos
+│   └── 09_signal_laterality_audit.py # Fase 1.8F (Tarea 1): auditoría de señal/lateralidad
 ├── dashboard/
 │   ├── app.py                     # Fase 1.8D: Dashboard MVP (Streamlit)
 │   ├── data.py                    # capa de datos (lee Data Mart; no toca C3D)
 │   └── components.py              # labels ES/plotly helpers
 ├── tests/
-│   └── test_pipeline.py        # Tests mínimos (pytest, 74 tests)
+│   └── test_pipeline.py        # Tests mínimos (pytest, 93 tests)
 ├── docs/
 │   ├── dataset_audit.md         # Informe Fase 1 (archivos/calidad/features/ML)
 │   ├── phase_1_5_report.md      # Informe Fase 1.5
@@ -143,12 +147,19 @@ Deporte_sensores/
 │   ├── phase_1_8c_data_mart.md      # Informe Fase 1.8C (Athlete Data Mart)
 │   ├── phase_1_8d_dashboard.md      # Informe Fase 1.8D (Dashboard MVP)
 │   ├── phase_1_8e_athlete_inventory.md  # Informe Fase 1.8E (inventario completo)
+│   ├── phase_1_8f_candidate_selection.md  # Informe Fase 1.8F Tarea 0 (selección de 3 candidatos)
+│   ├── phase_1_8f_signal_laterality_audit.md  # Informe Fase 1.8F Tarea 1 (señal/lateralidad)
 │   └── athlete_data_mart_dictionary.md  # Data dictionary del Data Mart
 ├── output/
 │   ├── athlete_generalization/  # Auditoría de generalización a B0377 (Fase 1.7)
 │   ├── phase_1_8a/              # Validación de la config por atleta (1.8A)
 │   ├── athlete_inventory/       # Inventario completo del dataset (Fase 1.8E; 11 CSV)
 │   │   └── _checkpoint/         # checkpoints incrementales por atleta (reanudable)
+│   ├── scaling_selection/      # Selección/auditoría de candidatos (Fase 1.8F)
+│   │   ├── phase_1_8f_candidate_selection.csv   # Tarea 0: 3 atletas candidatos
+│   │   ├── phase_1_8f_signal_audit.csv          # Tarea 1: métricas por atleta×técnica×señal
+│   │   ├── phase_1_8f_signal_recommendations.csv # Tarea 1: 15 recomendaciones señal/lateralidad
+│   │   └── signal_audit/       # figuras diagnósticas por técnica (Tarea 1)
 │   ├── data_mart/              # Athlete Data Mart (Fase 1.8C; capa para Dashboard/ML)
 │   │   ├── athlete_execution_features.csv  # 1 fila = 1 ejecución (18)
 │   │   └── data_mart_summary.csv           # métricas del Data Mart
@@ -223,7 +234,13 @@ streamlit run dashboard/app.py
 # Fase 1.8E — inventario completo del dataset (37 atletas / 1411 C3D; ~28 min, con checkpoint reanudable)
 .venv\Scripts\python scripts\08_athlete_inventory.py
 
-# Tests (74)
+# Fase 1.8F (Tarea 0) — selección automática de 3 atletas candidatos (250 Hz / Grupo B)
+.venv\Scripts\python scripts\08_select_1_8f_candidates.py
+
+# Fase 1.8F (Tarea 1) — auditoría de señal y lateralidad (B0400/B0371/B0380, E01-T01)
+.venv\Scripts\python scripts\09_signal_laterality_audit.py
+
+# Tests (83 + 10 de la Fase 1.8F Tarea 1 = 93)
 .venv\Scripts\python -m pytest tests -q
 ```
 
@@ -281,14 +298,14 @@ El script `07` (Athlete Data Mart, Fase 1.8C):
 - En E02 (escudo) la velocidad pico del pie sube a ~15.7 m/s frente a 9.4 m/s en aire (descriptivo, n=1, sin afirmar beneficio).
 - La **coordinación proximal-distal** quedó **NO VALIDADA**; pendiente de rediseño.
 - **Señal por técnica (B0367):** S01=RFIN, S02=S03=S04=S05=RTOE. **Por técnica (B0377):** S04=LTOE (izquierda), resto RTOE. La selección NO es universal.
-- **Pendiente (Fase 1.8E):** resolver umbral S01-B0377, ampliar cobertura B0377 (T02/E02/E03/E04), normalización 200/250 Hz y ampliar el Data Mart/Dashboard con más datos.
+- **Pendiente (Fase 1.8E/1.8F):** resolver umbral S01 (B0377 y B0371/B0380 con baseline alto), ampliar cobertura B0377 (T02/E02/E03/E04), normalización 200/250 Hz, procesar B0400/B0371/B0380 con configs según la auditoría de la Tarea 1 (B0380-S02→LTOE), y ampliar el Data Mart/Dashboard con más datos.
 
 ---
 
 ## Próximos pasos sugeridos
 
-1. **Fase 1.8F:** procesar 2–3 atletas de la cohorte 250 Hz (Grupo B) con configs explícitas por técnica; resolver S01/S04-B0377; normalización temporal 200/250 Hz; decisión sobre cohorte 200 Hz (Grupo C). El dataset completo ya está local en `atletas/` (37 atletas) esperando esta fase.
+1. **Fase 1.8F (Tareas 0 y 1 completadas):** la selección determinista eligió **B0400** (variante de estructura derivada 48|74), **B0371** (hueco de condición: sin E04) y **B0380** (técnica extra S06). La auditoría de señal/lateralidad (E01-T01) determinó S02–S05→RTOE salvo **B0380-S02→LTOE**, y S01 RFIN (B0371/B0380 con baseline alto → NEEDS_VALIDATION). Siguiente: **crear configs explícitas por técnica** según esa evidencia y procesar los tres; resolver umbral S01; normalización temporal 200/250 Hz; decisión sobre cohorte 200 Hz (Grupo C). El dataset completo ya está local en `atletas/` (37 atletas) esperando esta fase.
 2. `09_extract_features.py`: extraer features por ejecución → dataset tabular multiatleta (reutilizando `02` con `config/athletes/<id>.yaml`).
 3. `10_evaluate_models.py`: primer experimento = **clasificación de técnica (S01–S05)** con GroupKFold por participante.
 
-Ver informes: [`docs/dataset_audit.md`](docs/dataset_audit.md), [`docs/phase_1_5_report.md`](docs/phase_1_5_report.md), [`docs/phase_1_6_report.md`](docs/phase_1_6_report.md), [`docs/phase_1_6_1_report.md`](docs/phase_1_6_1_report.md), [`docs/phase_1_6_2_report.md`](docs/phase_1_6_2_report.md), [`docs/phase_1_7_report.md`](docs/phase_1_7_report.md), [`docs/phase_1_8a_report.md`](docs/phase_1_8a_report.md), [`docs/phase_1_8b_feature_readiness.md`](docs/phase_1_8b_feature_readiness.md), [`docs/phase_1_8c_data_mart.md`](docs/phase_1_8c_data_mart.md), [`docs/phase_1_8d_dashboard.md`](docs/phase_1_8d_dashboard.md) y [`docs/phase_1_8e_athlete_inventory.md`](docs/phase_1_8e_athlete_inventory.md).
+Ver informes: [`docs/dataset_audit.md`](docs/dataset_audit.md), [`docs/phase_1_5_report.md`](docs/phase_1_5_report.md), [`docs/phase_1_6_report.md`](docs/phase_1_6_report.md), [`docs/phase_1_6_1_report.md`](docs/phase_1_6_1_report.md), [`docs/phase_1_6_2_report.md`](docs/phase_1_6_2_report.md), [`docs/phase_1_7_report.md`](docs/phase_1_7_report.md), [`docs/phase_1_8a_report.md`](docs/phase_1_8a_report.md), [`docs/phase_1_8b_feature_readiness.md`](docs/phase_1_8b_feature_readiness.md), [`docs/phase_1_8c_data_mart.md`](docs/phase_1_8c_data_mart.md), [`docs/phase_1_8d_dashboard.md`](docs/phase_1_8d_dashboard.md), [`docs/phase_1_8e_athlete_inventory.md`](docs/phase_1_8e_athlete_inventory.md), [`docs/phase_1_8f_candidate_selection.md`](docs/phase_1_8f_candidate_selection.md) y [`docs/phase_1_8f_signal_laterality_audit.md`](docs/phase_1_8f_signal_laterality_audit.md).

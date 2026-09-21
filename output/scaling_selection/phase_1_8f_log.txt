@@ -1,0 +1,16 @@
+[1.8F] Selección de 3 atletas candidatos (diversidad estructural)
+[1.8F] Atletas totales      : 37
+[1.8F] 250 Hz               : 33
+[1.8F] 200 Hz (excluidos)   : 4
+[1.8F] Grupo C (revisión)   : 3
+[1.8F] Excluidos usados     : 2
+[1.8F] NOT_CONFIGURED       : 35
+[1.8F] Con anomalías (excl.) : 0
+[1.8F] Sin E01 (excl.)      : 0
+[1.8F] Sin S01-S05 (excl.)  : 1
+[1.8F] Candidatos elegibles : 32
+[1.8F] Seleccionados:
+[1.8F]   rk=1 B0400 [derived_structure_variant] Estructura de variables derivadas atípica en la cohorte 250 Hz (E01/E02 = 48|74 en lugar d...
+[1.8F]   rk=2 B0371 [condition_gap_variant] Cobertura de condiciones parcial (sin E04); prueba que el pipeline tolera huecos de condic...
+[1.8F]   rk=3 B0380 [extra_technique_variant] Posee una técnica adicional fuera de S01-S05 además de cubrirlas; prueba que el pipeline n...
+[1.8F] Guardado: D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_selection\phase_1_8f_candidate_selection.csv
