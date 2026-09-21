@@ -1,0 +1,49 @@
+# Configuración por atleta B0380 (FASE 1.8F, Tarea 2).
+# Fuente de decisión: auditoría de señal/lateralidad (E01-T01, S01-S05).
+#   docs/phase_1_8f_signal_laterality_audit.md
+#   output/scaling_selection/phase_1_8f_signal_recommendations.csv
+# S01 = RFIN con estatus NEEDS_VALIDATION (baseline alto ~1184 mm/s, patrón B0377-S01).
+# S02 = LTOE / lado IZQUIERDO (hallazgo 1.8F-Tarea 1: RTOE con baseline ~1857 mm/s
+#       en actividad casi continua no segmentable; LTOE limpia y segmentable).
+# S03-S05 = RECOMMENDED (ausencia de thresholds.status). Sin procesar aún.
+
+athlete_id: B0380
+
+metadata:
+  data_dir: atletas/B0380           # relativo a ROOT (atleta en carpeta atletas/)
+  sampling_rate: 250.0              # observado en C3D; cohorte 250 Hz (inventario 1.8E)
+  units: mm                         # observado en C3D
+
+techniques:
+  S01:
+    signal: RFIN
+    laterality: right
+    joints_side: R
+    movement: punch
+    thresholds:
+      status: NEEDS_VALIDATION
+      notes: "baseline ~1184 mm/s (alta); umbral robusto por validar en Golden Path (ver FASE 1.8F Tarea 1)"
+  S02:
+    signal: LTOE
+    laterality: left
+    joints_side: L
+    movement: kick
+  S03:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S04:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S05:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+
+validation:
+  status: provisional
+  notes: "Configuración de auditoría (E01-T01): S02-S05 RECOMMENDED (S02 con lateralidad izquierda LTOE); S01 NEEDS_VALIDATION. Sin procesamiento de C3D todavía (pendiente Golden Path 1.8F-Task 3)."

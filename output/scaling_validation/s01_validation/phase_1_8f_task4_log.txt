@@ -1,0 +1,9 @@
+[1.8F T4] Validación dirigida de S01 (E01-T01 × RFIN/LFIN/RTOE)
+athlete_id configured_signal observed_best_signal rfin_status     lfin_status rtoe_status  fallback_detected           evidence_level
+     B0367              RFIN                 RFIN segmentable     segmentable segmentable              False                VALIDATED
+     B0377              RFIN                 RFIN    marginal        marginal segmentable              False PROMISING_BUT_INCOMPLETE
+     B0400              RFIN                 RFIN segmentable        marginal segmentable              False                VALIDATED
+     B0371              RFIN                 RTOE    marginal        marginal    marginal               True PROMISING_BUT_INCOMPLETE
+     B0380              RFIN                 RTOE    marginal not_segmentable    marginal               True PROMISING_BUT_INCOMPLETE
+[1.8F T4] Recomendación global: Opción B
+[1.8F T4] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_validation\s01_validation

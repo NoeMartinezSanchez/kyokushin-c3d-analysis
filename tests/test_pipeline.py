@@ -883,8 +883,10 @@ def test_1_8f1_one_recommendation_per_cell():
 
 
 def test_1_8f1_configs_untouched():
+    """solo existen las 5 configs intencionales (baselines + 1.8F Tarea 2)."""
     cfg = ROOT / "config" / "athletes"
-    assert set(p.name for p in cfg.glob("*.yaml")) == {"B0367.yaml", "B0377.yaml"}
+    assert set(p.name for p in cfg.glob("*.yaml")) == {
+        "B0367.yaml", "B0377.yaml", "B0400.yaml", "B0371.yaml", "B0380.yaml"}
 
 
 def test_1_8f1_b0367_b0377_intact():
@@ -967,6 +969,402 @@ def test_1_8f1_known_findings():
     for a in ["B0400", "B0371", "B0380"]:
         for t in ["S02", "S03", "S04", "S05"]:
             assert get(a, t)["recommended_side"] in {"R", "L"}
+
+
+# --------------------------------------------------------------------------- #
+# 15. Configuraciones explícitas B0400/B0371/B0380 (FASE 1.8F, Tarea 2)
+# --------------------------------------------------------------------------- #
+
+CFG_DIR2 = ROOT / "config" / "athletes"
+ATH_182 = ["B0400", "B0371", "B0380"]
+
+# Fuente única de verdad de señal/lateralidad (audit 1.8F Tarea 1).
+RECS182 = pd.read_csv(AUD_DIR / "phase_1_8f_signal_recommendations.csv")
+
+
+def _cfg_resolved(aid):
+    """Señales/lados efectivos tras el merge con global (mecanismo real de 02)."""
+    cfg = _X02.load_config(aid)
+    primary, _, joints = _X02._build_signals(cfg)
+    return {t: primary[t][0] for t in ["S01", "S02", "S03", "S04", "S05"]}, joints
+
+
+def test_1_8f2_config_files_exist():
+    for aid in ATH_182:
+        assert (CFG_DIR2 / f"{aid}.yaml").exists()
+
+
+def test_1_8f2_loads_via_pipeline():
+    """la config se lee y resuelve señales/lados con el mecanismo existente."""
+    prim, joints = _cfg_resolved("B0400")
+    assert prim == {"S01": "RFIN", "S02": "RTOE", "S03": "RTOE",
+                    "S04": "RTOE", "S05": "RTOE"}
+    prim, joints = _cfg_resolved("B0371")
+    assert prim["S01"] == "RFIN" and prim["S02"] == "RTOE"
+    prim, joints = _cfg_resolved("B0380")
+    assert prim["S01"] == "RFIN" and prim["S02"] == "LTOE" and prim["S03"] == "RTOE"
+    assert joints["S02"] == "L" and joints["S01"] == "R"
+
+
+def test_1_8f2_all_techniques_present_no_dupes():
+    allowed = {"RFIN", "LFIN", "RTOE", "LTOE", "RANK", "LANK", "RHEE", "LHEE"}
+    for aid in ATH_182:
+        prim, joints = _cfg_resolved(aid)
+        assert set(prim.keys()) == {"S01", "S02", "S03", "S04", "S05"}
+        assert len(prim) == len(set(prim.keys()))
+        for t, sig in prim.items():
+            assert sig, f"{aid} {t}: señal vacía"
+            assert sig in allowed, f"{aid} {t}: señal desconocida {sig}"
+            assert joints[t] in {"R", "L"}
+
+
+def test_1_8f2_sampling_rate_250():
+    for aid in ATH_182:
+        cfg = _X02.load_config(aid)
+        assert float(cfg["metadata"]["sampling_rate"]) == 250.0
+
+
+def test_1_8f2_matches_recommendations_csv():
+    """la config coincide EXACTAMENTE con el audit (no hay segunda verdad manual).
+
+    Detecta: B0380-S02 LTOE->RTOE, B0371-S01 NEEDS_VALIDATION->RECOMMENDED, etc.
+    """
+    for aid in ATH_182:
+        prim, joints = _cfg_resolved(aid)
+        cfg = _X02.load_config(aid)
+        techniques = cfg.get("techniques") or cfg.get("signals") or {}
+        for t in ["S01", "S02", "S03", "S04", "S05"]:
+            row = RECS182[(RECS182["athlete_id"] == aid) & (RECS182["technique"] == t)].iloc[0]
+            assert prim[t] == row["recommended_signal"], f"{aid} {t}: señal != audit"
+            assert joints[t] == row["recommended_side"], f"{aid} {t}: lado != audit"
+            thresh = techniques.get(t, {}).get("thresholds") or {}
+            needs = thresh.get("status") == "NEEDS_VALIDATION"
+            assert needs == (row["recommendation_status"] == "NEEDS_VALIDATION"), \
+                f"{aid} {t}: estado != audit ({row['recommendation_status']})"
+
+
+def test_1_8f2_b0367_b0377_unchanged():
+    prim67, joints67 = _cfg_resolved("B0367")
+    assert prim67 == {"S01": "RFIN", "S02": "RTOE", "S03": "RTOE",
+                      "S04": "RTOE", "S05": "RTOE"}
+    assert all(v == "R" for v in joints67.values())
+    prim77, joints77 = _cfg_resolved("B0377")
+    assert prim77 == {"S01": "RFIN", "S02": "RTOE", "S03": "RTOE",
+                      "S04": "LTOE", "S05": "RTOE"}
+    assert joints77["S04"] == "L"
+    cfg77 = _X02.load_config("B0377")
+    assert cfg77["techniques"]["S01"]["thresholds"]["status"] == "NEEDS_VALIDATION"
+
+
+def test_1_8f2_data_mart_not_modified():
+    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
+    assert mart.exists()
+    df = pd.read_csv(mart)
+    assert not set(df["athlete_id"]) & set(ATH_182)
+    assert len(df) == 18
+
+
+# --------------------------------------------------------------------------- #
+# 16. Golden Path E01-T01 × S01-S05 (FASE 1.8F, Tarea 3)
+# --------------------------------------------------------------------------- #
+
+VAL_DIR = ROOT / "output" / "scaling_validation"
+ATH_183 = ["B0400", "B0371", "B0380"]
+_TASK310 = None
+
+
+def _task3_script():
+    global _TASK310
+    if _TASK310 is None:
+        import importlib.util as _ilu
+        _tspec = _ilu.spec_from_file_location(
+            "task3gp", str(ROOT / "scripts" / "10_phase_1_8f_task3_golden_path.py"))
+        _TASK310 = _ilu.module_from_spec(_tspec)
+        _tspec.loader.exec_module(_TASK310)
+    return _TASK310
+
+
+@pytest.fixture(scope="module")
+def golden_result():
+    """Regenera el Golden Path una vez y restaura el estado activo de 02."""
+    mod = _task3_script()
+    out = mod.run_golden_path()
+    _X02.set_active_athlete("B0367")
+    return mod, out
+
+
+def _gp_df():
+    return pd.read_csv(VAL_DIR / "phase_1_8f_task3_golden_path.csv")
+
+
+def _sum_df():
+    return pd.read_csv(VAL_DIR / "phase_1_8f_task3_summary.csv")
+
+
+def test_1_8f3_athletes_only():
+    assert set(_gp_df()["athlete_id"]) == set(ATH_183)
+    assert set(_sum_df()["athlete_id"]) == set(ATH_183)
+    assert set(pd.read_csv(VAL_DIR / "phase_1_8f_task3_events.csv")["athlete_id"]) == set(ATH_183)
+
+
+def test_1_8f3_only_e01_t01():
+    gp = _gp_df()
+    assert set(gp["condition"].astype(str).str.strip().unique()) == {"E01"}
+    assert set(gp["trial"].astype(str).str.strip().unique()) == {"T01"}
+
+
+def test_1_8f3_only_s01_s05():
+    gp = _gp_df()
+    assert set(gp["technique"].unique()) == {"S01", "S02", "S03", "S04", "S05"}
+
+
+def test_1_8f3_sampling_rate_250():
+    gp = _gp_df()
+    assert (gp["sampling_rate_hz"] == 250.0).all()
+
+
+def test_1_8f3_no_empty_signal():
+    gp = _gp_df()
+    assert gp["signal_used"].notna().all()
+    assert (gp["signal_used"].astype(str).str.strip() != "").all()
+
+
+def test_1_8f3_b0380_s02_uses_ltoe():
+    gp = _gp_df()
+    s02 = gp[(gp["athlete_id"] == "B0380") & (gp["technique"] == "S02")]
+    assert not s02.empty
+    assert (s02["signal_used"] == "LTOE").all()
+    assert (s02["movement_side"] == "L").all()
+
+
+def test_1_8f3_s01_signal_behavior():
+    """S01: RFIN usada en B0400; en B0371/B0380 el gate min_snr=8 la descarta.
+
+    Documenta el hallazgo observado (revisión, no corrección): el pipeline usó
+    el respaldo en los dos casos NEEDS_VALIDATION porque RFIN falla SNR.
+    """
+    gp = _gp_df()
+    get = lambda a: gp[(gp["athlete_id"] == a) & (gp["technique"] == "S01")]
+    assert not get("B0400").empty and (get("B0400")["signal_used"] == "RFIN").all()
+    assert (get("B0371")["signal_used"] != "RFIN").all()
+    assert (get("B0380")["signal_used"] != "RFIN").all()
+
+
+def test_1_8f3_recommended_cells_match_config():
+    """para celdas RECOMMENDED, la señal usada coincide con la config de Task 2.
+
+    En las dos celdas S01-NEEDS_VALIDATION (B0371/B0380) la señal configurada
+    NO fue usada (gate de SNR); eso queda registrado y esperado.
+    """
+    sm = _sum_df()
+    for _, r in sm.iterrows():
+        cfg_signal = _cfg_resolved(r["athlete_id"])[0][r["technique"]]
+        if r["technique"] == "S01" and r["athlete_id"] in ("B0371", "B0380"):
+            assert r["signal_used"] != cfg_signal  # fallback documentado
+        else:
+            assert r["signal_used"] == cfg_signal, f"{r['athlete_id']} {r['technique']}"
+
+
+def test_1_8f3_summary_one_row_per_cell():
+    sm = _sum_df()
+    assert len(sm) == 15
+    assert sm.duplicated(subset=["athlete_id", "technique"]).sum() == 0
+    assert "validation_status" in sm.columns
+
+
+def test_1_8f3_data_mart_intact():
+    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
+    df = pd.read_csv(mart)
+    assert len(df) == 18
+    assert not set(df["athlete_id"]) & set(ATH_183)
+
+
+def test_1_8f3_b0367_b0377_history_intact():
+    b67 = pd.read_csv(ROOT / "output" / "executions_sample.csv")
+    sub = b67[(b67["condition"] == "E01") & (b67["trial"] == "T01")]
+    assert sub.groupby("technique").size().to_dict() == \
+        {"S01": 3, "S02": 3, "S03": 3, "S04": 3, "S05": 3}
+    b77 = pd.read_csv(ROOT / "output" / "B0377" / "executions_sample.csv")
+    sub77 = b77[(b77["condition"] == "E01") & (b77["trial"] == "T01")]
+    assert sub77.groupby("technique").size().to_dict() == \
+        {"S01": 1, "S02": 3, "S03": 3, "S04": 3, "S05": 3}
+
+
+def test_1_8f3_rows_belong_to_golden_path():
+    """cada fila proviene únicamente de un C3D S0X-E01-T01 de los 3 atletas."""
+    import re as _re
+    gp = _gp_df()
+    pat = _re.compile(r"^\d{4}-\d{2}-\d{2}-B0\d{3}-S0[1-5]-E01-T01\.c3d$")
+    bad = [f for f in gp["source_file"].unique() if not pat.match(str(f))]
+    assert not bad, f"archivos fuera del Golden Path: {bad}"
+
+
+def _frames_match(a: pd.DataFrame, b: pd.DataFrame) -> bool:
+    """Compara marcos por columna: floats con tolerancia, cadenas con NaN≈''."""
+    a, b = a.reset_index(drop=True), b.reset_index(drop=True)
+    if list(a.columns) != list(b.columns):
+        return False
+    if len(a) != len(b):
+        return False
+    for c in a.columns:
+        ca, cb = a[c], b[c]
+        try:
+            if pd.api.types.is_numeric_dtype(ca) and pd.api.types.is_numeric_dtype(cb):
+                if not np.allclose(ca.fillna(np.nan).to_numpy(dtype=float),
+                                   cb.fillna(np.nan).to_numpy(dtype=float),
+                                   rtol=1e-9, atol=1e-9, equal_nan=True):
+                    return False
+            else:
+                if ca.fillna("").astype(str).tolist() != cb.fillna("").astype(str).tolist():
+                    return False
+        except (TypeError, ValueError):
+            return False
+    return True
+
+
+def test_1_8f3_outputs_reproducible(golden_result):
+    """reejecutar el Golden Path regenera exactamente los CSV versionados
+    (float64 con tolerancia por round-trip CSV, cadenas con NaN='')."""
+    mod, (gp, ev, ql, cells) = golden_result
+    assert _frames_match(pd.read_csv(VAL_DIR / "phase_1_8f_task3_golden_path.csv"), gp)
+    assert _frames_match(pd.read_csv(VAL_DIR / "phase_1_8f_task3_summary.csv"), cells)
+    assert _frames_match(pd.read_csv(VAL_DIR / "phase_1_8f_task3_events.csv"), ev)
+    assert _frames_match(pd.read_csv(VAL_DIR / "phase_1_8f_task3_execution_quality.csv"), ql)
+
+
+def test_1_8f3_events_quality_complete():
+    ev = pd.read_csv(VAL_DIR / "phase_1_8f_task3_events.csv")
+    ql = pd.read_csv(VAL_DIR / "phase_1_8f_task3_execution_quality.csv")
+    assert set(ev["status"].unique()) <= {"accepted", "rejected", "review"}
+    assert "rejection_reason" in ev.columns
+    assert set(ql["quality_flag"].unique()) <= {"OK", "WARN", "REVIEW", "INVALID"}
+
+
+# --------------------------------------------------------------------------- #
+# 17. Validación dirigida de S01 (FASE 1.8F, Task 4)
+# --------------------------------------------------------------------------- #
+
+S1V_DIR = ROOT / "output" / "scaling_validation" / "s01_validation"
+ATH_184 = ["B0367", "B0377", "B0400", "B0371", "B0380"]
+S1_SIGNALS = ["RFIN", "LFIN", "RTOE"]
+EVIDENCE_LEVELS = {"VALIDATED", "PROMISING_BUT_INCOMPLETE",
+                   "INSUFFICIENT_EVIDENCE", "SIGNAL_PROBLEM",
+                   "SEGMENTATION_PROBLEM", "REPRESENTATION_PROBLEM"}
+STATUSES = {"segmentable", "marginal", "not_segmentable", "missing"}
+_TASK411 = None
+
+
+def _task4_script():
+    global _TASK411
+    if _TASK411 is None:
+        import importlib.util as _ilu
+        _sspec = _ilu.spec_from_file_location(
+            "t4s01", str(ROOT / "scripts" / "11_s01_targeted_validation.py"))
+        _TASK411 = _ilu.module_from_spec(_sspec)
+        _sspec.loader.exec_module(_TASK411)
+    return _TASK411
+
+
+@pytest.fixture(scope="module")
+def s01_result():
+    mod = _task4_script()
+    out = mod.run_s01_validation()
+    return mod, out
+
+
+def _cmp4():
+    return pd.read_csv(S1V_DIR / "s01_signal_comparison.csv")
+
+
+def _ass4():
+    return pd.read_csv(S1V_DIR / "s01_athlete_assessment.csv")
+
+
+def test_1_8f4_outputs_exist(s01_result):
+    assert (S1V_DIR / "s01_signal_comparison.csv").exists()
+    assert (S1V_DIR / "s01_athlete_assessment.csv").exists()
+    figs = list((S1V_DIR / "figures").glob("s01_*.png"))
+    assert len(figs) >= 8
+    assert (S1V_DIR / "figures" / "s01_B0400.png").exists()
+
+
+def test_1_8f4_exactly_5_athletes():
+    assert set(_cmp4()["athlete_id"]) == set(ATH_184)
+    assert set(_ass4()["athlete_id"]) == set(ATH_184)
+
+
+def test_1_8f4_three_signals_per_athlete():
+    cmp = _cmp4()
+    assert len(cmp) == 15
+    for a in ATH_184:
+        assert set(cmp[cmp["athlete_id"] == a]["signal"]) == set(S1_SIGNALS)
+    assert len(_ass4()) == 5
+    assert _ass4().duplicated(subset=["athlete_id"]).sum() == 0
+
+
+def test_1_8f4_required_columns():
+    cmp_cols = ["athlete_id", "technique", "condition", "trial", "signal",
+                "baseline", "mad", "vmax", "snr", "threshold",
+                "candidate_count", "accepted_count", "rejected_count",
+                "review_count", "mean_duration_s", "candidate_separation_s",
+                "signal_status"]
+    ass_cols = ["athlete_id", "configured_signal", "observed_best_signal",
+                "rfin_status", "lfin_status", "rtoe_status",
+                "fallback_detected", "fallback_interpretation",
+                "evidence_level", "recommendation"]
+    assert set(cmp_cols) <= set(_cmp4().columns)
+    assert set(ass_cols) <= set(_ass4().columns)
+
+
+def test_1_8f4_classification_consistent():
+    cmp, ass = _cmp4(), _ass4()
+    assert set(cmp["signal_status"].unique()) <= STATUSES
+    assert set(ass["evidence_level"].unique()) <= EVIDENCE_LEVELS
+    for _, r in ass.iterrows():
+        assert r["configured_signal"] == "RFIN"
+        sub = cmp[cmp["athlete_id"] == r["athlete_id"]]
+        assert set(sub["signal"]) == set(S1_SIGNALS)
+    # fallback solo donde hubo golden path con señal distinta a la configurada
+    fb = set(ass.loc[ass["fallback_detected"] == True, "athlete_id"])
+    assert fb == {"B0371", "B0380"}
+    # recommendations esperadas por evidencia
+    get = lambda a: ass[ass["athlete_id"] == a].iloc[0]
+    assert "RFIN_NOT_VALIDATED" in str(get("B0377")["recommendation"])
+    assert "RFIN_NOT_VALIDATED" in str(get("B0371")["recommendation"])
+    assert "RTOE_FALLBACK_NOT_VALIDATED" in str(get("B0380")["recommendation"])
+    assert get("B0400")["evidence_level"] == "VALIDATED"
+    assert get("B0367")["evidence_level"] == "VALIDATED"
+
+
+def test_1_8f4_deterministic():
+    """dos ejecuciones producen exactamente los mismos marcos y decisión."""
+    mod = _task4_script()
+    c1, a1, o1 = mod.run_s01_validation()
+    c2, a2, o2 = mod.run_s01_validation()
+    assert _frames_match(c1.reset_index(drop=True), c2.reset_index(drop=True))
+    assert _frames_match(a1.reset_index(drop=True), a2.reset_index(drop=True))
+    assert o1 == o2 == "B"
+
+
+def test_1_8f4_outputs_reproducible(s01_result):
+    """los CSV versionados se regeneran idénticos (tolerancia float, NaN='')."""
+    mod, _ = s01_result
+    c1, a1, o1 = mod.run_s01_validation()
+    assert _frames_match(pd.read_csv(S1V_DIR / "s01_signal_comparison.csv"), c1)
+    assert _frames_match(pd.read_csv(S1V_DIR / "s01_athlete_assessment.csv"), a1)
+
+
+def test_1_8f4_data_mart_intact():
+    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
+    df = pd.read_csv(mart)
+    assert len(df) == 18
+    assert not df["athlete_id"].str.startswith("B04").any()
+
+
+def test_1_8f4_configs_untouched():
+    cfg = ROOT / "config" / "athletes"
+    assert set(p.name for p in cfg.glob("*.yaml")) == {
+        "B0367.yaml", "B0377.yaml", "B0400.yaml", "B0371.yaml", "B0380.yaml"}
 
 
 if __name__ == "__main__":

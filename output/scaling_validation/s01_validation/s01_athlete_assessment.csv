@@ -1,0 +1,6 @@
+athlete_id,configured_signal,observed_best_signal,rfin_status,lfin_status,rtoe_status,fallback_detected,fallback_interpretation,evidence_level,recommendation
+B0367,RFIN,RFIN,segmentable,segmentable,segmentable,False,no se detectó fallback (señal configurada en uso o sin golden path),VALIDATED,
+B0377,RFIN,RFIN,marginal,marginal,segmentable,False,no se detectó fallback (señal configurada en uso o sin golden path),PROMISING_BUT_INCOMPLETE,RFIN_NOT_VALIDATED
+B0400,RFIN,RFIN,segmentable,marginal,segmentable,False,no se detectó fallback (señal configurada en uso o sin golden path),VALIDATED,
+B0371,RFIN,RTOE,marginal,marginal,marginal,True,B0371-S01 golden path usó RTOE en lugar de RFIN; snr=250.9; baseline=16; acc=2; dur=0.31s,PROMISING_BUT_INCOMPLETE,RFIN_NOT_VALIDATED;RTOE_FALLBACK_NOT_VALIDATED
+B0380,RFIN,RTOE,marginal,not_segmentable,marginal,True,B0380-S01 golden path usó RTOE en lugar de RFIN; snr=16.6; baseline=21; acc=2; dur=0.26s,PROMISING_BUT_INCOMPLETE,RFIN_NOT_VALIDATED;RTOE_FALLBACK_NOT_VALIDATED

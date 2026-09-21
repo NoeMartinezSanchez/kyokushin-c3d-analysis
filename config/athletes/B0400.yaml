@@ -1,0 +1,44 @@
+# Configuración por atleta B0400 (FASE 1.8F, Tarea 2).
+# Fuente de decisión: auditoría de señal/lateralidad (E01-T01, S01-S05).
+#   docs/phase_1_8f_signal_laterality_audit.md
+#   output/scaling_selection/phase_1_8f_signal_recommendations.csv
+# Todos los S01-S05 = RECOMMENDED. Sin procesar aún (validation.status: provisional).
+# Representación: ausencia de `thresholds.status` = RECOMMENDED (patrón B0367/B0377).
+
+athlete_id: B0400
+
+metadata:
+  data_dir: atletas/B0400           # relativo a ROOT (atleta en carpeta atletas/)
+  sampling_rate: 250.0              # observado en C3D; cohorte 250 Hz (inventario 1.8E)
+  units: mm                         # observado en C3D
+
+techniques:
+  S01:
+    signal: RFIN
+    laterality: right
+    joints_side: R
+    movement: punch
+  S02:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S03:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S04:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S05:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+
+validation:
+  status: provisional
+  notes: "Configuración de auditoría (E01-T01): S01-S05 RECOMMENDED. Sin procesamiento de C3D todavía (pendiente Golden Path 1.8F-Task 3)."

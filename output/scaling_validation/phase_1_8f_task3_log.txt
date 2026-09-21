@@ -1,0 +1,22 @@
+[1.8F T3] Golden Path E01-T01 × S01-S05
+[1.8F T3] Filas ejecución    : 46  (aceptadas, 1 fila = 1 ejecución)
+[1.8F T3] Eventos totales    : 93
+[1.8F T3] QC                 : 46 filas
+[1.8F T3] Celdas (3×5)       : 15
+athlete_id technique signal_used movement_side  sampling_rate_hz  candidate_count  accepted_count  rejected_count  review_count validation_status
+     B0400       S01        RFIN             R             250.0               10               5               4             1       OBSERVED_OK
+     B0400       S02        RTOE             R             250.0                4               3               1             0       OBSERVED_OK
+     B0400       S03        RTOE             R             250.0                4               3               1             0       OBSERVED_OK
+     B0400       S04        RTOE             R             250.0                6               3               3             0       OBSERVED_OK
+     B0400       S05        RTOE             R             250.0                9               3               5             1       OBSERVED_OK
+     B0371       S01        RTOE             R             250.0                8               2               5             1   REVIEW_REQUIRED
+     B0371       S02        RTOE             R             250.0                4               3               1             0       OBSERVED_OK
+     B0371       S03        RTOE             R             250.0               10               3               7             0       OBSERVED_OK
+     B0371       S04        RTOE             R             250.0                7               3               4             0       OBSERVED_OK
+     B0371       S05        RTOE             R             250.0                3               3               0             0       OBSERVED_OK
+     B0380       S01        RTOE             R             250.0                6               2               3             1   REVIEW_REQUIRED
+     B0380       S02        LTOE             L             250.0                6               4               2             0       OBSERVED_OK
+     B0380       S03        RTOE             R             250.0                5               3               2             0       OBSERVED_OK
+     B0380       S04        RTOE             R             250.0                5               3               2             0       OBSERVED_OK
+     B0380       S05        RTOE             R             250.0                6               3               3             0       OBSERVED_OK
+[1.8F T3] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_validation
