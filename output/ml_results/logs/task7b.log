@@ -1,0 +1,16 @@
+[7B] Experiment TASK7B_BASELINE_001 — OOF 838 filas (419 por exp)
+experiment            metric   mean    std    min    max
+         A          accuracy 0.6294 0.0794 0.5316 0.7442
+         A balanced_accuracy 0.6222 0.0788 0.5250 0.7243
+         A   precision_macro 0.6371 0.0858 0.5351 0.7644
+         A      recall_macro 0.6222 0.0788 0.5250 0.7243
+         A          f1_macro 0.6175 0.0815 0.5140 0.7291
+         A       f1_weighted 0.6233 0.0792 0.5303 0.7402
+         B          accuracy 0.6506 0.0591 0.5696 0.7326
+         B balanced_accuracy 0.6454 0.0580 0.5628 0.7143
+         B   precision_macro 0.6594 0.0655 0.5737 0.7538
+         B      recall_macro 0.6454 0.0580 0.5628 0.7143
+         B          f1_macro 0.6402 0.0624 0.5502 0.7202
+         B       f1_weighted 0.6454 0.0597 0.5674 0.7312
+[7B] hash(ml_dataset_v0.csv) = 7c5703a5c939055f4afe852c2b9f8050
+[7B] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\ml_results

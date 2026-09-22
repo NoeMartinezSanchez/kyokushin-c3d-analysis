@@ -1,0 +1,8 @@
+stage,filter,rows_before,rows_after,rows_removed,reason
+total_mart,población inicial del Data Mart,428,428,0,población inicial del Data Mart
+sampling_250hz,excluye 200 Hz (B0367) y demás no-250,428,419,9,excluye 200 Hz (B0367) y demás no-250
+condition_E01,golden path E01,419,419,0,golden path E01
+trial_T01,golden path T01,419,419,0,golden path T01
+technique_S02_S05,solo S02-S05 (S01 fuera),419,419,0,solo S02-S05 (S01 fuera)
+qc_accepted,solo ejecuciones aceptadas,419,419,0,solo ejecuciones aceptadas
+quality_ok_warn,solo calidad OK/WARN,419,419,0,solo calidad OK/WARN

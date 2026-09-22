@@ -1,0 +1,69 @@
+{
+  "experiment_id": "TASK7B_BASELINE_001",
+  "dataset": "ML Dataset v0",
+  "dataset_file": "output/ml_dataset_v0/ml_dataset_v0.csv",
+  "ml_dataset_v0_md5": "7c5703a5c939055f4afe852c2b9f8050",
+  "features": {
+    "A": [
+      "duration_s",
+      "time_to_peak_s",
+      "vmax",
+      "vmean",
+      "amax",
+      "displacement",
+      "path_length",
+      "hip_rom",
+      "knee_rom",
+      "ankle_rom",
+      "snr"
+    ],
+    "B": [
+      "duration_s",
+      "time_to_peak_s",
+      "vmax",
+      "vmean",
+      "amax",
+      "displacement",
+      "path_length",
+      "hip_rom",
+      "knee_rom",
+      "ankle_rom"
+    ]
+  },
+  "target": "technique",
+  "group": "athlete_id",
+  "model": {
+    "name": "LogisticRegression",
+    "solver": "lbfgs",
+    "multi_class": "default (multinomial)",
+    "max_iter": 2000,
+    "C": 1.0
+  },
+  "scaler": {
+    "name": "StandardScaler",
+    "fit": "per-fold (pipeline)"
+  },
+  "cv": {
+    "name": "GroupKFold",
+    "n_splits": 5,
+    "groups": "athlete_id"
+  },
+  "random_state": 0,
+  "experiments": {
+    "A": "con SNR",
+    "B": "sin SNR"
+  },
+  "population": {
+    "rows": 419,
+    "athletes": 33,
+    "techniques": [
+      "S02",
+      "S03",
+      "S04",
+      "S05"
+    ],
+    "sampling_rate_hz": 250,
+    "condition": "E01",
+    "trial": "T01"
+  }
+}

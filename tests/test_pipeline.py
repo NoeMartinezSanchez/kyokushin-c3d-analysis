@@ -15,6 +15,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import hashlib
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -1714,6 +1716,302 @@ def test_1_8f6_features_match_source():
     for c in mod.FEATURE_COLS:
         assert np.allclose(merged[c], merged[f"{c}_src"], rtol=1e-12, atol=1e-12,
                            equal_nan=True), f"feature alterada: {c}"
+
+
+# --------------------------------------------------------------------------- #
+# 20. ML Dataset v0 — diseño y auditoría (TASK 7)
+# --------------------------------------------------------------------------- #
+
+MLV0_DIR = ROOT / "output" / "ml_dataset_v0"
+ML_FEATURES = ["duration_s", "time_to_peak_s", "vmax", "vmean", "amax",
+               "displacement", "path_length", "hip_rom", "knee_rom",
+               "ankle_rom", "snr"]
+_T715 = None
+
+
+def _ml15():
+    global _T715
+    if _T715 is None:
+        import importlib.util as _ilu
+        _tspec = _ilu.spec_from_file_location(
+            "ml15", str(ROOT / "scripts" / "15_build_ml_dataset_v0.py"))
+        _T715 = _ilu.module_from_spec(_tspec)
+        _tspec.loader.exec_module(_T715)
+    return _T715
+
+
+def _mlv0():
+    return pd.read_csv(MLV0_DIR / "ml_dataset_v0.csv")
+
+
+def test_7_ml_dataset_v0_exists():
+    assert (MLV0_DIR / "ml_dataset_v0.csv").exists()
+    assert (MLV0_DIR / "dataset_manifest.csv").exists()
+    for f in ["feature_audit.csv", "feature_comparability_audit.csv",
+              "population_filter_audit.csv", "class_distribution.csv",
+              "athlete_coverage.csv", "feature_distribution_summary.csv",
+              "feature_correlation.csv", "feature_by_technique.csv",
+              "outlier_audit.csv"]:
+        assert (MLV0_DIR / f).exists(), f
+    assert (MLV0_DIR / "ml_validation_strategy.md").exists()
+    assert len(list((MLV0_DIR / "figures").glob("*.png"))) >= 3
+
+
+def test_7_only_s02_s05():
+    assert set(_mlv0()["technique"]) == {"S02", "S03", "S04", "S05"}
+
+
+def test_7_no_s01():
+    assert "S01" not in set(_mlv0()["technique"])
+
+
+def test_7_no_b0367():
+    assert "B0367" not in set(_mlv0()["athlete_id"])
+
+
+def test_7_source_250hz_e01_t01_accepted():
+    mart = pd.read_csv(MART_FILE)
+    m = mart.merge(_mlv0()[["execution_id"]], on="execution_id")
+    assert (m["sampling_rate_hz"] == 250.0).all()
+    assert set(m["condition"]) == {"E01"}
+    assert set(m["trial"]) == {"T01"}
+    assert (m["qc_status"] == "accepted").all()
+
+
+def test_7_execution_id_unique():
+    assert _mlv0()["execution_id"].is_unique
+
+
+def test_7_identifiers_not_features():
+    man = pd.read_csv(MLV0_DIR / "dataset_manifest.csv")
+    assert set(man.loc[man["role"] == "identifier", "column"]) == \
+        {"execution_id", "athlete_id"}
+    assert set(man.loc[man["role"] == "feature", "column"]) == set(ML_FEATURES)
+    assert set(man.loc[man["role"] == "target", "column"]) == {"technique"}
+
+
+def test_7_no_versioning_and_no_constants_in_dataset():
+    v0 = _mlv0()
+    feats = [c for c in v0.columns if c in ML_FEATURES]
+    assert not any("_version" in c or c.startswith("comparability_")
+                   for c in v0.columns)
+    for c in feats:
+        assert v0[c].nunique() > 1, f"feature constante: {c}"
+
+
+def test_7_no_nan_no_inf_features():
+    v0 = _mlv0()
+    feats = [c for c in v0.columns if c in ML_FEATURES]
+    assert v0[feats].isna().sum().sum() == 0
+    assert not np.isinf(v0[feats].to_numpy(dtype=float)).any()
+
+
+def test_7_rows_and_athletes():
+    v0 = _mlv0()
+    assert len(v0) == 419
+    assert v0["athlete_id"].nunique() == 33
+    counts = v0["technique"].value_counts().to_dict()
+    assert counts == {"S05": 115, "S02": 106, "S03": 104, "S04": 94}
+
+
+def test_7_partial_athletes_no_s04():
+    v0 = _mlv0()
+    for aid in ("B0388", "B0401", "B0377"):
+        cell = v0[(v0["athlete_id"] == aid) & (v0["technique"] == "S04")]
+        assert cell.empty, f"{aid} tiene S04"
+
+
+def test_7_manifest_matches_columns():
+    man = pd.read_csv(MLV0_DIR / "dataset_manifest.csv")
+    assert list(man["column"]) == list(_mlv0().columns)
+
+
+def test_7_deterministic_reproducible():
+    """dos ejecuciones de la construcción producen exactamente el mismo dataset."""
+    import hashlib as _hl
+    mod = _ml15()
+    hashes = []
+    for _ in range(2):
+        v0, _ = mod.build_ml_dataset_v0()
+        assert list(v0.columns) == ["execution_id", "athlete_id",
+                                    "technique"] + ML_FEATURES
+        hashes.append(_hl.md5((MLV0_DIR / "ml_dataset_v0.csv")
+                              .read_bytes()).hexdigest())
+    assert hashes[0] == hashes[1]
+
+
+# --------------------------------------------------------------------------- #
+# 21. Baseline ML por atleta + Dashboard ML (TASK 7B)
+# --------------------------------------------------------------------------- #
+
+MLR_DIR = ROOT / "output" / "ml_results"
+CLASSES_7B = ["S02", "S03", "S04", "S05"]
+_T716 = None
+
+
+def _ml16():
+    global _T716
+    if _T716 is None:
+        import importlib.util as _ilu
+        _tspec = _ilu.spec_from_file_location(
+            "ml16", str(ROOT / "scripts" / "16_task7b_baseline_ml.py"))
+        _T716 = _ilu.module_from_spec(_tspec)
+        _tspec.loader.exec_module(_T716)
+    return _T716
+
+
+def _oof7b():
+    return pd.read_csv(MLR_DIR / "oof_predictions.csv")
+
+
+def _fold_of() -> dict:
+    fa = pd.read_csv(MLR_DIR / "fold_assignments.csv")
+    return dict(zip(fa["athlete_id"], fa["fold"]))
+
+
+def test_7b_ml_dataset_v0_intact():
+    import hashlib as _hl
+    cfg = _ml16().json.loads(
+        (MLR_DIR / "experiment_config.json").read_text(encoding="utf-8"))
+    cur = _hl.md5((ROOT / "output" / "ml_dataset_v0" /
+                   "ml_dataset_v0.csv").read_bytes()).hexdigest()
+    assert cur == cfg["ml_dataset_v0_md5"], "ml_dataset_v0.csv modificado"
+
+
+def test_7b_fold_assignments_5_folds():
+    fa = pd.read_csv(MLR_DIR / "fold_assignments.csv")
+    assert len(fa) == 33
+    assert set(fa["fold"]) == set(range(1, 6))
+    assert fa["athlete_id"].is_unique
+
+
+def test_7b_no_group_leakage():
+    """cada atleta pertenece a un único fold; train/validation disjuntos."""
+    fa = pd.read_csv(MLR_DIR / "fold_assignments.csv")
+    assert fa["athlete_id"].is_unique
+    assert len(fa) == fa["athlete_id"].nunique()
+    fm = pd.read_csv(MLR_DIR / "fold_metrics.csv")
+    for _, r in fm.iterrows():
+        assert r["n_train_athletes"] + r["n_validation_athletes"] == 33, \
+            f"leakage fold {r['fold']} ({r['experiment']})"
+
+
+def test_7b_oof_complete_and_unique():
+    oof = _oof7b()
+    v0 = pd.read_csv(ROOT / "output" / "ml_dataset_v0" / "ml_dataset_v0.csv")
+    for exp in ("A", "B"):
+        sub = oof[oof["experiment"] == exp]
+        assert len(sub) == len(v0)
+        assert sub["execution_id"].is_unique
+        assert set(sub["execution_id"]) == set(v0["execution_id"])
+
+
+def test_7b_oof_only_validation_fold():
+    """cada predicción OOF corresponde al fold de validación de su atleta."""
+    oof = _oof7b()
+    fold_of = _fold_of()
+    bad = []
+    for _, r in oof.iterrows():
+        if r["fold"] != fold_of[r["athlete_id"]]:
+            bad.append((r["execution_id"], r["athlete_id"]))
+    assert not bad
+
+
+def test_7b_classes_and_no_nan_probs():
+    oof = _oof7b()
+    assert set(oof["true_technique"]).issubset(set(CLASSES_7B))
+    assert set(oof["predicted_technique"]).issubset(set(CLASSES_7B))
+    probs = [c for c in oof.columns if c.startswith("prob_")]
+    assert probs
+    vals = oof[probs].to_numpy(dtype=float)
+    assert not np.isnan(vals).any()
+    assert not np.isinf(vals).any()
+
+
+def test_7b_confusion_sums_to_oof():
+    cm = pd.read_csv(MLR_DIR / "confusion_matrix.csv")
+    for exp in ("A", "B"):
+        assert int(cm.loc[cm["experiment"] == exp, "count"].sum()) == 419
+
+
+def test_7b_errors_match_oof():
+    oof = _oof7b()
+    er = pd.read_csv(MLR_DIR / "classification_errors.csv")
+    for exp in ("A", "B"):
+        wrong = set(oof.loc[(oof["experiment"] == exp) &
+                            (oof["true_technique"] != oof["predicted_technique"]),
+                            "execution_id"])
+        err_ids = set(er.loc[er["experiment"] == exp, "execution_id"])
+        assert wrong == err_ids
+
+
+def test_7b_same_folds_a_b():
+    fm = pd.read_csv(MLR_DIR / "fold_metrics.csv")
+    a = fm[fm["experiment"] == "A"].set_index("fold")
+    b = fm[fm["experiment"] == "B"].set_index("fold")
+    assert list(a.index) == list(b.index) == [1, 2, 3, 4, 5]
+    for k in range(1, 6):
+        assert a.loc[k, "n_train"] == b.loc[k, "n_train"]
+        assert a.loc[k, "n_validation"] == b.loc[k, "n_validation"]
+        assert a.loc[k, "n_train_athletes"] == b.loc[k, "n_train_athletes"]
+
+
+def test_7b_b_without_snr():
+    co = pd.read_csv(MLR_DIR / "feature_coefficients.csv")
+    assert "snr" not in set(co.loc[co["experiment"] == "B", "feature"])
+    cfg = _ml16().json.loads(
+        (MLR_DIR / "experiment_config.json").read_text(encoding="utf-8"))
+    assert len(cfg["features"]["B"]) == 10
+    assert len(cfg["features"]["A"]) == 11
+
+
+def test_7b_no_predictor_leak_columns():
+    co = pd.read_csv(MLR_DIR / "feature_coefficients.csv")
+    leak_cols = {"athlete_id", "execution_id", "primary_signal",
+                 "movement_side", "source_dataset"}
+    assert not (set(co["feature"]) & leak_cols)
+
+
+def test_7b_deterministic_byte_identity():
+    """dos ejecuciones -> byte-identidad de los artefactos CSV (mismo entorno)."""
+    mod = _ml16()
+    hashes = []
+    for _ in range(2):
+        mod.run_task7b()
+        hashes.append(hashlib.md5((MLR_DIR / "oof_predictions.csv")
+                                  .read_bytes()).hexdigest())
+    assert hashes[0] == hashes[1]
+
+
+def test_7b_dashboard_readonly_and_no_ml():
+    """dashboard ML consume ml_results sin escribir y sin importar sklearn."""
+    import importlib.util as _ilu
+    _dspec = _ilu.spec_from_file_location("dashdata", str(ROOT / "dashboard" / "data.py"))
+    _dd = _ilu.module_from_spec(_dspec)
+    _dspec.loader.exec_module(_dd)
+    before = {p.name: hashlib.md5(p.read_bytes()).hexdigest()
+              for p in (MLR_DIR).glob("*.csv")}
+    res = _dd.load_ml_results()
+    assert res
+    after = {p.name: hashlib.md5(p.read_bytes()).hexdigest()
+             for p in (MLR_DIR).glob("*.csv")}
+    assert before == after
+    src = (ROOT / "dashboard" / "app_ml.py").read_text(encoding="utf-8") + \
+          (ROOT / "dashboard" / "data.py").read_text(encoding="utf-8")
+    assert "import sklearn" not in src and "from sklearn" not in src
+    assert "sklearn" in src  # aparece solo en comentarios/aviso
+
+
+def test_7b_baseline_comparison_complete():
+    bc = pd.read_csv(MLR_DIR / "baseline_comparison.csv")
+    metrics = {"accuracy", "balanced_accuracy", "precision_macro",
+               "recall_macro", "f1_macro", "f1_weighted"}
+    assert set(bc.loc[bc["experiment"] == "A", "metric"]) == metrics
+    assert set(bc.loc[bc["experiment"] == "B", "metric"]) == metrics
+    # descripción observada: B no es inferior en media (documentado, sin ranking)
+    f1a = bc.loc[(bc["experiment"] == "A") & (bc["metric"] == "f1_macro"), "mean"].iloc[0]
+    f1b = bc.loc[(bc["experiment"] == "B") & (bc["metric"] == "f1_macro"), "mean"].iloc[0]
+    assert 0.5 < f1a < f1b < 0.75
 
 
 if __name__ == "__main__":

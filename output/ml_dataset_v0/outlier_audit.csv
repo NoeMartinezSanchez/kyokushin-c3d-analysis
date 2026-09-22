@@ -1,0 +1,12 @@
+feature,outlier_count,outlier_pct,lower_bound,upper_bound
+duration_s,61,14.56,0.48,1.344
+time_to_peak_s,69,16.47,0.136,0.456
+vmax,54,12.89,2.903,12.827
+vmean,67,15.99,2.08125,6.43525
+amax,0,0.0,-71.26,293.46
+displacement,27,6.44,-0.249,0.679
+path_length,64,15.27,2.059,5.983
+hip_rom,6,1.43,35.7462,190.36667
+knee_rom,29,6.92,46.54256,218.89912
+ankle_rom,4,0.95,15.22247,108.5068
+snr,55,13.13,-518.05,1347.15

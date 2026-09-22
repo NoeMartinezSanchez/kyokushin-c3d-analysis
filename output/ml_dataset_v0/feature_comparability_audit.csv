@@ -1,0 +1,12 @@
+feature,comparability_status,unit,normalization_required,reason,allowed_in_raw_ml_v0,notes
+duration_s,DIRECTLY_COMPARABLE,s,False,contrato 1.8B-1/DIRECTLY_COMPARABLE,True,comparabilidad con caveat; raw permitido
+time_to_peak_s,DIRECTLY_COMPARABLE,s,False,contrato 1.8B-1/DIRECTLY_COMPARABLE,True,comparabilidad con caveat; raw permitido
+vmax,REQUIRES_NORMALIZATION,m/s,True,contrato 1.8B-1/REQUIRES_NORMALIZATION,True,raw permitido como candidato; normalización dentro de cada fold en Task 7B
+vmean,REQUIRES_NORMALIZATION,m/s,True,contrato 1.8B-1/REQUIRES_NORMALIZATION,True,raw permitido como candidato; normalización dentro de cada fold en Task 7B
+amax,REQUIRES_NORMALIZATION,m/s²,True,contrato 1.8B-1/REQUIRES_NORMALIZATION,True,raw permitido como candidato; normalización dentro de cada fold en Task 7B
+displacement,COMPARABLE_WITH_CAVEAT,m,False,contrato 1.8B-1/COMPARABLE_WITH_CAVEAT,True,comparabilidad con caveat; raw permitido
+path_length,REQUIRES_NORMALIZATION,m,True,contrato 1.8B-1/REQUIRES_NORMALIZATION,True,raw permitido como candidato; normalización dentro de cada fold en Task 7B
+hip_rom,COMPARABLE_WITH_CAVEAT,deg,False,contrato 1.8B-1/COMPARABLE_WITH_CAVEAT,True,comparabilidad con caveat; raw permitido
+knee_rom,COMPARABLE_WITH_CAVEAT,deg,False,contrato 1.8B-1/COMPARABLE_WITH_CAVEAT,True,comparabilidad con caveat; raw permitido
+ankle_rom,COMPARABLE_WITH_CAVEAT,deg,False,contrato 1.8B-1/COMPARABLE_WITH_CAVEAT,True,comparabilidad con caveat; raw permitido
+snr,COMPARABLE_WITH_CAVEAT,dimensionless,False,contrato 1.8B-1/COMPARABLE_WITH_CAVEAT,True,proxy señal/baseline: incluir con caveat (riesgo documentado)

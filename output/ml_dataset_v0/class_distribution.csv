@@ -1,0 +1,5 @@
+technique,n,n_pct,n_athletes,exec_per_athlete_mean,exec_per_athlete_min,exec_per_athlete_max,imbalance_ratio_max_min,imbalance_level
+S02,106,25.3,33,3.21,3,6,1.223,BALANCED
+S03,104,24.82,33,3.15,3,6,1.223,BALANCED
+S04,94,22.43,30,3.13,3,5,1.223,BALANCED
+S05,115,27.45,33,3.48,3,9,1.223,BALANCED

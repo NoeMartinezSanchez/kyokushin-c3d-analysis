@@ -1,0 +1,15 @@
+column,role,dtype,unit,source_column,reason_included,leakage_status,comparability_status
+execution_id,identifier,str,n/a,execution_id,trazabilidad (nunca predictor),HIGH->metadata,n/a
+athlete_id,identifier,str,n/a,athlete_id,agrupación de validación futura (nunca predictor),HIGH->metadata,n/a
+technique,target,str,n/a,technique,variable objetivo,TARGET,n/a
+duration_s,feature,float64,s,duration_s,feature biomecánica candidata,SAFE (post-excl),DIRECTLY_COMPARABLE
+time_to_peak_s,feature,float64,s,time_to_peak_s,feature biomecánica candidata,SAFE (post-excl),DIRECTLY_COMPARABLE
+vmax,feature,float64,m/s,vmax,feature biomecánica candidata,SAFE (post-excl),REQUIRES_NORMALIZATION
+vmean,feature,float64,m/s,vmean,feature biomecánica candidata,SAFE (post-excl),REQUIRES_NORMALIZATION
+amax,feature,float64,m/s²,amax,feature biomecánica candidata,SAFE (post-excl),REQUIRES_NORMALIZATION
+displacement,feature,float64,m,displacement,feature biomecánica candidata,SAFE (post-excl),COMPARABLE_WITH_CAVEAT
+path_length,feature,float64,m,path_length,feature biomecánica candidata,SAFE (post-excl),REQUIRES_NORMALIZATION
+hip_rom,feature,float64,deg,hip_rom,feature biomecánica candidata,SAFE (post-excl),COMPARABLE_WITH_CAVEAT
+knee_rom,feature,float64,deg,knee_rom,feature biomecánica candidata,SAFE (post-excl),COMPARABLE_WITH_CAVEAT
+ankle_rom,feature,float64,deg,ankle_rom,feature biomecánica candidata,SAFE (post-excl),COMPARABLE_WITH_CAVEAT
+snr,feature,float64,dimensionless,snr,feature biomecánica candidata,SAFE_WITH_CAVEAT,COMPARABLE_WITH_CAVEAT

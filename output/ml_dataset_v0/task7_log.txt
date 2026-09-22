@@ -1,0 +1,7 @@
+[T7] ML Dataset v0 construido
+[T7] Filas: 419 | atletas: 33
+[T7] Clases: {'S05': 115, 'S02': 106, 'S03': 104, 'S04': 94}
+[T7] Features finales (11): duration_s, time_to_peak_s, vmax, vmean, amax, displacement, path_length, hip_rom, knee_rom, ankle_rom, snr
+[T7] Identifiers: ['execution_id', 'athlete_id'] | target: technique
+[T7] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\ml_dataset_v0
+[T7] NaN features=0 | inf=0

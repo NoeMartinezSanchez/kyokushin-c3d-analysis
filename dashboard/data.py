@@ -95,3 +95,37 @@ def filter_by(df: pd.DataFrame, **kwargs) -> pd.DataFrame:
 
 def available_options(df: pd.DataFrame, col: str) -> list:
     return sorted(df[col].dropna().unique().tolist())
+
+
+# --------------------------------------------------------------------------- #
+# Capa ML (Task 7B) — PRESENTACIÓN sobre output/ml_results/
+# --------------------------------------------------------------------------- #
+#
+# El dashboard SOLO consume resultados ya calculados (ml_results/). NO importa
+# sklearn, NO entrena, NO cruza, NO calcula features, NO escribe en ml_results/.
+
+ML_RESULTS_DIR = ROOT / "output" / "ml_results"
+ML_RESULTS_FILES = [
+    "oof_predictions.csv", "fold_metrics.csv", "baseline_comparison.csv",
+    "metrics_by_class.csv", "metrics_by_athlete.csv", "confusion_matrix.csv",
+    "feature_coefficient_summary.csv", "classification_errors.csv",
+]
+
+
+def load_ml_results() -> dict[str, pd.DataFrame]:
+    """Lectura read-only de los artefactos de ML ({} si no existen todavía)."""
+    out: dict[str, pd.DataFrame] = {}
+    for name in ML_RESULTS_FILES:
+        p = ML_RESULTS_DIR / name
+        if p.exists():
+            out[name.replace(".csv", "")] = pd.read_csv(p)
+    return out
+
+
+def load_ml_config() -> dict:
+    """Config del experimento (ml_results/experiment_config.json), read-only."""
+    p = ML_RESULTS_DIR / "experiment_config.json"
+    if not p.exists():
+        return {}
+    import json
+    return json.loads(p.read_text(encoding="utf-8"))
