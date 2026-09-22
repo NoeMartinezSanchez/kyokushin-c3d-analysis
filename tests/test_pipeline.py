@@ -883,10 +883,10 @@ def test_1_8f1_one_recommendation_per_cell():
 
 
 def test_1_8f1_configs_untouched():
-    """solo existen las 5 configs intencionales (baselines + 1.8F Tarea 2)."""
+    """existen exactamente las configs intencionales (baselines + cohorte 250 Hz)."""
     cfg = ROOT / "config" / "athletes"
-    assert set(p.name for p in cfg.glob("*.yaml")) == {
-        "B0367.yaml", "B0377.yaml", "B0400.yaml", "B0371.yaml", "B0380.yaml"}
+    expected = set(_new29()._cohort_250()) | {"B0367"}
+    assert set(p.stem for p in cfg.glob("*.yaml")) == expected
 
 
 def test_1_8f1_b0367_b0377_intact():
@@ -1362,9 +1362,179 @@ def test_1_8f4_data_mart_intact():
 
 
 def test_1_8f4_configs_untouched():
+    """el dataset de configs sigue siendo exactamente el intencional (34 + …)."""
     cfg = ROOT / "config" / "athletes"
-    assert set(p.name for p in cfg.glob("*.yaml")) == {
-        "B0367.yaml", "B0377.yaml", "B0400.yaml", "B0371.yaml", "B0380.yaml"}
+    expected = set(_new29()._cohort_250()) | {"B0367"}
+    assert set(p.stem for p in cfg.glob("*.yaml")) == expected
+
+
+# --------------------------------------------------------------------------- #
+# 18. Expansión controlada cohorte 250 Hz (FASE 1.8F, Task 5)
+# --------------------------------------------------------------------------- #
+
+COH_DIR = ROOT / "output" / "scaling_validation" / "cohort_expansion"
+EXISTING_5 = {"B0367", "B0377", "B0400", "B0371", "B0380"}
+_NEW29 = None
+
+
+def _new29():
+    global _NEW29
+    if _NEW29 is None:
+        import importlib.util as _ilu
+        _cspec = _ilu.spec_from_file_location(
+            "coh13", str(ROOT / "scripts" / "13_phase_1_8f_cohort_expansion.py"))
+        _NEW29 = _ilu.module_from_spec(_cspec)
+        _cspec.loader.exec_module(_NEW29)
+    return _NEW29
+
+
+def _st5():
+    return pd.read_csv(COH_DIR / "cohort_250hz_status.csv")
+
+
+def _rec5():
+    return pd.read_csv(COH_DIR / "cohort_signal_recommendations.csv")
+
+
+def _audit5():
+    return pd.read_csv(COH_DIR / "cohort_signal_audit.csv")
+
+
+def _gp5():
+    return pd.read_csv(COH_DIR / "cohort_golden_path.csv")
+
+
+def test_1_8f5_outputs_exist():
+    for f in ["cohort_250hz_status.csv", "cohort_signal_audit.csv",
+              "cohort_signal_recommendations.csv", "cohort_golden_path.csv",
+              "cohort_events.csv", "cohort_execution_quality.csv"]:
+        assert (COH_DIR / f).exists()
+    assert len(list((COH_DIR / "figures").glob("fig_*.png"))) >= 4
+
+
+def test_1_8f5_universe_33_250hz_no_b0367():
+    st = _st5()
+    assert len(st) == 33
+    assert (st["sampling_rate_hz"] == 250.0).all()
+    assert "B0367" not in set(st["athlete_id"])
+
+
+def test_1_8f5_status_known_values():
+    st = _st5()
+    ok = {"READY_FOR_CONFIG", "PARTIAL_CONFIG", "EXISTING_GOLDEN_PATH",
+          "EXISTING_PARTIAL_DATA"}
+    assert set(st["final_status"].unique()) <= ok
+    get = lambda a: st[st["athlete_id"] == a].iloc[0]
+    assert get("B0377")["final_status"] == "EXISTING_PARTIAL_DATA"
+    for a in ("B0400", "B0371", "B0380"):
+        assert get(a)["final_status"] == "EXISTING_GOLDEN_PATH"
+    new = sorted(set(st["athlete_id"]) - EXISTING_5)
+    assert len(new) == 29
+    for a in new:
+        r = get(a)
+        assert r["final_status"] in ("READY_FOR_CONFIG", "PARTIAL_CONFIG")
+        assert r["config_status"] == "provisional"
+        assert r["golden_path_status"] == "done"
+
+
+def test_1_8f5_audit_pending_scope():
+    aud = _audit5()
+    pending = set(_st5()["athlete_id"]) - EXISTING_5
+    assert set(aud["athlete_id"]) == pending
+    assert set(aud["technique"]) == {"S02", "S03", "S04", "S05"}
+    assert set(aud["condition"]) == {"E01"} and set(aud["trial"]) == {"T01"}
+    assert len(aud) == 29 * 4 * 6
+
+
+def test_1_8f5_recs_shape_scope():
+    rec = _rec5()
+    assert len(rec) == 29 * 4
+    assert rec.duplicated(subset=["athlete_id", "technique"]).sum() == 0
+    assert set(rec["technique"]) == {"S02", "S03", "S04", "S05"}
+    assert set(rec["evidence_status"]) <= {"RECOMMENDED", "NEEDS_VALIDATION",
+                                           "INSUFFICIENT_DATA"}
+    # S04 es la técnica problemática
+    nv = rec[rec["evidence_status"] == "NEEDS_VALIDATION"]
+    assert set(nv["technique"]) == {"S04"}
+    assert set(nv["athlete_id"]) == {"B0388", "B0401"}
+
+
+def test_1_8f5_configs_match_recommendations():
+    cfg_ids = {p.stem for p in (ROOT / "config" / "athletes").glob("*.yaml")}
+    new = sorted(cfg_ids - EXISTING_5)
+    assert len(new) == 29
+    rec = _rec5()
+    for aid in new:
+        cfg = _X02.load_config(aid)
+        t = cfg.get("techniques") or {}
+        s01 = t.get("S01", {})
+        assert s01.get("signal") == "RFIN"
+        assert (s01.get("thresholds") or {}).get("status") == "NEEDS_VALIDATION"
+        for tech in ("S02", "S03", "S04", "S05"):
+            row = rec[(rec["athlete_id"] == aid) & (rec["technique"] == tech)].iloc[0]
+            if tech in t:
+                e = t[tech]
+                assert row["evidence_status"] == "RECOMMENDED", f"{aid} {tech}"
+                assert e["signal"] == row["recommended_signal"], f"{aid} {tech} señal"
+                assert e["joints_side"] == row["movement_side"], f"{aid} {tech} lado"
+            else:
+                assert row["evidence_status"] != "RECOMMENDED", f"{aid} {tech} ausente"
+
+
+def test_1_8f5_gp_scope_and_sources():
+    gp = _gp5()
+    assert set(gp["technique"]) <= {"S02", "S03", "S04", "S05"}
+    assert (gp["sampling_rate_hz"] == 250.0).all()
+    assert set(gp["condition"]) == {"E01"} and set(gp["trial"]) == {"T01"}
+    assert {"cohort_expansion_gp", "task3_golden_path"} <= set(gp["_source"])
+    assert "B0377" not in set(gp["athlete_id"])
+    src = gp["_source"].value_counts().to_dict()
+    assert src["task3_golden_path"] == 37
+
+
+def test_1_8f5_gp_signal_matches_recommendations():
+    """regresión: el Golden Path USÓ la señal recomendada (atleta activado)."""
+    gp = _gp5()
+    rec = _rec5()[_rec5()["evidence_status"] == "RECOMMENDED"]
+    g = gp[gp["_source"] == "cohort_expansion_gp"]
+    mismatches = []
+    for _, r in rec.iterrows():
+        cell = g[(g["athlete_id"] == r["athlete_id"]) & (g["technique"] == r["technique"])]
+        if cell.empty:
+            continue
+        if set(cell["signal_used"].unique()) != {r["recommended_signal"]}:
+            mismatches.append((r["athlete_id"], r["technique"]))
+    assert not mismatches, f"GP usó señal distinta a la recomendada: {mismatches}"
+
+
+def test_1_8f5_data_mart_intact():
+    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
+    df = pd.read_csv(mart)
+    assert len(df) == 18
+    assert set(df["athlete_id"]) <= {"B0367", "B0377"}
+    assert not set(df["athlete_id"]) & (set(_st5()["athlete_id"]) - {"B0377"})
+
+
+def test_1_8f5_determinism_limit2():
+    """dos ejecuciones con --limit 2 (sin escritura) producen los mismos marcos."""
+    mod = _new29()
+    r1 = mod.run_cohort_expansion(limit=2, write=False)
+    r2 = mod.run_cohort_expansion(limit=2, write=False)
+    for k in ("status", "audit", "recs", "gp", "events"):
+        assert _frames_match(r1[k].reset_index(drop=True),
+                             r2[k].reset_index(drop=True)), k
+    assert r1["new_cfg_ids"] == r2["new_cfg_ids"]
+
+
+def test_1_8f5_reproducible_b0372():
+    """recomputar en muestra (limit=1) reproduce exactamente las filas de B0372."""
+    mod = _new29()
+    r = mod.run_cohort_expansion(limit=1, write=False)
+    got = r["gp"][r["gp"]["athlete_id"] == "B0372"]
+    committed = _gp5()[_gp5()["athlete_id"] == "B0372"]
+    assert len(got) > 0 and len(committed) > 0
+    assert sorted(got["execution_id"]) == sorted(committed["execution_id"])
+    assert got["_source"].eq("cohort_expansion_gp").all()
 
 
 if __name__ == "__main__":

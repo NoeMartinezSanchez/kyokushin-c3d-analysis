@@ -1,0 +1,12 @@
+[1.8F T5] Expansión cohorte 250 Hz (S02-S05, E01-T01)
+[1.8F T5] Estado por atleta:
+athlete_id          final_status              config_status golden_path_status
+     B0372      READY_FOR_CONFIG                provisional               done
+     B0400  EXISTING_GOLDEN_PATH                provisional  task3_golden_path
+     B0371  EXISTING_GOLDEN_PATH                provisional  task3_golden_path
+     B0380  EXISTING_GOLDEN_PATH                provisional  task3_golden_path
+     B0377 EXISTING_PARTIAL_DATA provisional (mart partial)       mart_partial
+[1.8F T5] Nuevas configs : 1 -> B0372
+[1.8F T5] Golden Path    : 1 atletas nuevos / 49 ejecuciones aceptadas (S02-S05)
+[1.8F T5] Eventos        : {'accepted': 49, 'rejected': 38, 'review': 1}
+[1.8F T5] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_validation\cohort_expansion

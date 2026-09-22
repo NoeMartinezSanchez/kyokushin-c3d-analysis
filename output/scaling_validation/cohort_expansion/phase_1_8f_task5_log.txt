@@ -1,0 +1,40 @@
+[1.8F T5] Expansión cohorte 250 Hz (S02-S05, E01-T01)
+[1.8F T5] Estado por atleta:
+athlete_id          final_status              config_status golden_path_status
+     B0372      READY_FOR_CONFIG                provisional               done
+     B0373      READY_FOR_CONFIG                provisional               done
+     B0374      READY_FOR_CONFIG                provisional               done
+     B0375      READY_FOR_CONFIG                provisional               done
+     B0376      READY_FOR_CONFIG                provisional               done
+     B0378      READY_FOR_CONFIG                provisional               done
+     B0379      READY_FOR_CONFIG                provisional               done
+     B0381      READY_FOR_CONFIG                provisional               done
+     B0382      READY_FOR_CONFIG                provisional               done
+     B0383      READY_FOR_CONFIG                provisional               done
+     B0384      READY_FOR_CONFIG                provisional               done
+     B0385      READY_FOR_CONFIG                provisional               done
+     B0386      READY_FOR_CONFIG                provisional               done
+     B0387      READY_FOR_CONFIG                provisional               done
+     B0388        PARTIAL_CONFIG                provisional               done
+     B0389      READY_FOR_CONFIG                provisional               done
+     B0391      READY_FOR_CONFIG                provisional               done
+     B0392      READY_FOR_CONFIG                provisional               done
+     B0393      READY_FOR_CONFIG                provisional               done
+     B0394      READY_FOR_CONFIG                provisional               done
+     B0395      READY_FOR_CONFIG                provisional               done
+     B0396      READY_FOR_CONFIG                provisional               done
+     B0398      READY_FOR_CONFIG                provisional               done
+     B0399      READY_FOR_CONFIG                provisional               done
+     B0401        PARTIAL_CONFIG                provisional               done
+     B0402      READY_FOR_CONFIG                provisional               done
+     B0403      READY_FOR_CONFIG                provisional               done
+     B0404      READY_FOR_CONFIG                provisional               done
+     B0405      READY_FOR_CONFIG                provisional               done
+     B0400  EXISTING_GOLDEN_PATH                provisional  task3_golden_path
+     B0371  EXISTING_GOLDEN_PATH                provisional  task3_golden_path
+     B0380  EXISTING_GOLDEN_PATH                provisional  task3_golden_path
+     B0377 EXISTING_PARTIAL_DATA provisional (mart partial)       mart_partial
+[1.8F T5] Nuevas configs : 29 -> B0372, B0373, B0374, B0375, B0376, B0378, B0379, B0381, B0382, B0383, B0384, B0385, B0386, B0387, B0388, B0389, B0391, B0392, B0393, B0394, B0395, B0396, B0398, B0399, B0401, B0402, B0403, B0404, B0405
+[1.8F T5] Golden Path    : 29 atletas nuevos / 410 ejecuciones aceptadas (S02-S05)
+[1.8F T5] Eventos        : {'accepted': 410, 'rejected': 303, 'review': 22}
+[1.8F T5] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\scaling_validation\cohort_expansion

@@ -1,0 +1,44 @@
+# Configuración por atleta B0395 (FASE 1.8F, Task 5 — cohorte 250 Hz).
+# Auditoría de señales/lateralidad E01-T01 × S02-S05; config provisional.
+# S01 = RFIN con thresholds.status=NEEDS_VALIDATION (NO se procesa en Golden Path).
+
+athlete_id: B0395
+
+metadata:
+  data_dir: atletas/B0395
+  sampling_rate: 250.0
+  units: mm
+
+techniques:
+  S01:
+    signal: RFIN
+    laterality: right
+    joints_side: R
+    movement: punch
+    thresholds:
+      status: NEEDS_VALIDATION
+      notes: 'S01 fuera de la expansión ML (Task 1-4: representación inconsistente).'
+  S02:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S03:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S04:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+  S05:
+    signal: RTOE
+    laterality: right
+    joints_side: R
+    movement: kick
+
+validation:
+  status: provisional
+  notes: 'Config auditoría Task 5: técnicas S02, S03, S04, S05. Sin procesamiento completo aún.'
