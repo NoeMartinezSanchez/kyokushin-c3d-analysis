@@ -1,0 +1,10 @@
+check,status
+columnas_contrato,PASS
+execution_id_unico,PASS
+sin_nan_features,PASS
+sin_s01,PASS
+bloque_nuevo_250hz,PASS
+bloque_nuevo_e01_t01,PASS
+bloque_nuevo_s02_s05,PASS
+config_consistente,PASS
+historico_preservado,PASS

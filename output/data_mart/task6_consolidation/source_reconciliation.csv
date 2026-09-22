@@ -1,0 +1,5 @@
+source,candidate_rows,accepted_rows,duplicate_rows,inserted_rows,excluded_rows,reason
+feature_readiness_sample,18,18,0,18,0,histórico preservado
+task3_golden_path,37,37,0,37,0,bloque 250 Hz
+cohort_expansion_gp,373,373,0,373,0,bloque 250 Hz
+TOTAL,428,428,0,428,0,

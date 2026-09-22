@@ -427,6 +427,26 @@ def test_event_id_matches_global_events():
 
 MART_FILE = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
 MART_SUMMARY = ROOT / "output" / "data_mart" / "data_mart_summary.csv"
+MART_BACKUP = ROOT / "output" / "data_mart" / "task6_backup" / "athlete_execution_features.csv"
+
+
+def _assert_mart_contract_ok():
+    """Invariante del Mart consolida dict (428 filas, contrato 39 cols, histórico intacto)."""
+    mart = pd.read_csv(MART_FILE)
+    hist = pd.read_csv(MART_BACKUP)
+    assert len(mart) == 428
+    assert mart["execution_id"].is_unique
+    assert (mart["qc_status"] == "accepted").all()
+    feats = ["duration_s", "time_to_peak_s", "vmax", "vmean", "amax",
+             "displacement", "path_length", "hip_rom", "knee_rom",
+             "ankle_rom", "snr"]
+    assert mart[feats].isna().sum().sum() == 0
+    assert not (mart["technique"] == "S01").any()
+    new = mart[~mart["athlete_id"].isin(["B0367", "B0377"])]
+    assert (new["sampling_rate_hz"] == 250.0).all()
+    assert set(new["technique"]) <= {"S02", "S03", "S04", "S05"}
+    hm = mart[mart["athlete_id"].isin(["B0367", "B0377"])]
+    assert hm.reset_index(drop=True).equals(hist.reset_index(drop=True))
 
 
 def test_mart_schema():
@@ -454,9 +474,9 @@ def test_mart_golden_path_scope():
     if not MART_FILE.exists():
         pytest.skip("FASE 1.8C no ejecutada")
     mart = pd.read_csv(MART_FILE)
-    assert len(mart) == 18
-    assert set(mart["athlete_id"]) == {"B0367", "B0377"}
-    assert set(mart["technique"]) == {"S02", "S03", "S05"}
+    assert len(mart) == 428
+    assert set(mart["athlete_id"]) == set(_new29()._cohort_250()) | {"B0367"}
+    assert set(mart["technique"]) == {"S02", "S03", "S04", "S05"}
     assert set(mart["condition"]) == {"E01"}
     assert set(mart["trial"]) == {"T01"}
 
@@ -466,8 +486,9 @@ def test_mart_sampling_rate_metadata():
         pytest.skip("FASE 1.8C no ejecutada")
     mart = pd.read_csv(MART_FILE)
     assert set(mart.loc[mart["athlete_id"] == "B0367", "sampling_rate_hz"]) == {200.0}
-    assert set(mart.loc[mart["athlete_id"] == "B0377", "sampling_rate_hz"]) == {250.0}
-    assert (mart["movement_side"] == "R").all()  # golden path usa lado derecho
+    new = mart[mart["athlete_id"] != "B0367"]
+    assert set(new["sampling_rate_hz"]) == {250.0}
+    assert set(mart["movement_side"]) <= {"R", "L"}
 
 
 def test_mart_comparability_mapping():
@@ -501,10 +522,10 @@ def test_mart_summary():
     if not MART_SUMMARY.exists():
         pytest.skip("FASE 1.8C no ejecutada")
     sm = pd.read_csv(MART_SUMMARY).iloc[0]
-    assert sm["total_executions"] == 18
-    assert sm["total_athletes"] == 2
+    assert sm["total_executions"] == 428
+    assert sm["total_athletes"] == 34
     assert sm["sampling_rate_200hz"] == 9
-    assert sm["sampling_rate_250hz"] == 9
+    assert sm["sampling_rate_250hz"] == 419
     assert sm["missing_feature_values"] == 0
 
 
@@ -514,7 +535,10 @@ def test_mart_units_metadata():
     mart = pd.read_csv(MART_FILE)
     assert (mart["feature_version"].astype(str) == "1.0").all()
     assert (mart["units_version"].astype(str) == "1.0").all()
-    assert (mart["source_dataset"] == "feature_readiness_sample").all()
+    hist = mart[mart["athlete_id"].isin(["B0367", "B0377"])]
+    new = mart[~mart["athlete_id"].isin(["B0367", "B0377"])]
+    assert (hist["source_dataset"] == "feature_readiness_sample").all()
+    assert set(new["source_dataset"]) <= {"task3_golden_path", "cohort_expansion_gp"}
 
 
 def test_mart_traceability():
@@ -564,7 +588,7 @@ def test_dashboard_does_not_touch_c3d():
 def test_dashboard_data_mart_loads():
     da = _dash_data()
     df = da.load_data_mart()
-    assert len(df) == 18
+    assert len(df) == 428
 
 
 def test_dashboard_schema():
@@ -585,7 +609,7 @@ def test_dashboard_no_nan_required_fields():
 def test_dashboard_athletes():
     da = _dash_data()
     df = da.load_data_mart()
-    assert set(df["athlete_id"].unique()) == {"B0367", "B0377"}
+    assert set(df["athlete_id"].unique()) == set(_new29()._cohort_250()) | {"B0367"}
 
 
 def test_dashboard_techniques():
@@ -614,7 +638,7 @@ def test_dashboard_filter_by_technique():
     da = _dash_data()
     df = da.load_data_mart()
     s02 = da.filter_by(df, technique="S02")
-    assert len(s02) == 6
+    assert len(s02) == 109
     assert set(s02["technique"]) == {"S02"}
 
 
@@ -897,11 +921,8 @@ def test_1_8f1_b0367_b0377_intact():
 
 
 def test_1_8f1_data_mart_untouched():
-    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
-    assert mart.exists()
-    df = pd.read_csv(mart)
-    assert set(df["athlete_id"]) <= {"B0367", "B0377"}
-    assert not df["athlete_id"].str.startswith("B04").any()
+    """el Mart consolida dict cumple el contrato (histórico intacto + cohorte 250 Hz)."""
+    _assert_mart_contract_ok()
 
 
 def test_1_8f1_required_columns():
@@ -1057,11 +1078,8 @@ def test_1_8f2_b0367_b0377_unchanged():
 
 
 def test_1_8f2_data_mart_not_modified():
-    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
-    assert mart.exists()
-    df = pd.read_csv(mart)
-    assert not set(df["athlete_id"]) & set(ATH_182)
-    assert len(df) == 18
+    """el Mart consolidado sigue cumpliendo el contrato (histórico intacto)."""
+    _assert_mart_contract_ok()
 
 
 # --------------------------------------------------------------------------- #
@@ -1173,10 +1191,8 @@ def test_1_8f3_summary_one_row_per_cell():
 
 
 def test_1_8f3_data_mart_intact():
-    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
-    df = pd.read_csv(mart)
-    assert len(df) == 18
-    assert not set(df["athlete_id"]) & set(ATH_183)
+    """el Mart consolidado cumple el contrato (histórico intacto + 250 Hz)."""
+    _assert_mart_contract_ok()
 
 
 def test_1_8f3_b0367_b0377_history_intact():
@@ -1355,10 +1371,8 @@ def test_1_8f4_outputs_reproducible(s01_result):
 
 
 def test_1_8f4_data_mart_intact():
-    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
-    df = pd.read_csv(mart)
-    assert len(df) == 18
-    assert not df["athlete_id"].str.startswith("B04").any()
+    """el Mart consolidado cumple el contrato (histórico intacto + 250 Hz)."""
+    _assert_mart_contract_ok()
 
 
 def test_1_8f4_configs_untouched():
@@ -1508,11 +1522,8 @@ def test_1_8f5_gp_signal_matches_recommendations():
 
 
 def test_1_8f5_data_mart_intact():
-    mart = ROOT / "output" / "data_mart" / "athlete_execution_features.csv"
-    df = pd.read_csv(mart)
-    assert len(df) == 18
-    assert set(df["athlete_id"]) <= {"B0367", "B0377"}
-    assert not set(df["athlete_id"]) & (set(_st5()["athlete_id"]) - {"B0377"})
+    """el Mart consolidado cumple el contrato (histórico intacto + 250 Hz)."""
+    _assert_mart_contract_ok()
 
 
 def test_1_8f5_determinism_limit2():
@@ -1535,6 +1546,174 @@ def test_1_8f5_reproducible_b0372():
     assert len(got) > 0 and len(committed) > 0
     assert sorted(got["execution_id"]) == sorted(committed["execution_id"])
     assert got["_source"].eq("cohort_expansion_gp").all()
+
+
+# --------------------------------------------------------------------------- #
+# 19. Consolidación controlada del Data Mart 250 Hz (FASE 1.8F, Task 6)
+# --------------------------------------------------------------------------- #
+
+T6_DIR = ROOT / "output" / "data_mart" / "task6_consolidation"
+_T614 = None
+
+
+def _cons14():
+    global _T614
+    if _T614 is None:
+        import importlib.util as _ilu
+        _cspec = _ilu.spec_from_file_location(
+            "con14", str(ROOT / "scripts" / "14_consolidate_250hz_data_mart.py"))
+        _T614 = _ilu.module_from_spec(_cspec)
+        _cspec.loader.exec_module(_T614)
+    return _T614
+
+
+def _mart_new_block():
+    m = pd.read_csv(MART_FILE)
+    return m[~m["athlete_id"].isin(["B0367", "B0377"])]
+
+
+def test_1_8f6_outputs_exist():
+    assert (ROOT / "output" / "data_mart" / "task6_backup" /
+            "athlete_execution_features.csv").exists()
+    for f in ["data_mart_250hz_consolidated.csv", "data_mart_task6_validation.csv",
+              "data_mart_task6_duplicates.csv", "data_mart_task6_summary.csv",
+              "data_mart_task6_coverage.csv", "source_reconciliation.csv"]:
+        assert (T6_DIR / f).exists()
+
+
+def test_1_8f6_schema_39_columns():
+    mart = pd.read_csv(MART_FILE)
+    assert len(mart.columns) == 39
+    assert list(mart.columns) == _cons14().CONTRACT_COLUMNS
+
+
+def test_1_8f6_execution_id_unique():
+    mart = pd.read_csv(MART_FILE)
+    assert mart["execution_id"].is_unique
+
+
+def test_1_8f6_no_nan_features():
+    mart = pd.read_csv(MART_FILE)
+    feats = ["duration_s", "time_to_peak_s", "vmax", "vmean", "amax",
+             "displacement", "path_length", "hip_rom", "knee_rom",
+             "ankle_rom", "snr"]
+    assert mart[feats].isna().sum().sum() == 0
+
+
+def test_1_8f6_no_s01():
+    mart = pd.read_csv(MART_FILE)
+    assert not (mart["technique"] == "S01").any()
+
+
+def test_1_8f6_new_block_250_hz():
+    nb = _mart_new_block()
+    assert set(nb["sampling_rate_hz"]) == {250.0}
+
+
+def test_1_8f6_new_block_e01_t01():
+    nb = _mart_new_block()
+    assert set(nb["condition"]) == {"E01"}
+    assert set(nb["trial"]) == {"T01"}
+
+
+def test_1_8f6_new_block_s02_s05():
+    nb = _mart_new_block()
+    assert set(nb["technique"]) == {"S02", "S03", "S04", "S05"}
+
+
+def test_1_8f6_b0388_b0401_no_s04():
+    mart = pd.read_csv(MART_FILE)
+    for aid in ("B0388", "B0401"):
+        cell = mart[(mart["athlete_id"] == aid) & (mart["technique"] == "S04")]
+        assert cell.empty, f"{aid} tiene S04 artificial"
+
+
+def test_1_8f6_b0377_not_duplicated():
+    mart = pd.read_csv(MART_FILE)
+    b77 = mart[mart["athlete_id"] == "B0377"]
+    assert len(b77) == 9
+    src77 = mart[(mart["athlete_id"] == "B0377")]
+    assert (src77["source_dataset"] == "feature_readiness_sample").all()
+
+
+def test_1_8f6_task3_37_rows():
+    mart = pd.read_csv(MART_FILE)
+    t3 = mart[mart["source_dataset"] == "task3_golden_path"]
+    assert len(t3) == 37
+    assert set(t3["athlete_id"]) == {"B0400", "B0371", "B0380"}
+
+
+def test_1_8f6_primary_signal_matches_config():
+    mart = _mart_new_block()
+    for aid, tech in mart[["athlete_id", "technique"]].drop_duplicates().itertuples(False):
+        cfg = _X02.load_config(aid)
+        e = (cfg.get("techniques") or {}).get(tech, {})
+        cfg_sig = e.get("signal")
+        if cfg_sig:  # técnicas con evidencia en config (S04 B0388/B0401 no existen aquí)
+            sub = mart[(mart["athlete_id"] == aid) & (mart["technique"] == tech)]
+            assert (sub["primary_signal"] == cfg_sig).all(), f"{aid} {tech}"
+
+
+def test_1_8f6_movement_side_matches_config():
+    mart = _mart_new_block()
+    for aid, tech in mart[["athlete_id", "technique"]].drop_duplicates().itertuples(False):
+        cfg = _X02.load_config(aid)
+        e = (cfg.get("techniques") or {}).get(tech, {})
+        j = e.get("joints_side")
+        if j:
+            sub = mart[(mart["athlete_id"] == aid) & (mart["technique"] == tech)]
+            assert (sub["movement_side"] == j).all(), f"{aid} {tech}"
+
+
+def test_1_8f6_sampling_matches_config():
+    mart = _mart_new_block()
+    for aid in mart["athlete_id"].unique():
+        cfg = _X02.load_config(aid)
+        assert float(cfg["metadata"]["sampling_rate"]) == 250.0
+        sub = mart[mart["athlete_id"] == aid]
+        assert (sub["sampling_rate_hz"] == 250.0).all()
+
+
+def test_1_8f6_historical_preserved():
+    mart = pd.read_csv(MART_FILE)
+    hist = pd.read_csv(MART_BACKUP)
+    hm = mart[mart["athlete_id"].isin(["B0367", "B0377"])]
+    assert hm.reset_index(drop=True).equals(hist.reset_index(drop=True))
+
+
+def test_1_8f6_reconciliation():
+    rec = pd.read_csv(T6_DIR / "source_reconciliation.csv")
+    total = rec[rec["source"] == "TOTAL"].iloc[0]
+    assert total["inserted_rows"] == 428
+    assert total["duplicate_rows"] == 0
+    hi = rec[rec["source"] == "feature_readiness_sample"].iloc[0]["inserted_rows"]
+    t3 = rec[rec["source"] == "task3_golden_path"].iloc[0]["inserted_rows"]
+    t5 = rec[rec["source"] == "cohort_expansion_gp"].iloc[0]["inserted_rows"]
+    assert (hi, t3, t5) == (18, 37, 373)
+
+
+def test_1_8f6_determinism_write_false():
+    """dos ejecuciones (write=False) producen el mismo mart consolidado."""
+    mod = _cons14()
+    r1 = mod.run_consolidation(write_final=False)
+    r2 = mod.run_consolidation(write_final=False)
+    assert r1["state"] == "OK" and r2["state"] == "OK"
+    assert _frames_match(r1["final"].reset_index(drop=True),
+                         r2["final"].reset_index(drop=True))
+
+
+def test_1_8f6_features_match_source():
+    """las features del bloque nuevo NO fueron alteradas vs la fuente (mapeo nombre a nombre)."""
+    mod = _cons14()
+    gp = pd.read_csv(mod.COH_FILE)
+    block = mod._build_new_block(gp)
+    mart = _mart_new_block()
+    merged = mart.merge(block, on="execution_id", suffixes=("", "_src"),
+                        how="inner")
+    assert len(merged) == len(mart)
+    for c in mod.FEATURE_COLS:
+        assert np.allclose(merged[c], merged[f"{c}_src"], rtol=1e-12, atol=1e-12,
+                           equal_nan=True), f"feature alterada: {c}"
 
 
 if __name__ == "__main__":

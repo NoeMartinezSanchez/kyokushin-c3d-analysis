@@ -2,7 +2,8 @@
 
 **Fuente:** `output/data_mart/athlete_execution_features.csv`
 **Versiones:** `feature_version=1.0`, `segmentation_version=1.8.0` (motor), `units_version=1.0`, `mart_version=1.0`
-**Fuente de datos:** `feature_readiness_sample` (golden path S02/S03/S05-E01-T01, B0367+B0377)
+**Cobertura:** 428 filas (Fase 1.8F Task 6): histórico golden path (18) + cohorte 250 Hz S02–S05 (410). S01 fuera (Task 4).
+**Fuentes de datos (`source_dataset`):** `feature_readiness_sample` (histórico B0367/B0377), `task3_golden_path` (B0400/B0371/B0380, Task 3), `cohort_expansion_gp` (29 atletas de la expansión 250 Hz, Task 5).
 
 > Convención: `comparability_*` usa las clases del plan 1.8C: `DIRECTLY_COMPARABLE`, `COMPARABLE_WITH_CAVEAT`, `REQUIRES_NORMALIZATION`, `NEEDS_VALIDATION`, `NOT_AVAILABLE`.
 
@@ -128,8 +129,8 @@
 - Siguen el patrón de versionado del proyecto (`SEGMENTATION_VERSION`).
 
 ### source_dataset
-- Descripción: dataset origen del Data Mart.
-- Valor: `feature_readiness_sample` (golden path).
+- Descripción: dataset origen del Data Mart (trazabilidad).
+- Valores: `feature_readiness_sample` (histórico), `task3_golden_path` (Task 3), `cohort_expansion_gp` (Task 5, expansión 250 Hz).
 
 ---
 

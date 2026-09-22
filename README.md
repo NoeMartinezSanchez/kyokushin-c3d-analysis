@@ -8,7 +8,7 @@ Dataset público de Agnieszka Szczęsna, Monika Błaszczyszyn, Magdalena Pawlyta
 
 Subconjunto local: **dataset completo descargado en `atletas/`** (37 atletas, 1411 C3D); trabajo controlado en B0367 (26) y B0377 (39).
 
-> **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)**, **1.8C (Athlete Data Mart)**, **1.8D (Dashboard MVP)**, **1.8E (inventario completo)** y **1.8F Tarea 0 (selección de 3 candidatos)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`), consumido por un **Dashboard MVP en Streamlit** (`dashboard/app.py`). El dataset completo (37 atletas / 1411 C3D) fue inventariado estructuralmente (`output/athlete_inventory/`): 200 Hz ×4 atletas, 250 Hz ×33, 0 anomalías. La Fase 1.8F (Tarea 0) seleccionó de forma reproducible y estructural (NO de rendimiento) 3 atletas 250 Hz / Grupo B para la prueba controlada de generalización: **B0400, B0371 y B0380** (`output/scaling_selection/`). La Tarea 1 determinó con evidencia (E01-T01) señal y lateralidad por técnica: S02–S05→RTOE mayormente; **B0380-S02→LTOE (izquierda)** y S01 con baseline alto en B0371/B0380 → `NEEDS_VALIDATION`. La Tarea 2 convirtió el audit en **configuraciones explícitas por atleta** (`config/athletes/B0400|B0371|B0380.yaml`, 250 Hz, `validation.status: provisional`, sin procesar). La Tarea 3 ejecutó el **Golden Path E01-T01×S01–S05** con esas configs: **46 ejecuciones aceptadas / 93 eventos**, B0380-S02 usó **LTOE/L**, patadas estables; hallazgo: **S01 de B0371/B0380 no pudo usar RFIN** (gate `min_snr=8` → fallback RTOE, `REVIEW_REQUIRED`) — documentado, no corregido (`output/scaling_validation/`). La Tarea 4 (validación S01, 5 atletas × RFIN/LFIN/RTOE) confirmó que RFIN es segmentable en B0367/B0400 pero **no en B0371/B0380** (baseline+MAD altos, actividad continua) y que **LFIN no rescata**; fallback RTOE débil → **recomendación: excluir S01 del primer dataset ML** (Opción B), construir con S02–S05 (`output/scaling_validation/s01_validation/`). La Tarea 5 **expandió la cohorte 250 Hz**: 33/33 auditados, **29 configs nuevas**, **410 ejecuciones aceptadas S02–S05** (373 nuevas + 37 Task 3), 27 READY_FOR_CONFIG + 2 PARTIAL_CONFIG (S04 en B0388/B0401), **lateralidad izquierda en 70 celdas** → la señal/lado se valida por atleta×técnica (`output/scaling_validation/cohort_expansion/`). Data Mart intacto (18 filas). Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
+> **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)**, **1.8C (Athlete Data Mart)**, **1.8D (Dashboard MVP)**, **1.8E (inventario completo)** y **1.8F Tarea 0 (selección de 3 candidatos)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`), consumido por un **Dashboard MVP en Streamlit** (`dashboard/app.py`). El dataset completo (37 atletas / 1411 C3D) fue inventariado estructuralmente (`output/athlete_inventory/`): 200 Hz ×4 atletas, 250 Hz ×33, 0 anomalías. La Fase 1.8F (Tarea 0) seleccionó de forma reproducible y estructural (NO de rendimiento) 3 atletas 250 Hz / Grupo B para la prueba controlada de generalización: **B0400, B0371 y B0380** (`output/scaling_selection/`). La Tarea 1 determinó con evidencia (E01-T01) señal y lateralidad por técnica: S02–S05→RTOE mayormente; **B0380-S02→LTOE (izquierda)** y S01 con baseline alto en B0371/B0380 → `NEEDS_VALIDATION`. La Tarea 2 convirtió el audit en **configuraciones explícitas por atleta** (`config/athletes/B0400|B0371|B0380.yaml`, 250 Hz, `validation.status: provisional`, sin procesar). La Tarea 3 ejecutó el **Golden Path E01-T01×S01–S05** con esas configs: **46 ejecuciones aceptadas / 93 eventos**, B0380-S02 usó **LTOE/L**, patadas estables; hallazgo: **S01 de B0371/B0380 no pudo usar RFIN** (gate `min_snr=8` → fallback RTOE, `REVIEW_REQUIRED`) — documentado, no corregido (`output/scaling_validation/`). La Tarea 4 (validación S01, 5 atletas × RFIN/LFIN/RTOE) confirmó que RFIN es segmentable en B0367/B0400 pero **no en B0371/B0380** (baseline+MAD altos, actividad continua) y que **LFIN no rescata**; fallback RTOE débil → **recomendación: excluir S01 del primer dataset ML** (Opción B), construir con S02–S05 (`output/scaling_validation/s01_validation/`). La Tarea 5 **expandió la cohorte 250 Hz**: 33/33 auditados, **29 configs nuevas**, **410 ejecuciones aceptadas S02–S05** (373 nuevas + 37 Task 3), 27 READY_FOR_CONFIG + 2 PARTIAL_CONFIG (S04 en B0388/B0401), **lateralidad izquierda en 70 celdas** → la señal/lado se valida por atleta×técnica (`output/scaling_validation/cohort_expansion/`). La Tarea 6 **consolidó el Data Mart 250 Hz con el contrato intacto**: **428 filas** (18 históricas preservadas + 410 nuevas S02–S05), 34 atletas, `execution_id` único, 0 duplicados/NaN, `source_dataset` trazable, backup en `data_mart/task6_backup/` — listo como fuente para el dataset ML v0. Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
 
 ---
 
@@ -102,7 +102,8 @@ Qué se ha hecho hasta el momento, con su script, salida y estado. Informes deta
 | **1.8F (Tarea 3) — Golden Path E01-T01×S01–S05** | Primera ejecución controlada del pipeline sobre B0400/B0371/B0380 con las configs de Task 2: **46 ejecuciones aceptadas / 93 eventos**; B0380-S02 usó **LTOE/L**; las patadas dan 3 aceptadas/celda; **S01 de B0371/B0380 no usó RFIN (gate min_snr=8 → fallback RTOE), REVIEW_REQUIRED** | `10_phase_1_8f_task3_golden_path.py` | `output/scaling_validation/`, `docs/phase_1_8f_task3_golden_path.md` | ✅ Tarea 3 completada (14 tests nuevos; sin tocar data_mart/algoritmo) |
 | **1.8F (Tarea 4) — Validación dirigida de S01 (pre-ML)** | Auditoría S01 (5 atletas × RFIN/LFIN/RTOE, E01-T01): RFIN segmentable en B0367/B0400; B0371/B0380 con baseline alto + MAD alto (actividad continua) → fallback RTOE débil (RFIN_NOT_VALIDATED;RTOE_FALLBACK_NOT_VALIDATED); LFIN no rescata; **recomendación global: Opción B (excluir S01 del primer dataset ML)** | `11_s01_targeted_validation.py` | `output/scaling_validation/s01_validation/`, `docs/phase_1_8f_task4_s01_validation.md` | ✅ Tarea 4 completada (9 tests nuevos; sin cambios de algoritmo/gate/config) |
 | **1.8F (Task 5) — Expansión controlada de la cohorte 250 Hz** | Pipeline de incorporación completo sobre los 29 atletas pendientes: auditoría señales/lateralidad (E01-T01 × S02–S05) → recomendaciones → **29 configs nuevas** → Golden Path → estados. Resultado: **27 READY_FOR_CONFIG + 2 PARTIAL_CONFIG (B0388/B0401: S04 NEEDS_VALIDATION)**; **410 ejecuciones aceptadas S02–S05** (373 nuevas + 37 Task 3); **70 celdas en Golden Path con lateralidad izquierda**; S01 presente solo como NEEDS_VALIDATION (sin procesar); Data Mart intacto | `13_phase_1_8f_cohort_expansion.py` | `output/scaling_validation/cohort_expansion/`, `config/athletes/*.yaml` (29 nuevos), `docs/phase_1_8f_task5_cohort_expansion.md` | ✅ Task 5 completada (11 tests nuevos; sin ML ni data_mart) |
-| **1.8F (siguiente)** | Ampliar el **Data Mart con contrato único** (B0377 + cohorte 250 Hz S02–S05, ≈410 aceptadas) y recién retomar el **dataset ML v0** (S02–S05; S01 excluido); normalizar 200/250 Hz y decisión sobre Grupo C | — | — | ⏳ Pendiente |
+| **1.8F (Task 6) — Consolidación controlada del Data Mart 250 Hz** | Amplía el Data Mart **con el contrato intacto (39 columnas)**: 18 históricas preservadas + **410 ejecuciones aceptadas S02–S05 (250 Hz)** = **428 filas**, 34 atletas, `execution_id` único, 0 NaN, 0 duplicados, backup en `data_mart/task6_backup/`, `source_dataset` trazable (`feature_readiness_sample`/`task3_golden_path`/`cohort_expansion_gp`); S01 y 200 Hz fuera; B0388/B0401-S04 sin filas (partidarios) | `14_consolidate_250hz_data_mart.py` | `output/data_mart/task6_backup/`, `data_mart/task6_consolidation/`, `docs/phase_1_8f_task6_data_mart_consolidation.md` | ✅ Task 6 completada (tests actualizados al nuevo contrato; sin ML/normalización) |
+| **1.8F (Task 7 — siguiente)** | Construir el **dataset ML v0** desde el Mart consolidado (S02–S05; S01 excluido): features candidatas, `target_technique`, identidad/leakage, plan de validación por atleta (GroupKFold/LOSO); normalizar y decidir cohorte 200 Hz (Grupo C) | — | — | ⏳ Pendiente |
 
 **Hallazgo transversal importante:** la configuración es **por atleta y por técnica** (B0367: S01=RFIN, S02–S05=RTOE, lateralidad derecha; B0377: S04=LTOE; cohorte 250 Hz: **70 celdas del Golden Path usan lateralidad izquierda**). La selección de señales de B0367 **no es universal**; la lateralidad y la señal deben validarse por celda `athlete × technique`.
 Para ML futuro se usará siempre **división por participante (GroupKFold / Leave-One-Subject-Out)**, nunca random split por archivo.
@@ -138,12 +139,13 @@ Deporte_sensores/
 │   └── 10_phase_1_8f_task3_golden_path.py # Fase 1.8F (Tarea 3): Golden Path E01-T01×S01-S05
 │   └── 11_s01_targeted_validation.py      # Fase 1.8F (Tarea 4): validación dirigida de S01
 │   └── 13_phase_1_8f_cohort_expansion.py  # Fase 1.8F (Task 5): expansión cohorte 250 Hz
+│   └── 14_consolidate_250hz_data_mart.py  # Fase 1.8F (Task 6): consolidación Data Mart 250 Hz
 ├── dashboard/
 │   ├── app.py                     # Fase 1.8D: Dashboard MVP (Streamlit)
 │   ├── data.py                    # capa de datos (lee Data Mart; no toca C3D)
 │   └── components.py              # labels ES/plotly helpers
 ├── tests/
-│   └── test_pipeline.py        # Tests mínimos (pytest, 136 tests)
+│   └── test_pipeline.py        # Tests mínimos (pytest, 154 tests)
 ├── docs/
 │   ├── dataset_audit.md         # Informe Fase 1 (archivos/calidad/features/ML)
 │   ├── phase_1_5_report.md      # Informe Fase 1.5
@@ -163,6 +165,7 @@ Deporte_sensores/
 │   ├── phase_1_8f_task3_golden_path.md   # Informe Fase 1.8F Tarea 3 (Golden Path)
 │   ├── phase_1_8f_task4_s01_validation.md # Informe Fase 1.8F Tarea 4 (S01 pre-ML)
 │   ├── phase_1_8f_task5_cohort_expansion.md # Informe Fase 1.8F Task 5 (expansión 250 Hz)
+│   ├── phase_1_8f_task6_data_mart_consolidation.md # Informe Fase 1.8F Task 6 (Mart 250 Hz)
 │   └── athlete_data_mart_dictionary.md  # Data dictionary del Data Mart
 ├── output/
 │   ├── athlete_generalization/  # Auditoría de generalización a B0377 (Fase 1.7)
@@ -189,7 +192,11 @@ Deporte_sensores/
 │   │   ├── cohort_golden_path.csv / cohort_events.csv / cohort_execution_quality.csv
 │   │   └── figures/           # cobertura, señal recomendada, lateralidad, eventos
 │   │   └── figures/           # 15 figuras de segmentación + 2 resúmenes
-│   ├── data_mart/              # Athlete Data Mart (Fase 1.8C; capa para Dashboard/ML)
+│   ├── data_mart/              # Athlete Data Mart (428 filas: 18 histórico + 410 cohorte 250 Hz; Task 6)
+│   │   ├── athlete_execution_features.csv  # Mart canónico (39 columnas, contrato estable)
+│   │   ├── data_mart_summary.csv           # resumen (428/34 atletas/S02-S05)
+│   │   ├── task6_backup/                   # copia del Mart pre-consolidación (Task 6)
+│   │   └── task6_consolidation/            # diagnósticos Task 6 (validación, duplicados, cobertura, reconciliación)
 │   │   ├── athlete_execution_features.csv  # 1 fila = 1 ejecución (18)
 │   │   └── data_mart_summary.csv           # métricas del Data Mart
 │   ├── B0377/                   # Salidas de B0377 (no tocan el baseline)
@@ -278,7 +285,10 @@ streamlit run dashboard/app.py
 # Fase 1.8F (Task 5) — expansión de la cohorte 250 Hz (29 atletas, S02-S05)
 .venv\Scripts\python scripts\13_phase_1_8f_cohort_expansion.py
 
-# Tests (125 + 11 de la Fase 1.8F Task 5 = 136)
+# Fase 1.8F (Task 6) — consolidación controlada del Data Mart 250 Hz
+.venv\Scripts\python scripts\14_consolidate_250hz_data_mart.py
+
+# Tests (136 + 18 de la Fase 1.8F Task 6 = 154)
 .venv\Scripts\python -m pytest tests -q
 ```
 
@@ -336,7 +346,7 @@ El script `07` (Athlete Data Mart, Fase 1.8C):
 - En E02 (escudo) la velocidad pico del pie sube a ~15.7 m/s frente a 9.4 m/s en aire (descriptivo, n=1, sin afirmar beneficio).
 - La **coordinación proximal-distal** quedó **NO VALIDADA**; pendiente de rediseño.
 - **Señal por técnica (B0367):** S01=RFIN, S02=S03=S04=S05=RTOE. **Por técnica (B0377):** S04=LTOE (izquierda), resto RTOE. La selección NO es universal.
-- **Pendiente (Fase 1.8E/1.8F):** ampliar el Data Mart con contrato único (B0377 + cohorte 250 Hz S02–S05, ≈410 aceptadas) y retomar el dataset ML v0 (S02–S05; S01 excluido); resolver S04 NEEDS_VALIDATION (B0388/B0401); investigar S01 por separado (umbral robusto por atleta); normalización 200/250 Hz y decisión sobre Grupo C; ampliar el Dashboard con más datos.
+- **Pendiente (Fase 1.8E/1.8F):** construir el **dataset ML v0** desde el Mart consolidado (S02–S05; S01 excluido); resolver S04 NEEDS_VALIDATION (B0388/B0401); investigar S01 por separado (umbral robusto por atleta); normalización 200/250 Hz y decisión sobre Grupo C; ampliar el Dashboard con más datos.
 
 ---
 
@@ -346,4 +356,4 @@ El script `07` (Athlete Data Mart, Fase 1.8C):
 2. `09_extract_features.py`: extraer features por ejecución → dataset tabular multiatleta (reutilizando `02` con `config/athletes/<id>.yaml`).
 3. `10_evaluate_models.py`: primer experimento = **clasificación de técnica (S01–S05)** con GroupKFold por participante.
 
-Ver informes: [`docs/dataset_audit.md`](docs/dataset_audit.md), [`docs/phase_1_5_report.md`](docs/phase_1_5_report.md), [`docs/phase_1_6_report.md`](docs/phase_1_6_report.md), [`docs/phase_1_6_1_report.md`](docs/phase_1_6_1_report.md), [`docs/phase_1_6_2_report.md`](docs/phase_1_6_2_report.md), [`docs/phase_1_7_report.md`](docs/phase_1_7_report.md), [`docs/phase_1_8a_report.md`](docs/phase_1_8a_report.md), [`docs/phase_1_8b_feature_readiness.md`](docs/phase_1_8b_feature_readiness.md), [`docs/phase_1_8c_data_mart.md`](docs/phase_1_8c_data_mart.md), [`docs/phase_1_8d_dashboard.md`](docs/phase_1_8d_dashboard.md), [`docs/phase_1_8e_athlete_inventory.md`](docs/phase_1_8e_athlete_inventory.md), [`docs/phase_1_8f_candidate_selection.md`](docs/phase_1_8f_candidate_selection.md), [`docs/phase_1_8f_signal_laterality_audit.md`](docs/phase_1_8f_signal_laterality_audit.md), [`docs/phase_1_8f_configurations.md`](docs/phase_1_8f_configurations.md), [`docs/phase_1_8f_task3_golden_path.md`](docs/phase_1_8f_task3_golden_path.md), [`docs/phase_1_8f_task4_s01_validation.md`](docs/phase_1_8f_task4_s01_validation.md) y [`docs/phase_1_8f_task5_cohort_expansion.md`](docs/phase_1_8f_task5_cohort_expansion.md).
+Ver informes: [`docs/dataset_audit.md`](docs/dataset_audit.md), [`docs/phase_1_5_report.md`](docs/phase_1_5_report.md), [`docs/phase_1_6_report.md`](docs/phase_1_6_report.md), [`docs/phase_1_6_1_report.md`](docs/phase_1_6_1_report.md), [`docs/phase_1_6_2_report.md`](docs/phase_1_6_2_report.md), [`docs/phase_1_7_report.md`](docs/phase_1_7_report.md), [`docs/phase_1_8a_report.md`](docs/phase_1_8a_report.md), [`docs/phase_1_8b_feature_readiness.md`](docs/phase_1_8b_feature_readiness.md), [`docs/phase_1_8c_data_mart.md`](docs/phase_1_8c_data_mart.md), [`docs/phase_1_8d_dashboard.md`](docs/phase_1_8d_dashboard.md), [`docs/phase_1_8e_athlete_inventory.md`](docs/phase_1_8e_athlete_inventory.md), [`docs/phase_1_8f_candidate_selection.md`](docs/phase_1_8f_candidate_selection.md), [`docs/phase_1_8f_signal_laterality_audit.md`](docs/phase_1_8f_signal_laterality_audit.md), [`docs/phase_1_8f_configurations.md`](docs/phase_1_8f_configurations.md), [`docs/phase_1_8f_task3_golden_path.md`](docs/phase_1_8f_task3_golden_path.md), [`docs/phase_1_8f_task4_s01_validation.md`](docs/phase_1_8f_task4_s01_validation.md), [`docs/phase_1_8f_task5_cohort_expansion.md`](docs/phase_1_8f_task5_cohort_expansion.md) y [`docs/phase_1_8f_task6_data_mart_consolidation.md`](docs/phase_1_8f_task6_data_mart_consolidation.md).
