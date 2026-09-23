@@ -2014,5 +2014,44 @@ def test_7b_baseline_comparison_complete():
     assert 0.5 < f1a < f1b < 0.75
 
 
+# --------------------------------------------------------------------------- #
+# 22. Dashboard — Vista "Dataset local" e imágenes (extensión app.py)
+# --------------------------------------------------------------------------- #
+
+PENDING_IMAGES = [
+    "camera_system", "athlete_markers",
+    "technique_S01_gyaku_zuki", "technique_S02_mae_geri",
+    "technique_S03_mawashi_gedan", "technique_S04_mawashi_jodan",
+    "technique_S05_ushiro_mawashi",
+]
+
+
+def test_7c_dashboard_dataset_section_present():
+    """app.py integra la vista de bienvenida en pestañas con imágenes."""
+    src = (ROOT / "dashboard" / "app.py").read_text(encoding="utf-8")
+    for needle in ["Bienvenida · Proyecto", "Dashboard · Análisis de datos",
+                   "_view_welcome", "_inject_css", "IMAGES_DIR",
+                   "_image_for", "_folder_size_gb", "_show_image_or_pending",
+                   "Dataset local", "Qué hay dentro de cada C3D",
+                   "s04_mawashi_wireframe", "s04_mawashi_leg_velocities"]:
+        assert needle in src, f"falta {needle} en dashboard/app.py"
+    for name in PENDING_IMAGES:
+        assert name in src, f"falta imagen definida {name}"
+
+
+def test_7c_dashboard_image_helpers():
+    """helpers de imágenes/size sin errores si la carpeta /images no existe."""
+    import importlib.util as _ilu
+    _aspec = _ilu.spec_from_file_location("dashapp", str(ROOT / "dashboard" / "app.py"))
+    _ap = _ilu.module_from_spec(_aspec)
+    _aspec.loader.exec_module(_ap)
+    assert _ap.IMAGES_DIR == ROOT / "images"
+    assert set(_ap._IMAGE_NAMES) == set(PENDING_IMAGES)
+    got = _ap._image_for("camera_system")
+    assert got is None or got.exists()  # pendiente: None es válido
+    sz = _ap._folder_size_gb(ROOT / "B0367")
+    assert sz is None or sz.endswith("GB")
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

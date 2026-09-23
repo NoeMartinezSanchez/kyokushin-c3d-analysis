@@ -34,6 +34,10 @@ from components import (  # noqa: E402
     KINEMATIC_METRICS, TEMPORAL_METRICS, JOINT_METRICS,
 )
 
+# Raíz del proyecto y carpeta de imágenes del subconjunto local (raíz /images).
+ROOT_DIR = Path(__file__).resolve().parent.parent
+IMAGES_DIR = ROOT_DIR / "images"
+
 # --------------------------------------------------------------------------- #
 # Carga (caché de runtime de Streamlit; NO toca el CSV)
 # --------------------------------------------------------------------------- #
@@ -52,47 +56,177 @@ def main():
     st.set_page_config(page_title="Sports Performance Intelligence",
                        page_icon="🥋", layout="wide")
 
-    # HEADER
-    st.title("Sports Performance Intelligence")
-    st.caption("Karate Biomechanics — Pipeline C3D → Data Mart (prototipo)")
+    _inject_css()
 
     df = _load()
 
-    # SIDEBAR
-    st.sidebar.header("Controles")
-    athletes = available_options(df, "athlete_id")
-    techniques = available_options(df, "technique")
-    conditions = available_options(df, "condition")
-    trials = available_options(df, "trial")
+    tab_welcome, tab_dash = st.tabs(["Bienvenida · Proyecto",
+                                     "Dashboard · Análisis de datos"])
 
-    sel_athlete = st.sidebar.selectbox("Atleta", athletes)
-    sel_technique = st.sidebar.selectbox("Técnica", techniques)
-    sel_condition = st.sidebar.selectbox("Condición", conditions)
-    sel_trial = st.sidebar.selectbox("Trial", trials)
+    # ------------------------------------------------- TAB 1 - Bienvenida
+    with tab_welcome:
+        _view_welcome()
 
-    df_ath = filter_by(df, athlete_id=sel_athlete)
-    df_main = filter_by(df_ath, technique=sel_technique,
-                        condition=sel_condition, trial=sel_trial)
+    # ------------------------------------------------- TAB 2 - Dashboard
+    with tab_dash:
+        athletes = available_options(df, "athlete_id")
+        techniques = available_options(df, "technique")
+        conditions = available_options(df, "condition")
+        trials = available_options(df, "trial")
 
-    # ------------------------------------------------------------------ VIEW 1
-    st.header("1 · Descripción del atleta (Athlete Overview)")
-    _view_overview(df, df_ath, sel_athlete)
+        c = st.columns(4)
+        sel_athlete = c[0].selectbox("Atleta", athletes, key="f_atleta")
+        sel_technique = c[1].selectbox("Técnica", techniques, key="f_tecnica")
+        sel_condition = c[2].selectbox("Condición", conditions, key="f_condicion")
+        sel_trial = c[3].selectbox("Trial", trials, key="f_trial")
 
-    # ------------------------------------------------------ VIEW 2 · Técnica
-    st.header("2 · Análisis de técnica / ejecución")
-    _view_technique(df_main, sel_technique)
+        df_ath = filter_by(df, athlete_id=sel_athlete)
+        df_main = filter_by(df_ath, technique=sel_technique,
+                            condition=sel_condition, trial=sel_trial)
 
-    # ------------------------------------------------------- VIEW 3 · Consist
-    st.header("3 · Consistencia entre repeticiones")
-    _view_consistency(df_main)
+        # ------------------------------------------------------------ VIEW 1
+        st.header("1 · Descripción del atleta (Athlete Overview)")
+        _view_overview(df, df_ath, sel_athlete)
 
-    # -------------------------------------------------- VIEW 4 · Comparación
-    st.header("4 · Comparación entre atletas")
-    _view_comparison(df, sel_athlete, sel_technique, sel_condition, sel_trial)
+        # ---------------------------------------------------- VIEW 2 · Técnica
+        st.header("2 · Análisis de técnica / ejecución")
+        _view_technique(df_main, sel_technique)
 
-    # ---------------------------------------- DATA & COMPARABILITY / COVERAGE
-    st.header("5 · Datos, comparabilidad y cobertura")
-    _view_meta(df)
+        # ----------------------------------------------------- VIEW 3 · Consist
+        st.header("3 · Consistencia entre repeticiones")
+        _view_consistency(df_main)
+
+        # -------------------------------------------------- VIEW 4 · Comparación
+        st.header("4 · Comparación entre atletas")
+        _view_comparison(df, sel_athlete, sel_technique, sel_condition, sel_trial)
+
+        # ---------------------------- DATA & COMPARABILITY / COVERAGE
+        st.header("5 · Datos, comparabilidad y cobertura")
+        _view_meta(df)
+
+
+def _inject_css():
+    st.markdown("""
+    <style>
+    .block-container {padding-top: 2.2rem;}
+    h1, h2, h3 {color: #1f4e79;}
+    .hero-title {font-size: 2.1rem; color: #1f4e79; font-weight: 700;}
+    .hero-sub {color: #4a5a6a; font-size: 1.05rem;}
+    .hero-card {background: #f2f6fb; border-left: 5px solid #2f6fb3;
+                padding: 0.9rem 1.1rem; border-radius: 8px;}
+    .tech-caption {text-align: center; font-weight: 600; color: #1f4e79;}
+    </style>
+    """, unsafe_allow_html=True)
+
+
+def _view_welcome():
+    """Pestaña de bienvenida (presentación para la federación).
+
+    Contenido informativo + imágenes del subconjunto local. No evalúa
+    rendimiento; lenguaje descriptivo.
+    """
+    st.markdown('<div class="hero-title">Sports Performance Intelligence</div>',
+                unsafe_allow_html=True)
+    st.markdown('<div class="hero-sub">Análisis biomecánico de karate '
+                'Kyokushin — de la captura de movimiento al Data Mart.</div>',
+                unsafe_allow_html=True)
+
+    st.markdown((
+        '<div class="hero-card">Este proyecto transforma datos públicos de '
+        'captura óptica de movimiento (motion capture, formato C3D) de '
+        'técnicas de karate en características biomecánicas comparables a '
+        'nivel de ejecución. El pipeline cubre: detección de repeticiones → '
+        'segmentación → características → representación por atleta y técnica '
+        '→ visualización (este panel) y, en etapas siguientes, modelos de '
+        'aprendizaje automático. Los resultados son descriptivos y se presentan '
+        'sin rankings ni puntuaciones.</div>'),
+        unsafe_allow_html=True)
+
+    # Sistema de captura + atleta con marcadores
+    st.subheader("Captura de movimiento")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        _show_image_or_pending(
+            "camera_system",
+            "Sistema de cámaras de motion capture (Vicon).")
+    with col_b:
+        _show_image_or_pending(
+            "athlete_markers",
+            "Atleta con marcadores reflectantes (modelo PlugInGait).")
+
+    # Técnicas
+    st.subheader("Técnicas analizadas (S01–S05)")
+    st.caption("Imagen ilustrativa por técnica.")
+    tech = [
+        ("technique_S01_gyaku_zuki", "S01 · Gyaku-Zuki"),
+        ("technique_S02_mae_geri", "S02 · Mae-Geri"),
+        ("technique_S03_mawashi_gedan", "S03 · Mawashi-Geri gedan"),
+        ("technique_S04_mawashi_jodan", "S04 · Mawashi-Geri jodan"),
+        ("technique_S05_ushiro_mawashi", "S05 · Ushiro-Mawashi-Geri"),
+    ]
+    cols = st.columns(5)
+    for col, (name, cap) in zip(cols, tech):
+        with col:
+            _show_image_or_pending(name, cap)
+
+    # Inventario del subconjunto local
+    st.subheader("Dataset local — inventario del subconjunto")
+    st.caption("Inventario de la Fase 1.8E (output/athlete_inventory/); "
+               "información descriptiva del subconjunto analizado.")
+    sz67 = _folder_size_gb(ROOT_DIR / "B0367") or "~0.212 GB"
+    sz77 = _folder_size_gb(ROOT_DIR / "atletas" / "B0377") or "—"
+    st.markdown(f"""| Atributo | B0367 | B0377 |
+|---|---|---|
+| Archivos C3D | 26 | 39 |
+| Fecha | 2017-01-31 | 2017-02-20 |
+| Técnicas | S01–S05 | S01–S05 |
+| Condiciones | E01, E02, E04 | E01, E02, **E03**, E04 |
+| Trials | T01, T02 | T01, T02 |
+| Frecuencia real | **200 Hz** | **250 Hz** |
+| Tamaño | {sz67} | {sz77} |""")
+
+    # Qué hay dentro de cada C3D
+    st.subheader("Qué hay dentro de cada C3D")
+    st.caption("Estructura interna de los archivos C3D del subconjunto "
+               "(formato de motion capture). Información descriptiva.")
+    st.markdown(
+        "Por punto, el C3D guarda **filas X, Y, Z + residual**, en **mm**. "
+        "Una grabación **E01** trae **218 puntos**; la **E02**, **224** "
+        "(218 + 6 marcadores del escudo `Tarcza1–Tarcza6`):\n\n"
+        "- **39 marcadores anatómicos PlugInGait** (cabeza, columna/clavícula/"
+        "tórax, hombros, brazos/antebrazos, codos, muñecas, manos, pelvis, "
+        "muslos, rodillas, tibias, tobillos, talones, dedos de los pies).\n"
+        "- **76 marcadores de cluster** (grupos de 4 por segmento: pelvis, "
+        "fémur, tibia, pie, punta, cabeza, clavícula, torso, húmero, radio, "
+        "mano).\n"
+        "- **103 variables biomecánicas derivadas** ya calculadas por el "
+        "pipeline Vicon/PlugInGait (no hay que derivarlas nosotros):\n"
+        "  - **30 ángulos articulares** (LHipAngles, LKneeAngles, "
+        "LElbowAngles, LSpineAngles, RHeadAngles, ...).\n"
+        "  - **16 potencias** (LHipPower, LKneePower, LAnklePower, "
+        "LShoulderPower, ...).\n"
+        "  - **16 fuerzas + 16 momentos** (estimaciones del modelo, NO "
+        "medidas de plataformas).\n"
+        "  - **15 centros de masa** (CentreOfMass, PelvisCOM, LeftFemurCOM, "
+        "HeadCOM, ...).\n"
+        "  - **~10 centros articulares** (LHJC, RHJC, LKJC, RKJC, LAJC, "
+        "RAJC, ...)."
+    )
+
+    # Ilustración: wireframe + velocidades de pierna
+    st.subheader("Ilustración: Mawashi-Geri jodan")
+    st.caption("Modelo de alambres de la ejecución con la trayectoria del pie "
+               "en rojo, y velocidades de los puntos de la pierna "
+               "(B0400 · S04 · E01-T01).")
+    c1, c2 = st.columns(2)
+    with c1:
+        _show_image_or_pending(
+            "s04_mawashi_wireframe",
+            "Wireframe de la ejecución — la línea roja marca la trayectoria del pie.")
+    with c2:
+        _show_image_or_pending(
+            "s04_mawashi_leg_velocities",
+            "Velocidad de los puntos de la pierna durante la patada.")
 
 
 # --------------------------------------------------------------------------- #
@@ -258,6 +392,40 @@ def _view_meta(df):
                f"segmentación {df['segmentation_version'].iloc[0]} · "
                f"unidades {df['units_version'].iloc[0]} · "
                f"fuente {df['source_dataset'].iloc[0]}")
+
+
+_IMAGE_NAMES = [
+    "camera_system", "athlete_markers",
+    "technique_S01_gyaku_zuki", "technique_S02_mae_geri",
+    "technique_S03_mawashi_gedan", "technique_S04_mawashi_jodan",
+    "technique_S05_ushiro_mawashi",
+]
+
+
+def _image_for(name: str):
+    """Autodetección png/jpg/jpeg/gif dentro de /images (raíz del proyecto)."""
+    for ext in (".png", ".jpg", ".jpeg", ".gif"):
+        p = IMAGES_DIR / f"{name}{ext}"
+        if p.exists():
+            return p
+    return None
+
+
+def _folder_size_gb(folder: Path):
+    """Tamaño en disco (GB) de una carpeta, recursivo; None si no existe."""
+    if not folder.is_dir():
+        return None
+    total = sum(f.stat().st_size for f in folder.rglob("*") if f.is_file())
+    return f"{total / 1e9:.3f} GB"
+
+
+def _show_image_or_pending(name: str, caption: str):
+    p = _image_for(name)
+    if p is not None:
+        st.image(str(p), caption=caption, use_container_width=True)
+    else:
+        st.info(f"Imagen pendiente — colócala en `images/{name}` "
+                f"(`.png` o `.jpg`).")
 
 
 def metric_unit(m: str) -> str:

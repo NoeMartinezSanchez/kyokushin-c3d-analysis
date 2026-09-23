@@ -8,6 +8,13 @@ Dataset público de Agnieszka Szczęsna, Monika Błaszczyszyn, Magdalena Pawlyta
 
 Subconjunto local: **dataset completo descargado en `atletas/`** (37 atletas, 1411 C3D); trabajo controlado en B0367 (26) y B0377 (39).
 
+<p align="center">
+  <img src="images/camera_system.jpg" alt="Sistema de cámaras de motion capture (Vicon)" width="42%"/>
+  <img src="images/athlete_markers.jpg" alt="Atleta con marcadores reflectantes (PlugInGait)" width="42%"/>
+</p>
+
+_Sistema de cámaras de motion capture (Vicon) — Atleta con marcadores reflectantes (modelo PlugInGait)._
+
 > **Resumen:** Fases 1, 1.5, 1.6, 1.6.1, 1.6.2, 1.7, **1.8A (config por atleta)**, **1.8B-1 (feature readiness)**, **1.8C (Athlete Data Mart)**, **1.8D (Dashboard MVP)**, **1.8E (inventario completo)** y **1.8F Tarea 0 (selección de 3 candidatos)** completadas. El mismo motor parametrizado procesa B0367 (26 ejecuciones, QC 26/26) y B0377 (13 controladas, QC 13/13) usando `config/athletes/<id>.yaml`. Golden path S02/S03/S05-E01-T01 → **18 ejecuciones con features comparables** en un **Data Mart** (`output/data_mart/athlete_execution_features.csv`), consumido por un **Dashboard MVP en Streamlit** (`dashboard/app.py`). El dataset completo (37 atletas / 1411 C3D) fue inventariado estructuralmente (`output/athlete_inventory/`): 200 Hz ×4 atletas, 250 Hz ×33, 0 anomalías. La Fase 1.8F (Tarea 0) seleccionó de forma reproducible y estructural (NO de rendimiento) 3 atletas 250 Hz / Grupo B para la prueba controlada de generalización: **B0400, B0371 y B0380** (`output/scaling_selection/`). La Tarea 1 determinó con evidencia (E01-T01) señal y lateralidad por técnica: S02–S05→RTOE mayormente; **B0380-S02→LTOE (izquierda)** y S01 con baseline alto en B0371/B0380 → `NEEDS_VALIDATION`. La Tarea 2 convirtió el audit en **configuraciones explícitas por atleta** (`config/athletes/B0400|B0371|B0380.yaml`, 250 Hz, `validation.status: provisional`, sin procesar). La Tarea 3 ejecutó el **Golden Path E01-T01×S01–S05** con esas configs: **46 ejecuciones aceptadas / 93 eventos**, B0380-S02 usó **LTOE/L**, patadas estables; hallazgo: **S01 de B0371/B0380 no pudo usar RFIN** (gate `min_snr=8` → fallback RTOE, `REVIEW_REQUIRED`) — documentado, no corregido (`output/scaling_validation/`). La Tarea 4 (validación S01, 5 atletas × RFIN/LFIN/RTOE) confirmó que RFIN es segmentable en B0367/B0400 pero **no en B0371/B0380** (baseline+MAD altos, actividad continua) y que **LFIN no rescata**; fallback RTOE débil → **recomendación: excluir S01 del primer dataset ML** (Opción B), construir con S02–S05 (`output/scaling_validation/s01_validation/`). La Tarea 5 **expandió la cohorte 250 Hz**: 33/33 auditados, **29 configs nuevas**, **410 ejecuciones aceptadas S02–S05** (373 nuevas + 37 Task 3), 27 READY_FOR_CONFIG + 2 PARTIAL_CONFIG (S04 en B0388/B0401), **lateralidad izquierda en 70 celdas** → la señal/lado se valida por atleta×técnica (`output/scaling_validation/cohort_expansion/`). La Tarea 6 **consolidó el Data Mart 250 Hz con el contrato intacto**: **428 filas** (18 históricas preservadas + 410 nuevas), 34 atletas, `execution_id` único, 0 duplicados/NaN, `source_dataset` trazable, backup en `data_mart/task6_backup/`. La **Task 7** diseñó y auditó el **ML Dataset v0**: **419 filas / 33 atletas / 11 features**, target `technique` (clases S02=106/S03=104/S04=94/S05=115, BALANCED), 0 NaN, leak excluido (`primary_signal`/`movement_side` fuera; identifiers separados), correlaciones altas documentadas, **GroupKFold baseline** (`output/ml_dataset_v0/`). La **Task 7B** ejecutó el **primer baseline ML** (clasificación de técnica S02–S05): `LogisticRegression` + `StandardScaler` per-fold, `GroupKFold(5)` por atleta, predicciones OOF sin leakage y determinista byte-identidad → A (con SNR) accuracy 0.629±0.079 / f1_macro 0.617±0.082; B (sin SNR) accuracy 0.651±0.059 / f1_macro 0.640±0.062 (`output/ml_results/`, vista `dashboard/app_ml.py`). Baseline B0367 intacto. No se entrenan modelos definitivos ni se convierte el dataset masivamente a CSV.
 
 ---
@@ -61,6 +68,12 @@ Por punto, el C3D guarda **filas X, Y, Z + residual**, en **mm**. Cada grabació
 
 En **E04 (defensor)** el archivo contiene **dos sujetos** (B0367 defensor + B0368 atacante) → **397 puntos** (2 × ~198). El atleta del dataset **defiende**; quien ejecuta la técnica es el oponente. Solo hay 23 variables derivadas en E04.
 
+**Técnicas analizadas (S01–S05):**
+
+| S01 · Gyaku-Zuki | S02 · Mae-Geri | S03 · Mawashi-Geri gedan | S04 · Mawashi-Geri jodan | S05 · Ushiro-Mawashi-Geri |
+|---|---|---|---|---|
+| <img src="images/technique_S01_gyaku_zuki.jpg" alt="Gyaku-Zuki" width="200"/> | <img src="images/technique_S02_mae_geri.jpg" alt="Mae-Geri" width="200"/> | <img src="images/technique_S03_mawashi_gedan.jpg" alt="Mawashi-Geri gedan" width="200"/> | <img src="images/technique_S04_mawashi_jodan.jpg" alt="Mawashi-Geri jodan" width="200"/> | <img src="images/technique_S05_ushiro_mawashi.jpg" alt="Ushiro-Mawashi-Geri" width="200"/> |
+
 ### 3. Características técnicas verificadas
 
 - **Ejes:** X = frontal (izquierda→derecha), Y = sagital (adelante→atrás), Z = vertical.
@@ -76,6 +89,14 @@ En **E04 (defensor)** el archivo contiene **dos sujetos** (B0367 defensor + B036
 **Sí se puede medir:** cinemática 3D completa (trayectorias, velocidades, aceleraciones de cualquier marcador), ángulos y velocidades articulares, ROM articular, fases de ejecución (método reproducible), COM y estabilidad, simetría L/R, coordinación proximal-distal, repetibilidad T01 vs T02 (DTW), comparación aire vs escudo (E01 vs E02), distancia al escudo (Tarcza) y entre atletas (E04).
 
 **NO se puede medir con este subconjunto:** fuerza de reacción del suelo (GRF) y momentos reales (sin plataformas), EMG, presión plantar, impacto instrumentado sobre el objetivo, respuesta fisiológica/fatiga, ni nada concluyente sobre nivel del atleta (n=1, sin validez estadística).
+
+### 5. Visualización de una ejecución (Mawashi-Geri jodan)
+
+Ejemplo generado desde `B0400-S04-E01-T01`: stick figure 3D de la ejecución con la **trayectoria del pie en rojo** (izquierda) y la **velocidad de los puntos de la pierna** (derecha) sobre la misma ventana de la patada. Se visualiza también en el Dashboard (`streamlit run dashboard/app.py`).
+
+| Wireframe (trayectoria del pie en rojo) | Velocidad de los puntos de la pierna |
+|---|---|
+| <img src="images/s04_mawashi_wireframe.gif" alt="Wireframe Mawashi-Geri jodan" width="330"/> | <img src="images/s04_mawashi_leg_velocities.png" alt="Velocidad de la pierna en el Mawashi-Geri jodan" width="420"/> |
 
 ---
 
@@ -149,10 +170,12 @@ Deporte_sensores/
 │   ├── app_ml.py                  # Task 7B: vista ML (Streamlit; consume output/ml_results/, sin ML)
 │   ├── data.py                    # capa de datos (Mart + ml_results, read-only)
 │   └── components.py              # helpers de gráficos Plotly
+├── images/                     # imágenes de la Vista 6 (inventario local); opcionales
+│   #   camera_system, athlete_markers, technique_S0X_<nombre>  (.png o .jpg)
 │   ├── data.py                    # capa de datos (lee Data Mart; no toca C3D)
 │   └── components.py              # labels ES/plotly helpers
 ├── tests/
-│   └── test_pipeline.py        # Tests mínimos (pytest, 181 tests)
+│   └── test_pipeline.py        # Tests mínimos (pytest, 183 tests)
 ├── docs/
 │   ├── dataset_audit.md         # Informe Fase 1 (archivos/calidad/features/ML)
 │   ├── phase_1_5_report.md      # Informe Fase 1.5
@@ -322,7 +345,7 @@ streamlit run dashboard/app_ml.py
 # Task 7B — baseline ML (LogisticRegression, GroupKFold por atleta; A=con SNR, B=sin SNR)
 .venv\Scripts\python scripts\16_task7b_baseline_ml.py
 
-# Tests (167 + 14 de Task 7B = 181)
+# Tests (181 + 2 de la Vista 'Dataset local' = 183)
 .venv\Scripts\python -m pytest tests -q
 ```
 
