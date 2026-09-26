@@ -1,0 +1,20 @@
+[8B] RandomForest (parámetros fijos) — OOF
+           metric   mean    std    min    max
+         accuracy 0.6632 0.1145 0.5506 0.8372
+balanced_accuracy 0.6540 0.1244 0.5057 0.8245
+  precision_macro 0.6710 0.1274 0.5305 0.8650
+     recall_macro 0.6540 0.1244 0.5057 0.8245
+         f1_macro 0.6457 0.1289 0.4982 0.8320
+      f1_weighted 0.6535 0.1193 0.5282 0.8359
+
+Comparación 7B vs 8B:
+           metric  logreg_mean  rf_mean  logreg_std  rf_std
+         accuracy       0.6506   0.6632      0.0591  0.1145
+balanced_accuracy       0.6454   0.6540      0.0580  0.1244
+  precision_macro       0.6594   0.6710      0.0655  0.1274
+     recall_macro       0.6454   0.6540      0.0580  0.1244
+         f1_macro       0.6402   0.6457      0.0624  0.1289
+      f1_weighted       0.6454   0.6535      0.0597  0.1193
+
+Errores: [{'error_set': 'task7b_B_errors', 'n': 146, 'shared': 95, 'corrected_by_8b': 51, 'new_in_8b': 46}, {'error_set': 'task8b_RF_errors', 'n': 141, 'shared': 95, 'corrected_by_8b': 51, 'new_in_8b': 46}]
+[8B] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\ml_results_task8b

@@ -1,0 +1,21 @@
+[8A] Análisis de errores OOF (post-hoc, descriptivo)
+experiment  total  correct  errors  correct_pct  error_pct
+         A    419      264     155        63.01      36.99
+         B    419      273     146        65.16      34.84
+
+experiment true predicted  n  prop_of_errors
+         B  S02       S03 14          0.0959
+         B  S02       S04 17          0.1164
+         B  S02       S05  7          0.0479
+         B  S03       S02 18          0.1233
+         B  S03       S04 10          0.0685
+         B  S03       S05 17          0.1164
+         B  S04       S02 16          0.1096
+         B  S04       S03  5          0.0342
+         B  S04       S05 12          0.0822
+         B  S05       S02  7          0.0479
+         B  S05       S03 13          0.0890
+         B  S05       S04 10          0.0685
+
+A vs B: [{'experiment': 'A', 'errors': 155, 'shared_with_other': 144, 'unique': 11}, {'experiment': 'B', 'errors': 146, 'shared_with_other': 144, 'unique': 2}]
+[8A] Guardado en D:\ECOTEC_Data_Solutions_2022\ECOTEC-2026\Deporte_sensores\output\task8a_error_analysis

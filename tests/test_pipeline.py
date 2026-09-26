@@ -2053,5 +2053,135 @@ def test_7c_dashboard_image_helpers():
     assert sz is None or sz.endswith("GB")
 
 
+# --------------------------------------------------------------------------- #
+# 23. Análisis de errores OOF — Task 8A (post-hoc, descriptivo)
+# --------------------------------------------------------------------------- #
+
+T8A_DIR = ROOT / "output" / "task8a_error_analysis"
+FEAT_B = ["duration_s", "time_to_peak_s", "vmax", "vmean", "amax",
+          "displacement", "path_length", "hip_rom", "knee_rom", "ankle_rom"]
+_T8A18 = None
+
+
+def _task8a():
+    global _T8A18
+    if _T8A18 is None:
+        import importlib.util as _ilu
+        _tspec = _ilu.spec_from_file_location(
+            "t8a", str(ROOT / "scripts" / "18_task8a_error_analysis.py"))
+        _T8A18 = _ilu.module_from_spec(_tspec)
+        _tspec.loader.exec_module(_T8A18)
+    return _T8A18
+
+
+def test_8a_outputs_exist():
+    for f in ["error_summary.csv", "feature_correct_vs_error.csv",
+              "technique_error_summary.csv", "confusion_pairs.csv",
+              "confusion_pair_profiles.csv", "confidence_analysis.csv",
+              "athlete_error_summary.csv", "fold_error_summary.csv",
+              "ab_comparison.csv", "integrity_hashes.csv"]:
+        assert (T8A_DIR / f).exists(), f
+    assert len(list((T8A_DIR / "figures").glob("*.png"))) >= 6
+
+
+def test_8a_sources_exist():
+    assert (ROOT / "output" / "ml_results" / "oof_predictions.csv").exists()
+    assert (ROOT / "output" / "ml_dataset_v0" / "ml_dataset_v0.csv").exists()
+
+
+def test_8a_merge_no_loss_b():
+    oof = pd.read_csv(ROOT / "output" / "ml_results" / "oof_predictions.csv")
+    v0 = pd.read_csv(ROOT / "output" / "ml_dataset_v0" / "ml_dataset_v0.csv")
+    b = oof[oof["experiment"] == "B"]
+    m = b.merge(v0[["execution_id"]], on="execution_id", how="inner")
+    assert len(m) == len(v0) == 419
+    assert set(b["execution_id"]) == set(v0["execution_id"])
+
+
+def test_8a_true_matches_dataset():
+    oof = pd.read_csv(ROOT / "output" / "ml_results" / "oof_predictions.csv")
+    v0 = pd.read_csv(ROOT / "output" / "ml_dataset_v0" / "ml_dataset_v0.csv")
+    v = v0.set_index("execution_id")["technique"]
+    b = oof[oof["experiment"] == "B"]
+    assert (b["true_technique"].to_numpy() ==
+            v.loc[b["execution_id"]].to_numpy()).all()
+
+
+def test_8a_predicted_and_classes():
+    oof = pd.read_csv(ROOT / "output" / "ml_results" / "oof_predictions.csv")
+    assert "predicted_technique" in oof.columns
+    assert set(oof["predicted_technique"]) <= {"S02", "S03", "S04", "S05"}
+    assert set(oof["true_technique"]) == {"S02", "S03", "S04", "S05"}
+
+
+def test_8a_ten_features_no_snr():
+    fce = pd.read_csv(T8A_DIR / "feature_correct_vs_error.csv")
+    assert set(fce["feature"]) == set(FEAT_B)
+    assert "snr" not in set(fce["feature"])
+    assert set(fce["group"]) == {"correct", "error"}
+
+
+def test_8a_correct_error_recomputed():
+    oof = pd.read_csv(ROOT / "output" / "ml_results" / "oof_predictions.csv")
+    b = oof[oof["experiment"] == "B"]
+    n_err = int((b["true_technique"] != b["predicted_technique"]).sum())
+    es = pd.read_csv(T8A_DIR / "error_summary.csv")
+    row = es[es["experiment"] == "B"].iloc[0]
+    assert row["errors"] == n_err == 146
+    assert row["correct"] == 419 - n_err
+
+
+def test_8a_confusion_pairs_consistent():
+    cp = pd.read_csv(T8A_DIR / "confusion_pairs.csv")
+    b = cp[cp["experiment"] == "B"]
+    es = pd.read_csv(T8A_DIR / "error_summary.csv")
+    n_err = es.loc[es["experiment"] == "B", "errors"].iloc[0]
+    assert int(b["n"].sum()) == int(n_err)
+    known = {("S03", "S02"), ("S02", "S04"), ("S03", "S05"), ("S04", "S02")}
+    got = set(zip(b["true"], b["predicted"]))
+    assert known <= got
+
+
+def test_8a_domains():
+    ath = pd.read_csv(T8A_DIR / "athlete_error_summary.csv")
+    v0 = pd.read_csv(ROOT / "output" / "ml_dataset_v0" / "ml_dataset_v0.csv")
+    assert set(ath["athlete_id"]) <= set(v0["athlete_id"])
+    tech = pd.read_csv(T8A_DIR / "technique_error_summary.csv")
+    assert set(tech["technique"]) == {"S02", "S03", "S04", "S05"}
+    fold = pd.read_csv(T8A_DIR / "fold_error_summary.csv")
+    assert set(fold["fold"]) == {1, 2, 3, 4, 5}
+
+
+def test_8a_integrity_pass():
+    ih = pd.read_csv(T8A_DIR / "integrity_hashes.csv")
+    assert set(ih["status"]) == {"PASS"}
+    assert ih["exists"].all()
+
+
+def test_8a_ab_comparison_recomputed():
+    oof = pd.read_csv(ROOT / "output" / "ml_results" / "oof_predictions.csv")
+    a = oof[oof["experiment"] == "A"]
+    b = oof[oof["experiment"] == "B"]
+    errA = set(a.loc[a["true_technique"] != a["predicted_technique"], "execution_id"])
+    errB = set(b.loc[b["true_technique"] != b["predicted_technique"], "execution_id"])
+    ab = pd.read_csv(T8A_DIR / "ab_comparison.csv").set_index("experiment")
+    assert ab.loc["A", "errors"] == len(errA)
+    assert ab.loc["B", "errors"] == len(errB)
+    assert ab.loc["A", "shared_with_other"] == len(errA & errB)
+    assert ab.loc["A", "unique"] == len(errA - errB)
+    assert ab.loc["B", "unique"] == len(errB - errA)
+
+
+def test_8a_determinism_byte_identity():
+    """dos ejecuciones producen byte-identidad de las tablas principales."""
+    mod = _task8a()
+    hashes = []
+    for _ in range(2):
+        mod.run_task8a()
+        hashes.append(hashlib.md5((T8A_DIR / "confusion_pairs.csv")
+                                  .read_bytes()).hexdigest())
+    assert hashes[0] == hashes[1]
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
