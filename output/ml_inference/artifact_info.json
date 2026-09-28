@@ -1,0 +1,56 @@
+{
+  "model_version": "task8b_random_forest_baseline",
+  "inference_version": "0.1.0",
+  "predictor": "RandomForestClassifier",
+  "params": {
+    "n_estimators": 300,
+    "max_depth": null,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "max_features": "sqrt",
+    "bootstrap": true,
+    "random_state": 42,
+    "n_jobs": -1,
+    "class_weight": null
+  },
+  "dataset": "ML Dataset v0",
+  "dataset_file": "output/ml_dataset_v0/ml_dataset_v0.csv",
+  "ml_dataset_v0_md5": "7c5703a5c939055f4afe852c2b9f8050",
+  "population": {
+    "rows": 419,
+    "athletes": 33,
+    "techniques": [
+      "S02",
+      "S03",
+      "S04",
+      "S05"
+    ],
+    "sampling_rate_hz": 250,
+    "condition": "E01",
+    "trial": "T01"
+  },
+  "features": [
+    "duration_s",
+    "time_to_peak_s",
+    "vmax",
+    "vmean",
+    "amax",
+    "displacement",
+    "path_length",
+    "hip_rom",
+    "knee_rom",
+    "ankle_rom"
+  ],
+  "target": "technique",
+  "classes": [
+    "S02",
+    "S03",
+    "S04",
+    "S05"
+  ],
+  "artifact_path": "output\\ml_inference\\task8b_rf.joblib",
+  "size_bytes": 4460841,
+  "sha256": "04b859efce458478b6e86e8cd5176bef54f3999b456e76f2cfd2b88bfc254c90",
+  "created": "2026-09-28",
+  "note": "MODELO DEMOSTRATIVO: ajustado sobre el dataset completo para inferencia; NO estima generalización (métricas oficiales en predicciones OOF de Task 8B). No es un modelo de producción."
+}
