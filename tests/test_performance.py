@@ -137,5 +137,28 @@ def test_10_v0_integrity():
     assert cur == md5
 
 
+def test_10_gallery_gif_for():
+    d = _data()
+    assert d.gallery_gif_for("B0375", "S02") is not None
+    assert d.gallery_gif_for("B0400", "S04") is not None
+    assert d.gallery_gif_for("B0377", "S04") is None  # sin ejecución aceptada
+
+
+def test_10_technique_image_path():
+    d = _data()
+    p = d.technique_image_path("S02")
+    assert p is not None and p.exists()
+    assert p.name == "technique_S02_mae_geri.jpg"
+
+
+def test_10_flow_bar_html_boxes_and_arrows():
+    u = _ui()
+    html = u.flow_bar_html(["A · EJECUCIÓN", "B · ANÁLISIS",
+                            "C · COMPARACIÓN", "D · ENTRENADOR"])
+    for label in ("EJECUCIÓN", "ANÁLISIS", "COMPARACIÓN", "ENTRENADOR"):
+        assert label in html
+    assert html.count("➜") == 3  # flechas entre los 4 pasos
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))  # noqa: F821

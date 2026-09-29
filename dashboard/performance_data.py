@@ -62,3 +62,36 @@ def default_execution() -> str:
     if hits.empty:
         raise KeyError("no hay ejecuciones S04 en el dataset")
     return str(hits.iloc[0]["execution_id"])
+
+
+# --------------------------------------------------------------------------- #
+# Galería de wireframes (output/gallery/) y fotos de técnica (images/)
+# --------------------------------------------------------------------------- #
+
+GALLERY_DIR = ROOT / "output" / "gallery"
+IMAGES_DIR = ROOT / "images"
+
+
+def gallery_gif_for(athlete: str, technique: str) -> Path | None:
+    """GIF wireframe del atleta×técnica (solo GIF exacto; None si no existe)."""
+    p = GALLERY_DIR / f"athlete_{athlete}_{technique}.gif"
+    return p if p.exists() else None
+
+
+TECHNIQUE_IMAGE_BASE = {
+    "S01": "technique_S01_gyaku_zuki",
+    "S02": "technique_S02_mae_geri",
+    "S03": "technique_S03_mawashi_gedan",
+    "S04": "technique_S04_mawashi_jodan",
+    "S05": "technique_S05_ushiro_mawashi",
+}
+
+
+def technique_image_path(technique: str) -> Path | None:
+    """Foto ilustrativa de la técnica: images/<base técnico>.{jpg,png}."""
+    base = TECHNIQUE_IMAGE_BASE.get(technique, f"technique_{technique}")
+    for ext in (".jpg", ".png"):
+        p = IMAGES_DIR / f"{base}{ext}"
+        if p.exists():
+            return p
+    return None

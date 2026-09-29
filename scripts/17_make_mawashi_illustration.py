@@ -3,13 +3,25 @@
 """
 17_make_mawashi_illustration.py
 ===============================
-Genera la ilustración de la pestaña de bienvenida del dashboard (S04 — Mawashi
-Geri jodan) a partir del C3D real de B0400-S04-E01-T01:
+Genera ilustraciones de wireframe 3D (GIF) a partir de un C3D real.
 
-  images/s04_mawashi_wireframe.gif        # stick figure 3D + trayectoria roja del pie
-  images/s04_mawashi_leg_velocities.png   # velocidad de puntos de la pierna derecha
+Reutilizable:
+  make_wireframe_gif(c3d_file, out_gif, endpoint_marker, axes_limits=None,
+                     title_fn=None)
+    - stick figure 3D (marcadores anatómicos, pelvis, torso, cabeza)
+    - puntos en los marcadores (mismo color de la línea)
+    - trayectoria del marcador efectuador (puño/patada) en rojo
+    - GRID FIJO (set_xlim/ylim/zlim constantes) para que la figura no crezca
+      ni decrezca entre frames
+  scene(c3d_file, endpoint_marker)  -> dict (coord/edges/t)
+  extent_of(scene)                  -> bbox para grid fijo por GIF
+  plot_velocities(c3d_file, out_png, markers) -> gráfica de velocidades
 
-Solo LEE el C3D (no lo modifica) y escribe en images/. No toca datos ni pipeline.
+Solo LEE C3D (no lo modifica) y escribe imágenes. No toca datos ni pipeline.
+Invocación de demo (comportamiento previo conservado):
+  main() -> images/s04_mawashi_wireframe.gif + images/s04_mawashi_leg_velocities.png
+
+Los GIF por atleta×técnica se generan con scripts/22_build_athlete_gallery.py.
 """
 
 from __future__ import annotations
@@ -40,6 +52,8 @@ C3D_FILE = ROOT / "atletas" / "B0400" / "2017-03-28-B0400-S04" / \
 OUT_DIR = ROOT / "images"
 
 SMOOTH_WIN = 15
+LINE_COLOR = "#1f4e79"
+TRAJ_COLOR = "#c0392b"
 
 
 def _idx(labels: list[str], name: str) -> int:
@@ -56,24 +70,22 @@ def _speed(pts, i, rate):
     return np.convolve(v, k, mode="same")
 
 
-def main() -> None:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    c = ezc3d.c3d(str(C3D_FILE))
+def scene(c3d_file: Path, endpoint_marker: str) -> dict:
+    """Scene del stick figure sobre la ventana centrada en el pico del endpoint."""
+    c = ezc3d.c3d(str(c3d_file))
     labels = list(c.parameters["POINT"]["LABELS"]["value"])
     rate = float(c.parameters["POINT"]["RATE"]["value"][0])
-    pts = c["data"]["points"]  # (4, n_points, n_frames), mm
+    pts = c["data"]["points"]
 
-    # ---- ventana de la patada (pico de velocidad del pie derecho) ----
-    irtoe = _idx(labels, "RTOE")
-    if irtoe < 0:
-        raise RuntimeError("RTOE no disponible en el archivo")
-    v = _speed(pts, irtoe, rate)
+    ie = _idx(labels, endpoint_marker)
+    if ie < 0:
+        raise RuntimeError(f"marcador {endpoint_marker} no disponible")
+    v = _speed(pts, ie, rate)
     peak = int(np.argmax(v))
-    n_frames = pts.shape[2]
-    w0, w1 = max(0, peak - 45), min(n_frames, peak + 70)
+    n = pts.shape[2]
+    w0, w1 = max(0, peak - 45), min(n, peak + 70)
     t = np.arange(w0, w1) / rate
 
-    # ---- nodos del stick figure (3D, mm -> m) ----
     def node(name, fallback=()):
         i = _idx(labels, name)
         if i >= 0:
@@ -84,20 +96,16 @@ def main() -> None:
                 return pts[:3, i, w0:w1] * 1e-3
         return None
 
-    rasi = node("RASI"); lasi = node("LASI")
-    rpsi = node("RPSI"); lpsi = node("LPSI")
-    pelvis = None
+    rasi, lasi = node("RASI"), node("LASI")
+    rpsi, lpsi = node("RPSI"), node("LPSI")
     present = [x for x in (rasi, lasi, rpsi, lpsi) if x is not None]
-    if present:
-        pelvis = np.mean(present, axis=0)
+    pelvis = np.mean(present, axis=0) if present else None
 
-    rsho = node("RSHO")
-    lsho = node("LSHO")
+    rsho, lsho = node("RSHO"), node("LSHO")
     mshoulder = (rsho + lsho) / 2 if (rsho is not None and lsho is not None) \
         else (rsho if rsho is not None else None)
-
-    hd = [node(n) for n in ("RFHD", "LFHD", "RBHD", "LBHD")]
-    hd = [x for x in hd if x is not None]
+    hd = [x for x in (node("RFHD"), node("LFHD"), node("RBHD"), node("LBHD"))
+          if x is not None]
     head = np.mean(hd, axis=0) if hd else None
 
     nodes = {}
@@ -108,16 +116,13 @@ def main() -> None:
             if x is not None:
                 nodes[f"{side}{part}"] = x
 
-    # edges: (a, b)
     edges = []
     if pelvis is not None:
         for side in ("R", "L"):
             if f"{side}THI" in nodes:
                 edges.append(("PELVIS", f"{side}THI"))
-            for a, b in ((f"{side}THI", f"{side}KNE"),
-                         (f"{side}KNE", f"{side}TIB"),
-                         (f"{side}TIB", f"{side}ANK"),
-                         (f"{side}ANK", f"{side}HEE"),
+            for a, b in ((f"{side}THI", f"{side}KNE"), (f"{side}KNE", f"{side}TIB"),
+                         (f"{side}TIB", f"{side}ANK"), (f"{side}ANK", f"{side}HEE"),
                          (f"{side}ANK", f"{side}TOE")):
                 if a in nodes and b in nodes:
                     edges.append((a, b))
@@ -128,8 +133,7 @@ def main() -> None:
     for side in ("R", "L"):
         if mshoulder is not None and f"{side}SHO" in nodes:
             edges.append(("MSHOULDER", f"{side}SHO"))
-        for a, b in ((f"{side}SHO", f"{side}ELB"),
-                     (f"{side}ELB", f"{side}WRB"),
+        for a, b in ((f"{side}SHO", f"{side}ELB"), (f"{side}ELB", f"{side}WRB"),
                      (f"{side}WRB", f"{side}FIN")):
             if a in nodes and b in nodes:
                 edges.append((a, b))
@@ -141,62 +145,25 @@ def main() -> None:
     if head is not None:
         coord["HEAD"] = head
 
-    def frame_xyz(i):
-        return {k: v[:, i] for k, v in coord.items()}
+    return {"coord": coord, "edges": edges, "t": t, "w0": w0,
+            "endpoint": coord.get(endpoint_marker),
+            "endpoint_marker": endpoint_marker, "rate": rate}
 
-    # ---- A) gráfica de velocidades ----
-    fig, ax = plt.subplots(figsize=(8.5, 4.6))
-    for mk in ("RTOE", "RANK", "RHEE", "RKNE"):
-        i = _idx(labels, mk)
-        if i >= 0:
-            ax.plot(t, _speed(pts, i, rate)[w0:w1], lw=1.6, label=mk)
-    ax.set_xlabel("tiempo [s]")
-    ax.set_ylabel("velocidad [m/s]")
-    ax.set_title("Velocidad de los puntos de la pierna durante el "
-                 "Mawashi-Geri jodan (B0400 · S04 · E01-T01)")
-    ax.legend()
-    ax.grid(alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(OUT_DIR / "s04_mawashi_leg_velocities.png", dpi=150,
-                bbox_inches="tight")
-    plt.close(fig)
 
-    # ---- B) GIF wireframe 3D (media resolución + optimización) ----
-    step = max(1, round((w1 - w0) / 60))
-    frames = np.arange(w0, w1, step)
-    f3d = plt.figure(figsize=(3.5, 3.5))
-    ax3 = f3d.add_subplot(111, projection="3d")
-    ax3.grid(False)
+def extent_of(sc: dict) -> tuple:
+    """Bounding box (x0,x1,y0,y1,z0,z1) sobre TODA la ventana (grid fijo)."""
+    mins = np.full(3, np.inf)
+    maxs = np.full(3, -np.inf)
+    for _, arr in sc["coord"].items():
+        mins = np.minimum(mins, arr.min(axis=1))
+        maxs = np.maximum(maxs, arr.max(axis=1))
+    pad = 0.12 * float((maxs - mins).max())
+    return (float(mins[0]) - pad, float(maxs[0]) + pad,
+            float(mins[1]) - pad, float(maxs[1]) + pad,
+            float(mins[2]) - pad, float(maxs[2]) + pad)
 
-    def draw_frame(abs_i):
-        local = int(abs_i) - w0
-        ax3.clear()
-        co = frame_xyz(local)
-        for a, b in edges:
-            pa, pb = co.get(a), co.get(b)
-            if pa is None or pb is None:
-                continue
-            ax3.plot([pa[0], pb[0]], [pa[1], pb[1]], [pa[2], pb[2]],
-                     color="#1f4e79", lw=2.2, alpha=0.95)
-        # trayectoria del pie en rojo (hasta el frame actual)
-        toe = coord.get("RTOE")
-        if toe is not None and local + 1 > 0:
-            x0 = toe[0, :local + 1]
-            y0 = toe[1, :local + 1]
-            z0 = toe[2, :local + 1]
-            ax3.plot(x0, y0, z0, color="#c0392b", lw=2.4, ls="--", alpha=0.9,
-                     label="trayectoria del pie")
-            ax3.scatter([x0[-1]], [y0[-1]], [z0[-1]], color="#c0392b", s=30)
-        ax3.set_title(f"Mawashi-Geri jodan — B0400 (t = {t[local]:.2f} s)")
-        ax3.set_xlabel("m"); ax3.set_ylabel("m"); ax3.set_zlabel("m")
-        ax3.legend(loc="upper left", fontsize=7)
 
-    ani = FuncAnimation(f3d, draw_frame, frames=frames, interval=90)
-    gif_path = OUT_DIR / "s04_mawashi_wireframe.gif"
-    ani.save(gif_path, writer=PillowWriter(fps=10))
-    plt.close(f3d)
-
-    # optimización: paleta 128 colores + optimización de tamaño (~mitad)
+def _optimize_gif(gif_path: Path) -> None:
     from PIL import Image
     im = Image.open(gif_path)
     imgs = []
@@ -211,6 +178,99 @@ def main() -> None:
         pass
     imgs[0].save(gif_path, save_all=True, append_images=imgs[1:],
                  optimize=True, duration=100, loop=0)
+
+
+def make_wireframe_gif(c3d_file: Path, out_gif: Path, endpoint_marker: str,
+                       axes_limits=None, title_fn=None, scene_dict=None,
+                       frames_target: int = 24) -> None:
+    """Genera un GIF wireframe 3D con trayectoria del endpoint (GRID fijo).
+
+    scene_dict: escena ya calculada (scene()) para evitar reabrir el C3D.
+    frames_target: nº aproximado de frames (render ligero para galerías grandes).
+    """
+    sc = scene_dict if scene_dict is not None else scene(c3d_file, endpoint_marker)
+    if axes_limits is None:
+        axes_limits = extent_of(sc)
+
+    names = list(sc["coord"].keys())
+    idx_of = {n: i for i, n in enumerate(names)}
+    edge_idx = [(idx_of[a], idx_of[b]) for a, b in sc["edges"]
+                if a in idx_of and b in idx_of]
+    nw = len(sc["t"])
+    step = max(1, round(nw / frames_target))
+    frames = range(0, nw, step)
+
+    fig = plt.figure(figsize=(2.9, 2.9), dpi=100)
+    ax = fig.add_subplot(111, projection="3d")
+    _title = title_fn or (lambda local_t, mk: f"t = {local_t:.2f} s")
+
+    def draw(f):
+        local = int(f)
+        ax.clear()
+        pts = {n: sc["coord"][n][:, local] for n in names}
+        for i, j in edge_idx:
+            pa, pb = pts[names[i]], pts[names[j]]
+            if pa is None or pb is None:
+                continue
+            ax.plot([pa[0], pb[0]], [pa[1], pb[1]], [pa[2], pb[2]],
+                    color=LINE_COLOR, lw=2.0, alpha=0.95)
+        xs = [pts[n][0] for n in names if pts[n] is not None]
+        ys = [pts[n][1] for n in names if pts[n] is not None]
+        zs = [pts[n][2] for n in names if pts[n] is not None]
+        if xs:
+            ax.scatter(xs, ys, zs, color=LINE_COLOR, s=7, depthshade=False)
+        if sc["endpoint"] is not None and local + 1 > 0:
+            ex = sc["endpoint"][0, :local + 1]
+            ey = sc["endpoint"][1, :local + 1]
+            ez = sc["endpoint"][2, :local + 1]
+            ax.plot(ex, ey, ez, color=TRAJ_COLOR, lw=2.2, ls="--", alpha=0.9)
+            ax.scatter([ex[-1]], [ey[-1]], [ez[-1]], color=TRAJ_COLOR, s=24)
+        ax.set_xlim(axes_limits[0], axes_limits[1])
+        ax.set_ylim(axes_limits[2], axes_limits[3])
+        ax.set_zlim(axes_limits[4], axes_limits[5])
+        ax.set_xlabel("m"); ax.set_ylabel("m"); ax.set_zlabel("m")
+        ax.set_title(_title(sc["t"][local], endpoint_marker), fontsize=8)
+
+    ani = FuncAnimation(fig, draw, frames=frames, interval=90)
+    out_gif.parent.mkdir(parents=True, exist_ok=True)
+    ani.save(out_gif, writer=PillowWriter(fps=8))
+    plt.close(fig)
+    _optimize_gif(out_gif)
+
+
+def plot_velocities(c3d_file: Path, out_png: Path, markers,
+                    title: str = "") -> None:
+    c = ezc3d.c3d(str(c3d_file))
+    labels = list(c.parameters["POINT"]["LABELS"]["value"])
+    rate = float(c.parameters["POINT"]["RATE"]["value"][0])
+    pts = c["data"]["points"]
+    ie = _idx(labels, markers[0])
+    if ie < 0:
+        raise RuntimeError(f"marcador {markers[0]} no disponible")
+    v = _speed(pts, ie, rate)
+    peak = int(np.argmax(v))
+    n = pts.shape[2]
+    w0, w1 = max(0, peak - 45), min(n, peak + 70)
+    t = np.arange(w0, w1) / rate
+    fig, ax = plt.subplots(figsize=(8.5, 4.6))
+    for mk in markers:
+        i = _idx(labels, mk)
+        if i >= 0:
+            ax.plot(t, _speed(pts, i, rate)[w0:w1], lw=1.6, label=mk)
+    ax.set_xlabel("tiempo [s]"); ax.set_ylabel("velocidad [m/s]")
+    ax.set_title(title); ax.legend(); ax.grid(alpha=0.3)
+    fig.tight_layout()
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_png, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def main() -> None:
+    make_wireframe_gif(C3D_FILE, OUT_DIR / "s04_mawashi_wireframe.gif", "RTOE")
+    plot_velocities(C3D_FILE, OUT_DIR / "s04_mawashi_leg_velocities.png",
+                    ("RTOE", "RANK", "RHEE", "RKNE"),
+                    "Velocidad de los puntos de la pierna durante el "
+                    "Mawashi-Geri jodan (B0400 · S04 · E01-T01)")
     print(f"[17] generado: {OUT_DIR / 's04_mawashi_wireframe.gif'}")
     print(f"[17] generado: {OUT_DIR / 's04_mawashi_leg_velocities.png'}")
 

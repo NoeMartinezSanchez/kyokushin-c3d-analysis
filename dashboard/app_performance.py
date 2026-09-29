@@ -30,11 +30,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from inference import predict_execution, model_info  # noqa: E402
 from inference.schemas import CLASSES, InferenceError  # noqa: E402
 from performance_data import (available_athletes, default_execution,  # noqa: E402
-                              executions_for, execution_row, features_of, load_v0)
+                              executions_for, execution_row, features_of, load_v0,
+                              gallery_gif_for, technique_image_path)
 from performance_ui import (GROUPS, MODEL_INPUT_NAMES, FEATURE_UNITS,  # noqa: E402
                             format_metric, metric_card_html, prob_bar, mini_bar,
                             demo_badge_html, hero_title_html, flow_bar_html,
-                            future_card_html)
+                            future_card_html, data_uri)
 from performance_analysis import (reference_profile, compare_to_reference,  # noqa: E402
                                   compare_executions, observed_differences,
                                   coach_insights)
@@ -49,6 +50,8 @@ h1 {color: #1f4e79;}
 [data-testid="stSelectbox"] > div > div {min-height: 3.1rem;}
 .hero-card {border:2px solid #1f4e79;border-radius:14px;padding:1.2rem 1.4rem;
             background:#f2f6fb;}
+@keyframes flash {0%{opacity:.30} 50%{opacity:1} 100%{opacity:.30}}
+.flash-img {animation: flash 1s ease-in-out 3; border-radius:12px;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -61,28 +64,36 @@ def _status_text(status: str) -> str:
     }.get(status, status)
 
 
-def render_hero(res: dict, ref_tech: str) -> None:
-    """Tarjeta dominante: técnica detectada + confianza."""
+def render_hero(res: dict, ref_tech: str, photo=None) -> None:
+    """Tarjeta dominante: técnica detectada + confianza (+ foto de técnica)."""
     bar = prob_bar(res["confidence"])
     st.markdown("### A · Ejecución — ¿qué ocurrió en este movimiento?")
-    st.markdown(
-        f"<div class='hero-card'>"
-        f"<div style='font-size:.95rem;color:#4a5a6a;'>TÉCNICA DETECTADA</div>"
-        f"<div style='font-size:3.2rem;font-weight:800;color:#1f4e79;'>"
-        f"{res['predicted_technique']}</div>"
-        f"<div style='font-size:1.25rem;color:#4a5a6a;'>{res['technique_name']}</div>"
-        f"<div style='font-size:1.8rem;font-weight:700;color:#2e6fb3;'>"
-        f"{res['confidence'] * 100:.1f} % confianza</div>"
-        f"<div style='font-family:monospace;font-size:1rem;color:#1f4e79;'>"
-        f"{bar}</div></div>",
-        unsafe_allow_html=True)
-    st.caption(f"El modelo identifica esta ejecución como "
-               f"{res['predicted_technique']}.")
-    if res["predicted_technique"] == ref_tech:
-        st.success("La predicción **coincide** con la técnica observada.")
-    else:
-        st.info("La predicción **difiere** de la técnica observada "
-                "(resultado válido del demo).")
+    col_card, col_photo = st.columns([2, 1])
+    with col_card:
+        st.markdown(
+            f"<div class='hero-card'>"
+            f"<div style='font-size:.95rem;color:#4a5a6a;'>TÉCNICA DETECTADA</div>"
+            f"<div style='font-size:3.2rem;font-weight:800;color:#1f4e79;'>"
+            f"{res['predicted_technique']}</div>"
+            f"<div style='font-size:1.25rem;color:#4a5a6a;'>{res['technique_name']}</div>"
+            f"<div style='font-size:1.8rem;font-weight:700;color:#2e6fb3;'>"
+            f"{res['confidence'] * 100:.1f} % confianza</div>"
+            f"<div style='font-family:monospace;font-size:1rem;color:#1f4e79;'>"
+            f"{bar}</div></div>",
+            unsafe_allow_html=True)
+        st.caption(f"El modelo identifica esta ejecución como "
+                   f"{res['predicted_technique']}.")
+        if res["predicted_technique"] == ref_tech:
+            st.success("La predicción **coincide** con la técnica observada.")
+        else:
+            st.info("La predicción **difiere** de la técnica observada "
+                    "(resultado válido del demo).")
+    if photo is not None:
+        with col_photo:
+            st.markdown(
+                f"<img src=\"{data_uri(photo)}\" class=\"flash-img\" "
+                f"style=\"width:100%;\"/>", unsafe_allow_html=True)
+            st.caption(f"Técnica observada: {ref_tech}")
 
 
 def render_probabilities(res: dict) -> None:
@@ -200,22 +211,31 @@ def main():
         unsafe_allow_html=True)
     st.markdown("---")
 
-    # ---- Selector compacto ----
+    # ---- Selector compacto (info izquierda + GIF derecha) ----
     athletes = available_athletes()
-    selc = st.columns([2, 3, 2, 2])
-    sel_athlete = selc[0].selectbox("Atleta", athletes, key="ath")
-    execs = executions_for(sel_athlete)
-    default = default_execution() if sel_athlete else None
-    if default not in execs:
-        default = execs[0] if execs else None
-    sel_exec = selc[1].selectbox("Ejecución", execs,
-                                 index=execs.index(default) if default in execs else 0,
-                                 format_func=lambda e: e, key="exec")
-    row = execution_row(sel_exec)
-    ref_tech = str(row["technique"])
-    selc[2].metric("Técnica observada", ref_tech)
-    selc[3].metric("Condición", "E01 · T01")
-    st.caption(f"Atleta {row['athlete_id']} · Ejecución {row['execution_id']}")
+    col_sel, col_gif = st.columns([1, 1])
+    with col_sel:
+        sel_athlete = st.selectbox("Atleta", athletes, key="ath")
+        execs = executions_for(sel_athlete)
+        default = default_execution() if sel_athlete else None
+        if default not in execs:
+            default = execs[0] if execs else None
+        sel_exec = st.selectbox("Ejecución", execs,
+                                index=execs.index(default) if default in execs else 0,
+                                format_func=lambda e: e, key="exec")
+        row = execution_row(sel_exec)
+        ref_tech = str(row["technique"])
+        im1, im2 = st.columns(2)
+        im1.metric("Técnica observada", ref_tech)
+        im2.metric("Condición", "E01 · T01")
+        st.caption(f"Ejecución: {row['execution_id']}")
+    with col_gif:
+        gif = gallery_gif_for(str(row["athlete_id"]), ref_tech)
+        if gif is not None:
+            st.image(str(gif), use_container_width=True,
+                     caption="Wireframe de la ejecución")
+        else:
+            st.info("Sin wireframe disponible para este atleta/técnica.")
 
     feats = features_of(row)
     try:
@@ -225,7 +245,8 @@ def main():
         return
 
     # ---- A · EJECUCIÓN (hero) ----
-    render_hero(res, ref_tech)
+    render_hero(res, ref_tech,
+                photo=technique_image_path(ref_tech) if ref_tech else None)
 
     # ---- B · ANÁLISIS ----
     st.markdown("---")

@@ -26,6 +26,16 @@ Convertir el dashboard en una **presentación visual de producto** orientada a t
 - **Detalles del modelo** (colapsable) con «Qué ve el modelo» + toda la info técnica.
 - **Disclaimer**: «Demo tecnológica… predicciones y comparaciones descriptivas; no diagnóstico ni predicción de rendimiento competitivo».
 
+## Cambios visuales (mejoras 1–3, Request speciale)
+
+1. **Barra de flujo con recuadros y flechas**: en lugar de texto plano, cada paso (A–D) es un **recuadro redondeado de color propio** (A `#1f4e79`, B `#2e6fb3`, C `#c98a1b`, D `#5b8db8`) y entre ellos una **flecha corta y ancha `➜`** que apunta al siguiente paso (fluía visual A→B→C→D).
+2. **Wireframe GIF por atleta × técnica (galería)**: se reutiliza el generador (script 17 refactorizado → `make_wireframe_gif`) y el nuevo `scripts/22_build_athlete_gallery.py` genera **129 GIF** (33 atletas × S02–S05, omitiendo celdas sin ejecución aceptada) en **`output/gallery/athlete_<id>_<S0X>.gif`** con:
+   - **puntos en los marcadores** del mismo color de las líneas (“puntos unidos”);
+   - **trayectoria del marcador efectuador en rojo** (señal configurada por atleta×técnica → puño RFIN/LFIN en S01, dedo RTOE/LTOE en patadas);
+   - **grid estándar fijo GLOBAL del lote** (dos pasadas) para que ninguna imagen “crezca ni decrezca”.
+   En el dashboard, el **GIF se muestra a la derecha** de la zona superior (junto a Atleta › Ejecución › Técnica observada › Condición). Dashboard **no lee C3D** (solo la galería pre-generada).
+3. **Foto de técnica con resaltado suave**: en la sección A, a la derecha de la predicción, se muestra la **foto de la técnica observada** (`images/technique_<S0X>_<nombre>.jpg`) con un **pulso suave** (opacidad 0.3→1→0.3 ×3, ~0.9 s) que se dispara al cambiar de ejecución, comunicando “este es el resultado”.
+
 ## Arquitectura
 
 `DATA (performance_data) → INFERENCE (inference) → ANALYSIS (performance_analysis) → PRESENTATION (app_performance + performance_ui)`. Task 12 solo tocó PRESENTATION.
