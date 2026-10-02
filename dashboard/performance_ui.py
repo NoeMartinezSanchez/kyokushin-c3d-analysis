@@ -32,6 +32,67 @@ GROUPS = [
 FEATURE_UNITS = {f: unit for _, items in GROUPS for f, _label, unit in items}
 FEATURE_LABELS = {f: label for _, items in GROUPS for f, label, _u in items}
 
+# Iconos (pequeños) para acompañar cada métrica en las tarjetas de comparación.
+FEATURE_ICONS = {
+    "duration_s": "⏱️",
+    "time_to_peak_s": "🎯",
+    "vmax": "⚡",
+    "vmean": "🌊",
+    "amax": "🚀",
+    "displacement": "📏",
+    "path_length": "🛤️",
+    "hip_rom": "🦵",
+    "knee_rom": "🦿",
+    "ankle_rom": "🦶",
+}
+
+# Chips suaves por estado (sin connotación bueno/malo).
+_STATUS_CHIP = {
+    "ABOVE_REFERENCE_RANGE": ("por encima", "#dbe7f2", "#1f4e79"),
+    "BELOW_REFERENCE_RANGE": ("por debajo", "#f3e3c3", "#7a5b12"),
+    "WITHIN_REFERENCE_RANGE": ("dentro de", "#d9e7d9", "#2c6e49"),
+}
+
+
+def comparison_card_html(item: dict, unit: str) -> str:
+    """Tarjeta de comparación: icono + label + chip + valores + barra única."""
+    icon = FEATURE_ICONS.get(item["feature"], "•")
+    label = item["label"]
+    chip_txt, chip_bg, chip_fg = _STATUS_CHIP.get(
+        item["status"], (item["status"], "#e2e8f0", "#334155"))
+    atl = item["athlete"]
+    med = item["reference_median"]
+    q1, q3 = item["reference_q1"], item["reference_q3"]
+    fmt = lambda v: format_metric(v, unit)  # noqa: E731
+    scale = max(atl, q3, 1e-9)
+    atl_pct = max(0.0, min(100.0, atl / scale * 100))
+    q1_pct = max(0.0, min(100.0, q1 / scale * 100))
+    q3_pct = max(0.0, min(100.0, q3 / scale * 100))
+    med_pct = max(0.0, min(100.0, med / scale * 100))
+    return (
+        f'<div style="border:1px solid #dfe6ee;border-radius:12px;'
+        f'padding:.7rem .9rem;background:#ffffff;margin-bottom:.6rem;">'
+        f'<div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">'
+        f'<span style="font-size:1.1rem;">{icon}</span>'
+        f'<span style="font-weight:700;color:#1f4e79;">{label}</span>'
+        f'<span style="margin-left:auto;background:{chip_bg};color:{chip_fg};'
+        f'border-radius:999px;padding:.1rem .6rem;font-size:.75rem;'
+        f'font-weight:600;">{chip_txt}</span></div>'
+        f'<div style="font-size:1.25rem;font-weight:700;color:#1f4e79;'
+        f'margin:.15rem 0 .1rem;">{fmt(atl)}</div>'
+        f'<div style="font-size:.82rem;color:#4a5a6a;">Ref. mediana '
+        f'{fmt(med)} · Rango {fmt(q1)} – {fmt(q3)}</div>'
+        f'<div style="position:relative;height:14px;background:#eef2f7;'
+        f'border-radius:7px;margin-top:.45rem;">'
+        f'<div style="position:absolute;top:0;bottom:0;left:{q1_pct:.1f}%;'
+        f'width:{max(0.0, q3_pct - q1_pct):.1f}%;background:#cfe0f0;"></div>'
+        f'<div style="position:absolute;top:0;bottom:0;left:0;'
+        f'width:{atl_pct:.1f}%;background:#e0a83a;border-radius:7px;"></div>'
+        f'<div style="position:absolute;top:-2px;bottom:-2px;'
+        f'left:{med_pct:.1f}%;width:2px;background:#1f4e79;"></div>'
+        f'</div></div>'
+    )
+
 # Variables que el modelo "ve" (para la sección explicativa).
 MODEL_INPUT_NAMES = {
     "duration_s": "Duración",

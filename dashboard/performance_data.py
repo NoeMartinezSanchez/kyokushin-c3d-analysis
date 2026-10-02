@@ -78,6 +78,17 @@ def gallery_gif_for(athlete: str, technique: str) -> Path | None:
     return p if p.exists() else None
 
 
+@lru_cache(maxsize=256)
+def gallery_thumbnail(athlete: str, technique: str):
+    """Primer frame del GIF como imagen estática (PIL), cacheado (bajo consumo)."""
+    from PIL import Image
+    p = gallery_gif_for(athlete, technique)
+    if p is None:
+        return None
+    with Image.open(p) as im:
+        return im.convert("RGB").copy()
+
+
 TECHNIQUE_IMAGE_BASE = {
     "S01": "technique_S01_gyaku_zuki",
     "S02": "technique_S02_mae_geri",

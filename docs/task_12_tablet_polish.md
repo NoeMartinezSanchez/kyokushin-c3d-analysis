@@ -36,6 +36,11 @@ Convertir el dashboard en una **presentación visual de producto** orientada a t
    En el dashboard, el **GIF se muestra a la derecha** de la zona superior (junto a Atleta › Ejecución › Técnica observada › Condición). Dashboard **no lee C3D** (solo la galería pre-generada).
 3. **Foto de técnica con resaltado suave**: en la sección A, a la derecha de la predicción, se muestra la **foto de la técnica observada** (`images/technique_<S0X>_<nombre>.jpg`) con un **pulso suave** (opacidad 0.3→1→0.3 ×3, ~0.9 s) que se dispara al cambiar de ejecución, comunicando “este es el resultado”.
 
+## Iteración 2 (ajustes visuales locales)
+
+- **GIF a 300 px y estático por defecto**: el wireframe se muestra a **ancho fijo 300 px** (resolución nativa nítida, uniforme con la columna izquierda). Por defecto es el **primer frame estático** (thumbnail PIL cacheado, bajo consumo) con el botón **«▶ Reproducir animación»** que carga el GIF animado **solo bajo demanda** (reduce el consumo de CPU/GPU del navegador frente al bucle infinito).
+- **Comparación en tarjetas de 2 columnas**: `_render_comparison` agrupa por categoría (Ejecución / Velocidad y aceleración / Movimiento / Movilidad articular) y dibuja **tarjetas en rejilla de 2 columnas** con: icono de la métrica (⏱️ ⚡ 🚀 🤸 🦵…), nombre, chip de estado suave (por encima / dentro de / por debajo), valor del atleta en grande, Ref. mediana + rango Q1–Q3, y una **barra comparativa única** (ventana de rango sombreada + valor del atleta + marca de la mediana).
+
 ## Arquitectura
 
 `DATA (performance_data) → INFERENCE (inference) → ANALYSIS (performance_analysis) → PRESENTATION (app_performance + performance_ui)`. Task 12 solo tocó PRESENTATION.

@@ -31,11 +31,12 @@ from inference import predict_execution, model_info  # noqa: E402
 from inference.schemas import CLASSES, InferenceError  # noqa: E402
 from performance_data import (available_athletes, default_execution,  # noqa: E402
                               executions_for, execution_row, features_of, load_v0,
-                              gallery_gif_for, technique_image_path)
+                              gallery_gif_for, gallery_thumbnail,
+                              technique_image_path)
 from performance_ui import (GROUPS, MODEL_INPUT_NAMES, FEATURE_UNITS,  # noqa: E402
                             format_metric, metric_card_html, prob_bar, mini_bar,
                             demo_badge_html, hero_title_html, flow_bar_html,
-                            future_card_html, data_uri)
+                            future_card_html, data_uri, comparison_card_html)
 from performance_analysis import (reference_profile, compare_to_reference,  # noqa: E402
                                   compare_executions, observed_differences,
                                   coach_insights)
@@ -118,20 +119,22 @@ def render_profile(res: dict) -> None:
 def _render_comparison(comp: list) -> None:
     key_features = ["vmax", "vmean", "amax", "duration_s", "hip_rom",
                     "knee_rom", "ankle_rom"]
-    for item in comp:
-        if item["feature"] not in key_features:
+    by_feat = {c["feature"]: c for c in comp}
+    for group_title, items in GROUPS:
+        feats = [f for f, _, _ in items
+                 if f in by_feat and f in key_features]
+        if not feats:
             continue
-        unit = FEATURE_UNITS.get(item["feature"], "")
-        scale = max(item["athlete"], item["reference_q3"], 1e-9)
-        st.markdown(
-            f"**{item['label']}** · {_status_text(item['status'])}")
-        st.markdown(
-            f"Atleta       {mini_bar(item['athlete'], scale)} "
-            f"{format_metric(item['athlete'], unit)}  ·  Ref. mediana "
-            f"{mini_bar(item['reference_median'], scale)} "
-            f"{format_metric(item['reference_median'], unit)}  ·  Rango "
-            f"{format_metric(item['reference_q1'], unit)} – "
-            f"{format_metric(item['reference_q3'], unit)}")
+        st.markdown(f"**{group_title}**")
+        cards = [(by_feat[f], FEATURE_UNITS.get(f, "")) for f in feats]
+        for i in range(0, len(cards), 2):
+            cols = st.columns(2)
+            for j in range(2):
+                if i + j < len(cards):
+                    item, unit = cards[i + j]
+                    with cols[j]:
+                        st.markdown(comparison_card_html(item, unit),
+                                    unsafe_allow_html=True)
 
 
 def render_observed(outside: list) -> None:
@@ -232,8 +235,15 @@ def main():
     with col_gif:
         gif = gallery_gif_for(str(row["athlete_id"]), ref_tech)
         if gif is not None:
-            st.image(str(gif), use_container_width=True,
-                     caption="Wireframe de la ejecución")
+            play = st.checkbox("▶ Reproducir animación", value=False)
+            if play:
+                st.image(str(gif), width=300,
+                         caption="Wireframe de la ejecución (animado)")
+            else:
+                thumb = gallery_thumbnail(str(row["athlete_id"]), ref_tech)
+                st.image(thumb, width=300, caption="Wireframe de la ejecución")
+            st.caption("Vista estática por defecto; activa la animación para "
+                       "ver el movimiento bajo demanda.")
         else:
             st.info("Sin wireframe disponible para este atleta/técnica.")
 
