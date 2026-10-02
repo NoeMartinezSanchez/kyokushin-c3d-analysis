@@ -41,8 +41,12 @@ from performance_analysis import (reference_profile, compare_to_reference,  # no
                                   compare_executions, observed_differences,
                                   coach_insights)
 
+import streamlit.components.v1 as components  # noqa: E402
+
 st.set_page_config(page_title="KARATE PERFORMANCE INTELLIGENCE",
                    page_icon="🥋", layout="wide")
+
+CHATBOT_URL = "http://187.127.250.68:7999/"
 
 st.markdown("""
 <style>
@@ -201,6 +205,16 @@ def render_details(res: dict, df: pd.DataFrame, ref_tech: str) -> None:
                     "descriptivos, no rendimiento deportivo)")
 
 
+def render_wada_assistant() -> None:
+    """Asistente WADA (desplegable, sin texto complementario)."""
+    with st.expander("🤖 Asistente WADA", expanded=False):
+        components.html(
+            f'<iframe src="{CHATBOT_URL}" width="100%" height="650" '
+            f'frameborder="0" allow="microphone; autoplay"></iframe>',
+            height=650, scrolling=True)
+        st.link_button("Abrir Asistente WADA en nueva pestaña", CHATBOT_URL)
+
+
 def main():
     df = load_v0()
 
@@ -293,6 +307,9 @@ def main():
                "descriptivas y no constituyen diagnóstico médico, evaluación "
                "definitiva de técnica ni predicción de rendimiento "
                "competitivo.")
+
+    st.markdown("---")
+    render_wada_assistant()
 
 
 if __name__ == "__main__":

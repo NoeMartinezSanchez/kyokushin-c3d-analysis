@@ -41,6 +41,11 @@ Convertir el dashboard en una **presentación visual de producto** orientada a t
 - **GIF a 300 px y estático por defecto**: el wireframe se muestra a **ancho fijo 300 px** (resolución nativa nítida, uniforme con la columna izquierda). Por defecto es el **primer frame estático** (thumbnail PIL cacheado, bajo consumo) con el botón **«▶ Reproducir animación»** que carga el GIF animado **solo bajo demanda** (reduce el consumo de CPU/GPU del navegador frente al bucle infinito).
 - **Comparación en tarjetas de 2 columnas**: `_render_comparison` agrupa por categoría (Ejecución / Velocidad y aceleración / Movimiento / Movilidad articular) y dibuja **tarjetas en rejilla de 2 columnas** con: icono de la métrica (⏱️ ⚡ 🚀 🤸 🦵…), nombre, chip de estado suave (por encima / dentro de / por debajo), valor del atleta en grande, Ref. mediana + rango Q1–Q3, y una **barra comparativa única** (ventana de rango sombreada + valor del atleta + marca de la mediana).
 
+## Asistente WADA
+
+- Al final de la app (tras el Disclaimer) hay un desplegable **«🤖 Asistente WADA»** (colapsado, estilo "Detalles del modelo") que, al desplegarse, **embebe el chatbot** alojado en el VPS (`http://187.127.250.68:7999/`, uvicorn, sin bloqueo de frames) mediante iframe de 650 px y un **botón de respaldo** «Abrir Asistente WADA en nueva pestaña» para entornos donde el iframe no pueda cargar (p. ej. desplegables en HTTPS por mixed content). Sin texto complementario.
+- Solo presentación; sin cambios en datos, `inference/` ni `performance_analysis.py`.
+
 ## Arquitectura
 
 `DATA (performance_data) → INFERENCE (inference) → ANALYSIS (performance_analysis) → PRESENTATION (app_performance + performance_ui)`. Task 12 solo tocó PRESENTATION.
